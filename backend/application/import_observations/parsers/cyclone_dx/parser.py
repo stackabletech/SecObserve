@@ -128,6 +128,16 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             data, components, component
                         )
 
+                        properties = component.json.get("properties", [])
+                        component_location = ""
+                        for property in properties:
+                            if property.get("name") == "syft:location:0:path":
+                                component_location = property.get("value")
+                                break
+                            elif property.get("name") == "aquasecurity:trivy:FilePath":
+                                component_location = property.get("value")
+                                break
+
                         observation = Observation(
                             title=title,
                             description=description,
@@ -147,6 +157,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_docker_image_tag=metadata.container_tag,
                             origin_docker_image_digest=metadata.container_digest,
                             origin_source_file=metadata.file,
+                            origin_component_location=component_location,
                         )
 
                         self._add_references(vulnerability, observation)
