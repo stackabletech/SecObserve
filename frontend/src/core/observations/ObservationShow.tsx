@@ -298,6 +298,11 @@ const ObservationShowComponent = () => {
                                                 <TextField source="origin_component_cpe" label="Component CPE" />
                                             </Labeled>
                                         )}
+                                        {observation.origin_component_location != "" && (
+                                            <Labeled>
+                                                <TextField source="origin_component_location" label="Component Location" />
+                                            </Labeled>
+                                        )}
                                     </Stack>
                                     {observation.origin_component_dependencies != "" && (
                                         <Labeled label="First component dependency" sx={{ marginTop: 2 }}>
