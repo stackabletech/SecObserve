@@ -123,6 +123,7 @@ LOCAL_APPS = [
     "application.issue_tracker",
     "application.metrics",
     "application.rules",
+    "application.vex",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -356,7 +357,7 @@ LOGGING = {
 # -------------------------------------------------------------------------------
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
-if env("OIDC_AUTHORITY"):
+if env.get_value("OIDC_AUTHORITY", default=None):
     DEFAULT_AUTHENTICATION_CLASSES = [
         "application.access_control.services.oidc_authentication.OIDCAuthentication",
         "application.access_control.services.api_token_authentication.APITokenAuthentication",
@@ -392,7 +393,7 @@ REST_FRAMEWORK = {
 }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
-# CORS_URLS_REGEX = r"^/api/.*$"
+CORS_EXPOSE_HEADERS = ("content-disposition",)
 
 # Your stuff...
 # ------------------------------------------------------------------------------
@@ -526,7 +527,7 @@ CONSTANCE_CONFIG = {
     ),
     "FEATURE_VEX": (
         False,
-        "Only for development - no meaningful functionality yet.",
+        "[EXPERIMENTAL] Generate VEX documents in OpenVEX and CSAF format",
         bool,
     ),
 }

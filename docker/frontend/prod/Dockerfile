@@ -18,7 +18,7 @@ RUN sed -i 's/version_unkown/'"${VERSION}"'/g' ./src/commons/about/About.tsx
 RUN npm run build
 
 # production environment
-FROM nginxinc/nginx-unprivileged:stable-alpine3.18@sha256:76d13e4fd794c0bd09b55aed82a6632aee2b489b0df3988ae30e0e49ba70cebb
+FROM nginxinc/nginx-unprivileged:stable-alpine3.18@sha256:1d2be43923cbb82947ef23d26a515a63830aa033c9283180db94cd3b18d1d92a
 
 USER root
 
@@ -29,7 +29,7 @@ RUN apk del curl && \
         npm i -g runtime-env-cra@0.2.4
 
 COPY --from=build /app/build /usr/share/nginx/html
-COPY ./frontend/.env.example /usr/share/nginx/html/.env
+COPY ./frontend/.env.no_oidc /usr/share/nginx/html/.env
 COPY ./frontend/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 ARG user=nginx
@@ -43,7 +43,7 @@ LABEL maintainer="stefan.fleckenstein@maibornwolff.de"
 
 LABEL org.opencontainers.image.authors="stefan.fleckenstein@maibornwolff.de"
 LABEL org.opencontainers.image.created=${CREATED}
-LABEL org.opencontainers.image.description="SecObserve is an open source vulnerability management system for software development teams."
+LABEL org.opencontainers.image.description="SecObserve is an open source vulnerability management system for software development and cloud environments."
 LABEL org.opencontainers.image.documentation="https://maibornwolff.github.io/SecObserve"
 LABEL org.opencontainers.image.licenses="BSD3-Clause"
 LABEL org.opencontainers.image.revision=${REVISION}

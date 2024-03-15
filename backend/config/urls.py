@@ -28,6 +28,12 @@ from application.metrics.api.views import (
     ProductMetricsStatusView,
     ProductMetricsTimelineView,
 )
+from application.vex.api.views import (
+    CSAFDocumentCreateView,
+    CSAFDocumentUpdateView,
+    OpenVEXDocumentCreateView,
+    OpenVEXDocumentUpdateView,
+)
 
 urlpatterns = [
     path("", empty_view),
@@ -94,6 +100,19 @@ urlpatterns += [
         "api/oa3/swagger-ui",
         SpectacularSwaggerSplitView.as_view(url="/api/oa3/schema/?format=json"),
         name="swagger-ui_oa3",
+    ),
+]
+
+urlpatterns += [
+    path("api/vex/csaf_document/create/", CSAFDocumentCreateView.as_view()),
+    path(
+        "api/vex/csaf_document/update/<str:document_id_prefix>/<str:document_base_id>/",
+        CSAFDocumentUpdateView.as_view(),
+    ),
+    path("api/vex/openvex_document/create/", OpenVEXDocumentCreateView.as_view()),
+    path(
+        "api/vex/openvex_document/update/<str:document_id_prefix>/<str:document_base_id>/",
+        OpenVEXDocumentUpdateView.as_view(),
     ),
 ]
 

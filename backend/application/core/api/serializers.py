@@ -1,7 +1,10 @@
+import re
+from decimal import Decimal
 from typing import Optional
 from urllib.parse import urlparse
 
 import validators
+from cvss import CVSS3, CVSSError
 from django.utils import timezone
 from packageurl import PackageURL
 from rest_framework.exceptions import PermissionDenied
@@ -36,6 +39,7 @@ from application.core.models import (
     Service,
 )
 from application.core.queries.product_member import get_product_member
+from application.core.services.observation import get_cvss3_severity
 from application.core.services.observation_log import create_observation_log
 from application.core.services.security_gate import check_security_gate
 from application.core.types import Severity, Status, VexJustification
@@ -275,6 +279,12 @@ class ProductSerializer(ProductCoreSerializer):
     def validate_notification_slack_webhook(self, repository_prefix: str) -> str:
         return _validate_url(repository_prefix)
 
+    def validate_purl(self, purl: str) -> str:
+        return _validate_purl(purl)
+
+    def validate_cpe23(self, cpe23: str) -> str:
+        return _validate_cpe23(cpe23)
+
 
 class NestedProductSerializer(ModelSerializer):
     permissions = SerializerMethodField()
@@ -364,6 +374,12 @@ class BranchSerializer(ModelSerializer):
     class Meta:
         model = Branch
         fields = "__all__"
+
+    def validate_purl(self, purl: str) -> str:
+        return _validate_purl(purl)
+
+    def validate_cpe23(self, cpe23: str) -> str:
+        return _validate_cpe23(cpe23)
 
     def get_name_with_product(self, obj: Service) -> str:
         return f"{obj.name} ({obj.product.name})"
@@ -602,6 +618,9 @@ class ObservationUpdateSerializer(ModelSerializer):
             raise ValidationError("Only manual observations can be updated")
 
         attrs["import_last_seen"] = timezone.now()
+
+        _validate_cvss_and_severity(attrs)
+
         return super().validate(attrs)
 
     def validate_branch(self, branch: Branch) -> Branch:
@@ -611,6 +630,9 @@ class ObservationUpdateSerializer(ModelSerializer):
             )
 
         return branch
+
+    def validate_cvss3_vector(self, cvss3_vector: str) -> str:
+        return _validate_cvss3_vector(cvss3_vector)
 
     def update(self, instance: Observation, validated_data: dict):
         actual_severity = instance.current_severity
@@ -687,6 +709,10 @@ class ObservationUpdateSerializer(ModelSerializer):
             "origin_cloud_account_subscription_project",
             "origin_cloud_resource",
             "origin_cloud_resource_type",
+            "vulnerability_id",
+            "cvss3_score",
+            "cvss3_vector",
+            "cwe",
         ]
 
 
@@ -702,7 +728,12 @@ class ObservationCreateSerializer(ModelSerializer):
                     "Branch does not belong to the same product as the observation"
                 )
 
+        _validate_cvss_and_severity(attrs)
+
         return super().validate(attrs)
+
+    def validate_cvss3_vector(self, cvss3_vector: str) -> str:
+        return _validate_cvss3_vector(cvss3_vector)
 
     def create(self, validated_data):
         observation: Observation = super().create(validated_data)
@@ -753,6 +784,10 @@ class ObservationCreateSerializer(ModelSerializer):
             "origin_cloud_account_subscription_project",
             "origin_cloud_resource",
             "origin_cloud_resource_type",
+            "vulnerability_id",
+            "cvss3_score",
+            "cvss3_vector",
+            "cwe",
         ]
 
 
@@ -854,3 +889,70 @@ def _validate_url(url: str) -> str:
         raise ValidationError("Not a valid URL")
 
     return url
+
+
+def _validate_cvss3_vector(cvss3_vector):
+    if cvss3_vector:
+        try:
+            cvss3 = CVSS3(cvss3_vector)
+            cvss3_vector = cvss3.clean_vector()
+        except CVSSError as e:
+            raise ValidationError(str(e))  # pylint: disable=raise-missing-from
+        # The CVSSError itself is not relevant and must not be re-raised
+
+    return cvss3_vector
+
+
+def _validate_cvss_and_severity(attrs):
+    base_score = None
+    if attrs.get("cvss3_vector"):
+        cvss3 = CVSS3(attrs.get("cvss3_vector"))
+        base_score = Decimal(cvss3.scores()[0]).quantize(Decimal(".0"))
+
+    cvss3_score = attrs.get("cvss3_score")
+    if cvss3_score is not None:
+        if base_score is not None and base_score != cvss3_score:
+            raise ValidationError(
+                f"Score from CVSS3 vector ({base_score}) is different than CVSS3 score ({cvss3_score})"
+            )
+    else:
+        attrs["cvss3_score"] = base_score
+
+    cvss3_score = attrs.get("cvss3_score")
+    cvss3_severity = (
+        get_cvss3_severity(cvss3_score) if cvss3_score is not None else None
+    )
+    parser_severity = attrs.get("parser_severity")
+
+    if parser_severity:
+        if parser_severity != cvss3_severity:
+            raise ValidationError(
+                f"Severity ({parser_severity}) is different than severity from CVSS3 score ({cvss3_severity})"
+            )
+    else:
+        if not cvss3_severity:
+            raise ValidationError(
+                "Either Severity, CVSS3 score or CVSS3 vector has to be set"
+            )
+
+
+def _validate_purl(purl: str) -> str:
+    if purl:
+        try:
+            PackageURL.from_string(purl)
+        except ValueError as e:
+            raise ValidationError(str(e))  # pylint: disable=raise-missing-from
+            # The initial exception is not really relevant, we only need its message
+
+    return purl
+
+
+def _validate_cpe23(cpe23: str) -> str:
+    if cpe23:
+        # Regex taken from https://csrc.nist.gov/schema/cpe/2.3/cpe-naming_2.3.xsd
+        if not re.match(
+            r"""cpe:2\.3:[aho\*\-](:(((\?*|\*?)([a-zA-Z0-9\-\._]|(\\[\\\*\?!"#$$%&'\(\)\+,/:;<=>@\[\]\^`\{\|}~]))+(\?*|\*?))|[\*\-])){5}(:(([a-zA-Z]{2,3}(-([a-zA-Z]{2}|[0-9]{3}))?)|[\*\-]))(:(((\?*|\*?)([a-zA-Z0-9\-\._]|(\\[\\\*\?!"#$$%&'\(\)\+,/:;<=>@\[\]\^`\{\|}~]))+(\?*|\*?))|[\*\-])){4}""",  # noqa: E501 pylint: disable=line-too-long
+            cpe23,
+        ):
+            raise ValidationError("Not a valid CPE 2.3")
+    return cpe23
