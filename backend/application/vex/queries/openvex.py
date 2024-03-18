@@ -5,16 +5,16 @@ from django.db.models.query import QuerySet
 
 from application.commons.services.global_request import get_current_user
 from application.core.models import Product_Member
-from application.vex.models import CSAF, CSAF_Branch, CSAF_Vulnerability
+from application.vex.models import OpenVEX, OpenVEX_Branch, OpenVEX_Vulnerability
 
 
-def get_csafs() -> QuerySet[CSAF]:
+def get_openvex_s() -> QuerySet[OpenVEX]:
     user = get_current_user()
 
     if user is None:
-        return CSAF.objects.none()
+        return OpenVEX.objects.none()
 
-    csafs = CSAF.objects.all()
+    openvex_s = OpenVEX.objects.all()
 
     if not user.is_superuser:
         product_members = Product_Member.objects.filter(
@@ -24,58 +24,63 @@ def get_csafs() -> QuerySet[CSAF]:
             product=OuterRef("product__product_group"), user=user
         )
 
-        csafs = csafs.annotate(
+        openvex_s = openvex_s.annotate(
             product__member=Exists(product_members),
             product__product_group__member=Exists(product_group_members),
         )
 
-        csafs = csafs.filter(
+        openvex_s = openvex_s.filter(
             Q(product__member=True)
             | Q(product__product_group__member=True)
             | (Q(product__isnull=True) & Q(user=user))
         )
 
-    return csafs
+    return openvex_s
 
 
-def get_csaf_by_document_id(
+def get_openvex_by_document_id(
     document_id_prefix: str, document_base_id: str
-) -> Optional[CSAF]:
+) -> Optional[OpenVEX]:
     user = get_current_user()
 
     if user is None:
         return None
 
     try:
-        csaf = CSAF.objects.get(
-            document_id_prefix=document_id_prefix, document_base_id=document_base_id
+        openvex = OpenVEX.objects.get(
+            document_id_prefix=document_id_prefix,
+            document_base_id=document_base_id,
         )
-        if not user.is_superuser and csaf not in get_csafs():
+        if not user.is_superuser and openvex not in get_openvex_s():
             return None
-        return csaf
-    except CSAF.DoesNotExist:
+        return openvex
+    except OpenVEX.DoesNotExist:
         return None
 
 
-def get_csaf_vulnerabilities() -> QuerySet[CSAF_Vulnerability]:
+def get_openvex_vulnerabilities() -> QuerySet[OpenVEX_Vulnerability]:
     user = get_current_user()
 
     if user is None:
-        return CSAF_Vulnerability.objects.none()
+        return OpenVEX_Vulnerability.objects.none()
 
     if user.is_superuser:
-        return CSAF_Vulnerability.objects.all().order_by("name")
+        return OpenVEX_Vulnerability.objects.all().order_by("name")
 
-    return CSAF_Vulnerability.objects.filter(csaf__in=get_csafs()).order_by("name")
+    return OpenVEX_Vulnerability.objects.filter(openvex__in=get_openvex_s()).order_by(
+        "name"
+    )
 
 
-def get_csaf_branches() -> QuerySet[CSAF_Branch]:
+def get_openvex_branches() -> QuerySet[OpenVEX_Branch]:
     user = get_current_user()
 
     if user is None:
-        return CSAF_Branch.objects.none()
+        return OpenVEX_Branch.objects.none()
 
     if user.is_superuser:
-        return CSAF_Branch.objects.all().order_by("branch__name")
+        return OpenVEX_Branch.objects.all().order_by("branch__name")
 
-    return CSAF_Branch.objects.filter(csaf__in=get_csafs()).order_by("branch__name")
+    return OpenVEX_Branch.objects.filter(openvex__in=get_openvex_s()).order_by(
+        "branch__name"
+    )
