@@ -143,6 +143,7 @@ export interface Observation extends RaRecord {
     parser_vex_justification: string;
     assessment_vex_justification: string;
     rule_vex_justification: string;
+    vex_remediations: string;
 }
 
 export const OBSERVATION_SEVERITY_CRITICAL = "Critical";
@@ -229,4 +230,18 @@ export const OBSERVATION_VEX_JUSTIFICATION_CHOICES = [
         id: OBSERVATION_VEX_JUSTIFICATION_INLINE_MITIGATIONS_ALREADY_EXIST,
         name: "Inline mitigations already exist",
     },
+];
+
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_MITIGATION = "mitigation";
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_NO_FIX_PLANNED = "no_fix_planned";
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_NONE_AVAILABLE = "none_available";
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_VENDOR_FIX = "vendor_fix";
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_WORKAROUND = "workaround";
+
+export const OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES = [
+    { id: OBSERVATION_VEX_REMEDIATION_CATEGORY_MITIGATION, name: "Mitigation" },
+    { id: OBSERVATION_VEX_REMEDIATION_CATEGORY_NO_FIX_PLANNED, name: "No fix planned" },
+    { id: OBSERVATION_VEX_REMEDIATION_CATEGORY_NONE_AVAILABLE, name: "None available" },
+    { id: OBSERVATION_VEX_REMEDIATION_CATEGORY_VENDOR_FIX, name: "Vendor fix" },
+    { id: OBSERVATION_VEX_REMEDIATION_CATEGORY_WORKAROUND, name: "Workaround" },
 ];

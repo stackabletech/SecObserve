@@ -17,6 +17,7 @@ from rest_framework.serializers import (
     Serializer,
     SerializerMethodField,
     ValidationError,
+    JSONField
 )
 
 from application.access_control.api.serializers import UserSerializer
@@ -42,7 +43,7 @@ from application.core.queries.product_member import get_product_member
 from application.core.services.observation import get_cvss3_severity
 from application.core.services.observation_log import create_observation_log
 from application.core.services.security_gate import check_security_gate
-from application.core.types import Severity, Status, VexJustification
+from application.core.types import Severity, Status, VexJustification, VexRemediationCategory
 from application.import_observations.types import Parser_Type
 from application.issue_tracker.services.issue_tracker import (
     issue_tracker_factory,
@@ -638,6 +639,7 @@ class ObservationUpdateSerializer(ModelSerializer):
         actual_severity = instance.current_severity
         actual_status = instance.current_status
         actual_vex_justification = instance.current_vex_justification
+        actual_vex_remediations = instance.vex_remediations
 
         instance.origin_component_name = ""
         instance.origin_component_version = ""
@@ -663,6 +665,11 @@ class ObservationUpdateSerializer(ModelSerializer):
         else:
             actual_vex_justification = ""
 
+        if actual_vex_remediations != observation.vex_remediations:
+            actual_vex_remediations = observation.vex_remediations
+        else:
+            actual_vex_remediations = ""
+
         if actual_severity or actual_status:
             create_observation_log(
                 observation,
@@ -670,6 +677,7 @@ class ObservationUpdateSerializer(ModelSerializer):
                 actual_status,
                 "Observation changed manually",
                 actual_vex_justification,
+                actual_vex_remediations
             )
 
         check_security_gate(observation.product)
@@ -799,6 +807,7 @@ class ObservationAssessmentSerializer(Serializer):
         required=False,
         allow_blank=True,
     )
+    vex_remediations = JSONField(required=False)
     comment = CharField(max_length=255, required=True)
 
 
@@ -824,6 +833,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
         required=False,
         allow_blank=True,
     )
+    vex_remediations = JSONField(required=False)
 
 
 class ObservationBulkMarkDuplicatesSerializer(Serializer):

@@ -9,6 +9,7 @@ import {
     OBSERVATION_STATUS_FALSE_POSITIVE,
     OBSERVATION_STATUS_NOT_AFFECTED,
     OBSERVATION_STATUS_NOT_SECURITY,
+    OBSERVATION_STATUS_RISK_ACCEPTED,
 } from "../core/types";
 import { getSettingTheme } from "./settings/functions";
 
@@ -133,4 +134,13 @@ export const justificationIsEnabledForStatus = (status: string) => {
             status
         ) >= 0;
     return vex_enabled && justification_recommended_for_status;
+};
+
+export const remediationsAreEnabledForStatus = (status: string) => {
+    const vex_enabled = feature_vex_enabled();
+    const remediations_recommended_for_status =
+        [OBSERVATION_STATUS_RISK_ACCEPTED].indexOf(
+            status
+        ) >= 0;
+    return vex_enabled && remediations_recommended_for_status;
 };

@@ -20,6 +20,7 @@ def save_assessment(
     new_status: Optional[str],
     comment: str,
     new_vex_justification: Optional[str],
+    new_vex_remediations: Optional[str],
 ) -> None:
     previous_severity = observation.current_severity
     previous_assessment_severity = observation.assessment_severity
@@ -50,6 +51,15 @@ def save_assessment(
         )
         log_vex_justification = observation.current_vex_justification
 
+    previous_vex_remediations = observation.vex_remediations
+    log_vex_remediations = ""
+    if (
+        new_vex_remediations
+        and new_vex_remediations != observation.vex_remediations
+    ):
+        observation.vex_remediations = new_vex_remediations
+        log_vex_remediations = observation.vex_remediations
+
     if (
         previous_severity  # pylint: disable=too-many-boolean-expressions
         != observation.current_severity
@@ -59,6 +69,7 @@ def save_assessment(
         or previous_vex_justification != observation.current_vex_justification
         or previous_assessment_vex_justification
         != observation.assessment_vex_justification
+        or previous_vex_remediations != observation.vex_remediations
     ):
         observation.save()
 
@@ -66,9 +77,10 @@ def save_assessment(
         previous_severity != observation.current_severity
         or previous_status != observation.current_status
         or previous_vex_justification != observation.current_vex_justification
+        or previous_vex_remediations != observation.vex_remediations
     ):
         create_observation_log(
-            observation, log_severity, log_status, comment, log_vex_justification
+            observation, log_severity, log_status, comment, log_vex_justification, log_vex_remediations
         )
 
     check_security_gate(observation.product)
@@ -80,6 +92,7 @@ def remove_assessment(observation: Observation, comment: str) -> None:
         observation.assessment_severity = ""
         observation.assessment_status = ""
         observation.assessment_vex_justification = ""
+        observation.vex_remediations = ""
         observation.current_severity = get_current_severity(observation)
         observation.current_status = get_current_status(observation)
         observation.current_vex_justification = get_current_vex_justification(

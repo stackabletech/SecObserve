@@ -215,6 +215,7 @@ class ProductViewSet(ModelViewSet):
             request_serializer.validated_data.get("comment"),
             request_serializer.validated_data.get("observations"),
             request_serializer.validated_data.get("vex_justification"),
+            request_serializer.validated_data.get("vex_remediations"),
         )
         return Response(status=HTTP_204_NO_CONTENT)
 
@@ -399,9 +400,12 @@ class ObservationViewSet(ModelViewSet):
         new_vex_justification = request_serializer.validated_data.get(
             "vex_justification"
         )
+        new_vex_remediations = request_serializer.validated_data.get(
+            "vex_remediations"
+        )
 
         save_assessment(
-            observation, new_severity, new_status, comment, new_vex_justification
+            observation, new_severity, new_status, comment, new_vex_justification, new_vex_remediations
         )
         set_potential_duplicate_both_ways(observation)
 

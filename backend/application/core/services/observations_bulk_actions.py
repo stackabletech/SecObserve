@@ -20,11 +20,12 @@ def observations_bulk_assessment(
     comment: str,
     observation_ids: list[int],
     new_vex_justification: str,
+    new_vex_remediations: str,
 ) -> None:
     observations = _check_observations(product, observation_ids)
     for observation in observations:
         save_assessment(
-            observation, new_severity, new_status, comment, new_vex_justification
+            observation, new_severity, new_status, comment, new_vex_justification, new_vex_remediations
         )
 
 

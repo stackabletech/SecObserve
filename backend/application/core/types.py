@@ -69,3 +69,18 @@ class VexJustification:
         ),
         (STATUS_INLINE_MITIGATIONS_ALREADY_EXIST, "Inline mitigations already exist"),
     ]
+
+class VexRemediationCategory:
+    VEX_REMEDIATION_CATEGORY_MITIGATION = "mitigation"
+    VEX_REMEDIATION_CATEGORY_NO_FIX_PLANNED = "no_fix_planned"
+    VEX_REMEDIATION_CATEGORY_NONE_AVAILABLE = "none_available"
+    VEX_REMEDIATION_CATEGORY_VENDOR_FIX = "vendor_fix"
+    VEX_REMEDIATION_CATEGORY_WORKAROUND = "workaround"
+
+    VEX_REMEDIATION_CATEGORY_CHOICES = [
+        (VEX_REMEDIATION_CATEGORY_MITIGATION, "Mitigation"),
+        (VEX_REMEDIATION_CATEGORY_NO_FIX_PLANNED, "No fix planned"),
+        (VEX_REMEDIATION_CATEGORY_NONE_AVAILABLE, "None available"),
+        (VEX_REMEDIATION_CATEGORY_VENDOR_FIX, "Vendor fix"),
+        (VEX_REMEDIATION_CATEGORY_WORKAROUND, "Workaround"),
+    ]

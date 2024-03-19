@@ -5,7 +5,7 @@ import { Fragment, useState } from "react";
 import { SaveButton, SimpleForm, Toolbar, useNotify, useRefresh } from "react-admin";
 
 import { validate_required, validate_required_255 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus } from "../../commons/functions";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {
@@ -13,12 +13,14 @@ import {
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
+    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../types";
 
 const ObservationAssessment = () => {
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
+    const remediationsEnabled = remediationsAreEnabledForStatus(status);
     const refresh = useRefresh();
     const notify = useNotify();
     const observationUpdate = async (data: any) => {
@@ -26,6 +28,7 @@ const ObservationAssessment = () => {
             severity: data.current_severity,
             status: data.current_status,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
+            vex_remediations: remediationsEnabled ? { category: data.vex_remediations } : "", //TODO: make array of objects with category and text
             comment: data.comment,
         };
 
@@ -112,6 +115,13 @@ const ObservationAssessment = () => {
                                 source="current_vex_justification"
                                 label="VEX justification"
                                 choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
+                            />
+                        )}
+                        {remediationsEnabled && (
+                            <AutocompleteInputMedium
+                                source="vex_remediations"
+                                label="VEX remediations"
+                                choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
                             />
                         )}
                         <TextInputWide source="comment" validate={validate_required_255} />

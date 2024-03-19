@@ -15,6 +15,7 @@ from django.db.models import (
     Model,
     TextField,
 )
+from django.db.models.fields.json import JSONField;
 from django.utils import timezone
 
 from application.access_control.models import User
@@ -488,6 +489,7 @@ class Observation(Model):
     duplicate_of = ForeignKey(
         "self", related_name="duplicates", on_delete=PROTECT, null=True
     )
+    vex_remediations = JSONField(blank=True, null=True)
 
     class Meta:
         indexes = [
@@ -538,6 +540,7 @@ class Observation_Log(Model):
     vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
+    vex_remediations = JSONField(blank=True, null=True)
 
     class Meta:
         indexes = [
