@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("core", "0034_branch_cpe23_branch_purl"),
         ("core", "0034_observation_origin_component_location"),

@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0035_merge_20240315_1109'),
+        ("core", "0035_merge_20240315_1109"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='observation',
-            name='vex_remediations',
+            model_name="observation",
+            name="vex_remediations",
             field=models.JSONField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='observation_log',
-            name='vex_remediations',
+            model_name="observation_log",
+            name="vex_remediations",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

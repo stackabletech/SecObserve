@@ -15,7 +15,7 @@ from django.db.models import (
     Model,
     TextField,
 )
-from django.db.models.fields.json import JSONField;
+from django.db.models.fields.json import JSONField
 from django.utils import timezone
 
 from application.access_control.models import User

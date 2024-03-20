@@ -184,7 +184,7 @@ class Rule_Engine:
             comment = f"Updated by general rule {rule.name}"
 
         create_observation_log(
-            observation, severity, status, comment, vex_justification
+            observation, severity, status, comment, vex_justification, ""
         )
 
     # Write observation and observation log if status or severity has been changed
@@ -227,5 +227,5 @@ class Rule_Engine:
             comment = "Removed unkown rule"
 
         create_observation_log(
-            observation, severity, status, comment, vex_justification
+            observation, severity, status, comment, vex_justification, ""
         )

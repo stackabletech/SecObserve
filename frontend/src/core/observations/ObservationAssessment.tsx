@@ -2,7 +2,16 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { ArrayInput, SaveButton, SimpleForm, SimpleFormIterator, Toolbar, useNotify, useRecordContext, useRefresh } from "react-admin";
+import {
+    ArrayInput,
+    SaveButton,
+    SimpleForm,
+    SimpleFormIterator,
+    Toolbar,
+    useNotify,
+    useRecordContext,
+    useRefresh,
+} from "react-admin";
 
 import { validate_required, validate_required_255 } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
@@ -11,7 +20,6 @@ import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
-    OBSERVATION_STATUS_OPEN,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../types";

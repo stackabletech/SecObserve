@@ -12,12 +12,12 @@ from rest_framework.serializers import (
     CharField,
     ChoiceField,
     IntegerField,
+    JSONField,
     ListField,
     ModelSerializer,
     Serializer,
     SerializerMethodField,
     ValidationError,
-    JSONField
 )
 
 from application.access_control.api.serializers import UserSerializer
@@ -43,7 +43,7 @@ from application.core.queries.product_member import get_product_member
 from application.core.services.observation import get_cvss3_severity
 from application.core.services.observation_log import create_observation_log
 from application.core.services.security_gate import check_security_gate
-from application.core.types import Severity, Status, VexJustification, VexRemediationCategory
+from application.core.types import Severity, Status, VexJustification
 from application.import_observations.types import Parser_Type
 from application.issue_tracker.services.issue_tracker import (
     issue_tracker_factory,
@@ -478,10 +478,10 @@ class EvidenceSerializer(ModelSerializer):
 
 
 class NestedObservationIdSerializer(ModelSerializer):
-
     class Meta:
         model = Observation
         fields = ["id"]
+
 
 class ObservationSerializer(ModelSerializer):
     product_data = NestedProductSerializer(source="product")
@@ -677,7 +677,7 @@ class ObservationUpdateSerializer(ModelSerializer):
                 actual_status,
                 "Observation changed manually",
                 actual_vex_justification,
-                actual_vex_remediations
+                actual_vex_remediations,
             )
 
         check_security_gate(observation.product)
@@ -752,6 +752,7 @@ class ObservationCreateSerializer(ModelSerializer):
             observation.current_status,
             "Observation created manually",
             observation.current_vex_justification,
+            observation.vex_remediations,
         )
 
         check_security_gate(observation.product)

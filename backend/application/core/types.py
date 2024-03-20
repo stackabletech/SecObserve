@@ -72,6 +72,7 @@ class VexJustification:
         (STATUS_INLINE_MITIGATIONS_ALREADY_EXIST, "Inline mitigations already exist"),
     ]
 
+
 class VexRemediationCategory:
     VEX_REMEDIATION_CATEGORY_MITIGATION = "mitigation"
     VEX_REMEDIATION_CATEGORY_NO_FIX_PLANNED = "no_fix_planned"

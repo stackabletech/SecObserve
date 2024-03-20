@@ -13,6 +13,7 @@ from application.issue_tracker.services.issue_tracker import (
 )
 
 
+# pylint: disable=too-many-arguments
 def observations_bulk_assessment(
     product: Product,
     new_severity: str,
@@ -25,7 +26,12 @@ def observations_bulk_assessment(
     observations = _check_observations(product, observation_ids)
     for observation in observations:
         save_assessment(
-            observation, new_severity, new_status, comment, new_vex_justification, new_vex_remediations
+            observation,
+            new_severity,
+            new_status,
+            comment,
+            new_vex_justification,
+            new_vex_remediations,
         )
 
 
@@ -83,7 +89,7 @@ def observations_bulk_mark_duplicates(
     for duplicate in duplicates:
         duplicate.has_potential_duplicates = False
         duplicate.duplicate_of = observation
-        save_assessment(duplicate, None, Status.STATUS_DUPLICATE, comment, "")
+        save_assessment(duplicate, None, Status.STATUS_DUPLICATE, comment, "", "")
 
     set_potential_duplicate(observation)
 

@@ -21,6 +21,7 @@
             python310Packages.pymysql
             python310Packages.whitenoise
             python310Packages.djangorestframework
+            python310Packages.pylint
             libargon2
             nodejs_21
           ];

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("vex", "0003_alter_csaf_document_base_id_alter_csaf_document_id_and_more"),
     ]

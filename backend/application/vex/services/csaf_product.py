@@ -16,7 +16,6 @@ def append_product_to_product_tree(
     product: Product,
     branch: Optional[Branch],
 ) -> None:
-
     found = False
     for product_family_branch in product_tree.branches:
         if product_family_branch.name == product.name:

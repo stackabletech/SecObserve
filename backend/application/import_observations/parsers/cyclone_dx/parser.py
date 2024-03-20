@@ -3,6 +3,7 @@ from json import dumps, load
 from typing import Optional
 
 from django.core.files.base import File
+from trycast import trycast
 
 from application.core.models import Observation
 from application.core.types import Severity
@@ -128,15 +129,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             data, components, component
                         )
 
-                        properties = component.json.get("properties", [])
-                        component_location = ""
-                        for property in properties:
-                            if property.get("name") == "syft:location:0:path":
-                                component_location = property.get("value")
-                                break
-                            elif property.get("name") == "aquasecurity:trivy:FilePath":
-                                component_location = property.get("value")
-                                break
+                        component_location = self._get_component_location(
+                            component.json
+                        )
 
                         observation = Observation(
                             title=title,
@@ -339,9 +334,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     self._get_bom_ref_name_version(dependency, components)
                 )
             translated_component_dependencies_inner.sort()
-            translated_component_dependency[
-                "dependsOn"
-            ] = translated_component_dependencies_inner
+            translated_component_dependency["dependsOn"] = (
+                translated_component_dependencies_inner
+            )
 
             translated_component_dependencies.append(translated_component_dependency)
 
@@ -387,6 +382,18 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                 break
 
         return dependencies
+
+    def _get_component_location(self, component_json: dict[str, str]) -> str:
+        properties_as_dict = trycast(
+            dict[str, dict[str, str]], component_json.get("properties", "")
+        )
+        if properties_as_dict is not None:
+            for prop in properties_as_dict.values():
+                if prop.get("name") == "syft:location:0:path":
+                    return prop.get("value")
+                if prop.get("name") == "aquasecurity:trivy:FilePath":
+                    return prop.get("value")
+        return ""
 
     # def _get_dependencies(
     #     self,

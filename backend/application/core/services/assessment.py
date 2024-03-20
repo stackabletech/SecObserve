@@ -53,10 +53,7 @@ def save_assessment(
 
     previous_vex_remediations = observation.vex_remediations
     log_vex_remediations = ""
-    if (
-        new_vex_remediations
-        and new_vex_remediations != observation.vex_remediations
-    ):
+    if new_vex_remediations and new_vex_remediations != observation.vex_remediations:
         observation.vex_remediations = new_vex_remediations
         log_vex_remediations = observation.vex_remediations
 
@@ -80,7 +77,12 @@ def save_assessment(
         or previous_vex_remediations != observation.vex_remediations
     ):
         create_observation_log(
-            observation, log_severity, log_status, comment, log_vex_justification, log_vex_remediations
+            observation,
+            log_severity,
+            log_status,
+            comment,
+            log_vex_justification,
+            log_vex_remediations,
         )
 
     check_security_gate(observation.product)
@@ -99,7 +101,7 @@ def remove_assessment(observation: Observation, comment: str) -> None:
             observation
         )
 
-        create_observation_log(observation, "", "", comment, "")
+        create_observation_log(observation, "", "", comment, "", "")
 
         check_security_gate(observation.product)
         push_observation_to_issue_tracker(observation, get_current_user())

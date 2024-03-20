@@ -124,13 +124,15 @@ const ObservationShowComponent = () => {
                                 )}
                                 {observation.assessment_status != "" && (
                                     <Labeled>
-                                        {observation.assessment_status == 'Duplicate' && observation.duplicate_of ? (
-                                        <TextUrlField
-                                            label="Assessment status"
-                                            text={'Duplicate of '+observation.duplicate_of}
-                                            url={'#/observations/'+observation.duplicate_of+'/show'}
-                                        />
-                                        ) : (<TextField source="assessment_status" />)}
+                                        {observation.assessment_status == "Duplicate" && observation.duplicate_of ? (
+                                            <TextUrlField
+                                                label="Assessment status"
+                                                text={"Duplicate of " + observation.duplicate_of}
+                                                url={"#/observations/" + observation.duplicate_of + "/show"}
+                                            />
+                                        ) : (
+                                            <TextField source="assessment_status" />
+                                        )}
                                     </Labeled>
                                 )}
                             </Stack>
@@ -300,7 +302,10 @@ const ObservationShowComponent = () => {
                                         )}
                                         {observation.origin_component_location != "" && (
                                             <Labeled>
-                                                <TextField source="origin_component_location" label="Component Location" />
+                                                <TextField
+                                                    source="origin_component_location"
+                                                    label="Component Location"
+                                                />
                                             </Labeled>
                                         )}
                                     </Stack>

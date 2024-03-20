@@ -6,6 +6,7 @@ import { PolarArea } from "react-chartjs-2";
 
 import { httpClient } from "../commons/ra-data-django-rest-framework";
 import {
+    OBSERVATION_STATUS_AFFECTED,
     OBSERVATION_STATUS_DUPLICATE,
     OBSERVATION_STATUS_FALSE_POSITIVE,
     OBSERVATION_STATUS_IN_REVIEW,
@@ -14,7 +15,6 @@ import {
     OBSERVATION_STATUS_OPEN,
     OBSERVATION_STATUS_RESOLVED,
     OBSERVATION_STATUS_RISK_ACCEPTED,
-    OBSERVATION_STATUS_AFFECTED,
 } from "../core/types";
 import { getBackgroundColor, getElevation, getFontColor, getGridColor } from "./functions";
 

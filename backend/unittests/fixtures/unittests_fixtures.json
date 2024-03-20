@@ -771,7 +771,8 @@
             "in_review": 11,
             "not_affected": 12,
             "not_security": 13,
-            "risk_accepted": 14
+            "risk_accepted": 14,
+            "affected": 15
         }
     },
     {
@@ -793,7 +794,8 @@
             "in_review": 12,
             "not_affected": 13,
             "not_security": 14,
-            "risk_accepted": 15
+            "risk_accepted": 15,
+            "affected": 16
         }
     },
     {
@@ -815,7 +817,8 @@
             "in_review": 14,
             "not_affected": 15,
             "not_security": 16,
-            "risk_accepted": 17
+            "risk_accepted": 17,
+            "affected": 18
         }
     },
     {
@@ -837,7 +840,8 @@
             "in_review": 15,
             "not_affected": 16,
             "not_security": 17,
-            "risk_accepted": 18
+            "risk_accepted": 18,
+            "affected": 19
         }
     },
     {
