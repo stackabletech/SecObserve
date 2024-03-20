@@ -2,7 +2,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { SaveButton, SimpleForm, Toolbar, useNotify, useRefresh } from "react-admin";
+import { ArrayInput, SaveButton, SimpleForm, SimpleFormIterator, Toolbar, useNotify, useRecordContext, useRefresh } from "react-admin";
 
 import { validate_required, validate_required_255 } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
@@ -17,8 +17,9 @@ import {
 } from "../types";
 
 const ObservationAssessment = () => {
+    const observation = useRecordContext();
     const [open, setOpen] = useState(false);
-    const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
+    const [status, setStatus] = useState(observation.current_status);
     const justificationEnabled = justificationIsEnabledForStatus(status);
     const remediationsEnabled = remediationsAreEnabledForStatus(status);
     const refresh = useRefresh();
@@ -28,7 +29,7 @@ const ObservationAssessment = () => {
             severity: data.current_severity,
             status: data.current_status,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
-            vex_remediations: remediationsEnabled ? { category: data.vex_remediations } : "", //TODO: make array of objects with category and text
+            vex_remediations: remediationsEnabled ? data.vex_remediations : "",
             comment: data.comment,
         };
 
@@ -118,11 +119,16 @@ const ObservationAssessment = () => {
                             />
                         )}
                         {remediationsEnabled && (
-                            <AutocompleteInputMedium
-                                source="vex_remediations"
-                                label="VEX remediations"
-                                choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
-                            />
+                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
+                                <SimpleFormIterator disableReordering inline>
+                                    <AutocompleteInputMedium
+                                        source="category"
+                                        label=""
+                                        choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                                    />
+                                    <TextInputWide source="text" />
+                                </SimpleFormIterator>
+                            </ArrayInput>
                         )}
                         <TextInputWide source="comment" validate={validate_required_255} />
                     </SimpleForm>
