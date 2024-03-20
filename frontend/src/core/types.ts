@@ -170,6 +170,7 @@ export const OBSERVATION_STATUS_IN_REVIEW = "In review";
 export const OBSERVATION_STATUS_NOT_AFFECTED = "Not affected";
 export const OBSERVATION_STATUS_NOT_SECURITY = "Not security";
 export const OBSERVATION_STATUS_RISK_ACCEPTED = "Risk accepted";
+export const OBSERVATION_STATUS_AFFECTED = "Affected";
 
 export const OBSERVATION_STATUS_CHOICES = [
     { id: OBSERVATION_STATUS_OPEN, name: OBSERVATION_STATUS_OPEN },
@@ -191,6 +192,10 @@ export const OBSERVATION_STATUS_CHOICES = [
     {
         id: OBSERVATION_STATUS_RISK_ACCEPTED,
         name: OBSERVATION_STATUS_RISK_ACCEPTED,
+    },
+    {
+        id: OBSERVATION_STATUS_AFFECTED,
+        name: OBSERVATION_STATUS_AFFECTED,
     },
 ];
 

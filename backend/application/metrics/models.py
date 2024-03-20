@@ -30,6 +30,7 @@ class Product_Metrics(Model):
     not_affected = IntegerField(default=0)
     not_security = IntegerField(default=0)
     risk_accepted = IntegerField(default=0)
+    affected = IntegerField(default=0)
 
     class Meta:
         unique_together = (

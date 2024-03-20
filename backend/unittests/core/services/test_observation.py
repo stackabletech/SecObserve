@@ -403,6 +403,7 @@ def _get_excludes():
         "STATUS_OPEN",
         "STATUS_RESOLVED",
         "STATUS_RISK_ACCEPTED",
+        "STATUS_AFFECTED",
         "parser",
         "product",
         "identity_hash",

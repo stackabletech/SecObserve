@@ -53,6 +53,7 @@ def calculate_metrics_for_product(  # pylint: disable=too-many-branches
                 not_affected=latest_product_metrics.not_affected,
                 not_security=latest_product_metrics.not_security,
                 risk_accepted=latest_product_metrics.risk_accepted,
+                affected=latest_product_metrics.affected,
             )
             iteration_date += timedelta(days=1)
     else:
@@ -76,6 +77,7 @@ def calculate_metrics_for_product(  # pylint: disable=too-many-branches
                 "not_affected": 0,
                 "not_security": 0,
                 "risk_accepted": 0,
+                "affected": 0,
             },
         )[0]
 
@@ -113,6 +115,8 @@ def calculate_metrics_for_product(  # pylint: disable=too-many-branches
                 todays_product_metrics.not_security += 1
             elif observation.get("current_status") == Status.STATUS_RISK_ACCEPTED:
                 todays_product_metrics.risk_accepted += 1
+            elif observation.get("current_status") == Status.STATUS_AFFECTED:
+                todays_product_metrics.affected += 1
 
         todays_product_metrics.save()
 
@@ -185,6 +189,9 @@ def get_product_metrics_timeline(product: Optional[Product], age: str) -> dict:
             response_metric["risk_accepted"] = (
                 response_metric.get("risk_accepted", 0) + product_metric.risk_accepted
             )
+            response_metric["affected"] = (
+                response_metric.get("affected", 0) + product_metric.affected
+            )
             response_data[product_metric.date.isoformat()] = response_metric
         else:
             response_metric = {}
@@ -202,6 +209,7 @@ def get_product_metrics_timeline(product: Optional[Product], age: str) -> dict:
             response_metric["not_affected"] = product_metric.not_affected
             response_metric["not_security"] = product_metric.not_security
             response_metric["risk_accepted"] = product_metric.risk_accepted
+            response_metric["affected"] = product_metric.affected
             response_data[product_metric.date.isoformat()] = response_metric
     return response_data
 
@@ -231,6 +239,7 @@ def get_product_metrics_current(product: Optional[Product]) -> dict:
             response_data["not_affected"] += product_metric.not_affected
             response_data["not_security"] += product_metric.not_security
             response_data["risk_accepted"] += product_metric.risk_accepted
+            response_data["affected"] += product_metric.affected
 
     return response_data
 
@@ -251,6 +260,7 @@ def _initialize_response_data() -> dict:
     response_data["not_affected"] = 0
     response_data["not_security"] = 0
     response_data["risk_accepted"] = 0
+    response_data["affected"] = 0
     return response_data
 
 

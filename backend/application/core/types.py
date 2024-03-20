@@ -34,6 +34,7 @@ class Status:
     STATUS_NOT_AFFECTED = "Not affected"
     STATUS_NOT_SECURITY = "Not security"
     STATUS_RISK_ACCEPTED = "Risk accepted"
+    STATUS_AFFECTED = "Affected"
 
     STATUS_CHOICES = [
         (STATUS_OPEN, STATUS_OPEN),
@@ -44,6 +45,7 @@ class Status:
         (STATUS_NOT_AFFECTED, STATUS_NOT_AFFECTED),
         (STATUS_NOT_SECURITY, STATUS_NOT_SECURITY),
         (STATUS_RISK_ACCEPTED, STATUS_RISK_ACCEPTED),
+        (STATUS_AFFECTED, STATUS_AFFECTED),
     ]
 
 
