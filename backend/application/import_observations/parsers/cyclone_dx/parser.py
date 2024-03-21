@@ -266,3 +266,15 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             evidence.append("Dependencies")
             evidence.append(dumps(translated_component_dependencies))
             observation.unsaved_evidences.append(evidence)
+
+    def _get_component_location(self, component_json: dict[str, str]) -> str:
+        properties_as_dict = trycast(
+            dict[str, dict[str, str]], component_json.get("properties", "")
+        )
+        if properties_as_dict is not None:
+            for prop in properties_as_dict.values():
+                if prop.get("name") == "syft:location:0:path":
+                    return prop.get("value")
+                if prop.get("name") == "aquasecurity:trivy:FilePath":
+                    return prop.get("value")
+        return ""
