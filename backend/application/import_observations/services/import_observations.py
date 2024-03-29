@@ -29,7 +29,7 @@ from application.core.services.observation_log import create_observation_log
 from application.core.services.potential_duplicates import find_potential_duplicates
 from application.core.services.product import set_repository_default_branch
 from application.core.services.security_gate import check_security_gate
-from application.core.types import Status
+from application.core.types import Assessment_Status, Status
 from application.epss.services.epss import epss_apply_observation
 from application.import_observations.models import (
     Api_Configuration,
@@ -378,7 +378,13 @@ def _process_current_observation(
             severity = ""
 
         create_observation_log(
-            observation_before, severity, status, "Updated by parser", "", ""
+            observation_before,
+            severity,
+            status,
+            "Updated by parser",
+            "",
+            "",
+            Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         )
 
 
@@ -419,6 +425,7 @@ def _process_new_observation(imported_observation: Observation) -> None:
         "Set by parser",
         "",
         "",
+        Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
     )
 
 
@@ -447,6 +454,7 @@ def _resolve_unimported_observations(
                 "Observation not found in latest scan",
                 "",
                 "",
+                Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
             )
 
     return observations_resolved
