@@ -148,3 +148,7 @@ export const remediationsAreEnabledForStatus = (status: string) => {
         [OBSERVATION_STATUS_RISK_ACCEPTED, OBSERVATION_STATUS_AFFECTED].indexOf(status) >= 0;
     return vex_enabled && remediations_recommended_for_status;
 };
+export const is_superuser = () => {
+    const user = localStorage.getItem("user");
+    return user && JSON.parse(user).is_superuser;
+};

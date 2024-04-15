@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from json import dumps, load
 from typing import Optional
 
@@ -14,17 +13,8 @@ from application.import_observations.parsers.base_parser import (
 from application.import_observations.parsers.cyclone_dx.dependencies import (
     get_component_dependencies,
 )
-from application.import_observations.parsers.cyclone_dx.types import Component
+from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
 from application.import_observations.types import Parser_Type
-
-
-@dataclass
-class Metadata:
-    scanner: str
-    container_name: str
-    container_tag: str
-    container_digest: str
-    file: str
 
 
 class CycloneDXParser(BaseParser, BaseFileParser):
@@ -118,7 +108,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                         (
                             observation_component_dependencies,
                             translated_component_dependencies,
-                        ) = get_component_dependencies(data, components, component)
+                        ) = get_component_dependencies(
+                            data, components, component, metadata
+                        )
 
                         component_location = self._get_component_location(
                             component.json

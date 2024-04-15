@@ -1,7 +1,7 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import BasePermission
 
-from application.access_control.api.permissions import (
+from application.access_control.api.permissions_base import (
     check_object_permission,
     check_post_permission,
 )
@@ -129,6 +129,9 @@ class UserHasServicePermission(BasePermission):
 
 class UserHasObservationPermission(BasePermission):
     def has_permission(self, request, view):
+        if request.path.endswith("/bulk_assessment/"):
+            return True
+
         return check_post_permission(
             request, Product, "product", Permissions.Observation_Create
         )

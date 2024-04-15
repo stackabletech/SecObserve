@@ -1,5 +1,5 @@
 # build environment
-FROM node:20.12.0-alpine3.19@sha256:ef3f47741e161900ddd07addcaca7e76534a9205e4cd73b2ed091ba339004a75 as build
+FROM node:20.12.2-alpine3.19@sha256:ec0c413b1d84f3f7f67ec986ba885930c57b5318d2eb3abc6960ee05d4f2eb28 as build
 
 ARG VERSION=unkown
 
@@ -18,7 +18,7 @@ RUN sed -i 's/version_unkown/'"${VERSION}"'/g' ./src/commons/about/About.tsx
 RUN npm run build
 
 # production environment
-FROM nginxinc/nginx-unprivileged:stable-alpine3.18@sha256:2c203600ca6257c503caa61c1e08d05a67f75e7d0c85b1be9c10d8c1d0780d91
+FROM nginxinc/nginx-unprivileged:stable-alpine3.18@sha256:a3750906c42187288338731393229e7c81d68935d57bd794855b24ed200d71eb
 
 USER root
 
@@ -63,7 +63,7 @@ RUN chown -R ${user}:${group} /usr/share/nginx/html && \
         chown -R ${user}:${group} /var/run/nginx.pid
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=10s --retries=3 \
-    CMD wget -nv -t1 --spider 'http://localhost:3000/#/login' || exit 1
+    CMD wget -nv -t1 --spider 'http://127.0.0.1:3000/#/login' || exit 1
 
 EXPOSE 3000
 

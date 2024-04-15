@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "SecObserve"
-version = "1.10.0"
+version = "1.11.0"
 description = "SecObserve is an open source vulnerability management system for software development and cloud environments."
 license = "BSD-3-Clause"
 authors = [
@@ -13,7 +13,7 @@ python = ">= 3.10, < 3.13"
 # ------------------------------------------------------------------------------
 django = "4.2.11"  # https://www.djangoproject.com/
 django-environ = "0.11.2"  # https://github.com/joke2k/django-environ
-django-filter = "24.2"  # https://github.com/carltongibson/django-filter 
+django-filter = "24.2"  # https://github.com/carltongibson/django-filter
 django-csp = "3.8"  # https://github.com/mozilla/django-csp
 django-constance = { version = "3.1.0", extras = ["database"] }  # https://github.com/jazzband/django-constance
 django-encrypted-model-fields = "0.6.5"  # https://gitlab.com/lansharkconsulting/django/django-encrypted-model-fields
@@ -53,9 +53,9 @@ jira = "3.8.0"  # https://github.com/pycontribs/jira
 # Others
 # ------------------------------------------------------------------------------
 inflect = "7.2.0"  # https://github.com/jaraco/inflect
-validators = "0.24.0"  # https://github.com/python-validators/validators
-cvss = "3.0"  # https://github.com/RedHatProductSecurity/cvss
-jsonpickle = "3.0.3"  # https://github.com/jsonpickle/jsonpickle
+validators = "0.28.0"  # https://github.com/python-validators/validators
+cvss = "3.1"  # https://github.com/RedHatProductSecurity/cvss
+jsonpickle = "3.0.4"  # https://github.com/jsonpickle/jsonpickle
 trycast = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -66,7 +66,7 @@ watchgod = "0.8.2"  # https://github.com/samuelcolvin/watchgod
 # ------------------------------------------------------------------------------
 flake8 = "7.0.0"  # https://github.com/PyCQA/flake8
 flake8-isort = "6.1.1"  # https://github.com/gforcada/flake8-isort
-black = "24.3.0"  # https://github.com/psf/black
+black = "24.4.0"  # https://github.com/psf/black
 pylint-django = "2.5.5"  # https://github.com/PyCQA/pylint-django
 pre-commit = "3.7.0"  # https://github.com/pre-commit/pre-commit
 mypy = "1.9.0"  # https://github.com/python/mypy
