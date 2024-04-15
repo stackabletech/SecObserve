@@ -462,6 +462,10 @@ class Observation(Model):
         null=True,
         validators=[MinValueValidator(Decimal(0)), MaxValueValidator(Decimal(100))],
     )
+    stackable_score = DecimalField(
+        decimal_places=3,
+        null=True,
+    )
     found = DateField(null=True)
     scanner = CharField(max_length=255, blank=True)
     upload_filename = CharField(max_length=255, blank=True)
