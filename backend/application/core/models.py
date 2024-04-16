@@ -463,6 +463,7 @@ class Observation(Model):
         validators=[MinValueValidator(Decimal(0)), MaxValueValidator(Decimal(100))],
     )
     stackable_score = DecimalField(
+        max_digits=12,
         decimal_places=3,
         null=True,
     )
@@ -526,6 +527,7 @@ class Observation(Model):
             Index(fields=["origin_cloud_qualified_resource"]),
             Index(fields=["last_observation_log"]),
             Index(fields=["epss_score"]),
+            Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
         ]
 

@@ -494,7 +494,7 @@ class ObservationViewSet(ModelViewSet):
 
         return Response()
 
-    @extend_schema( 
+    @extend_schema(
         methods=["POST"],
         request=ObservationBulkAssessmentSerializer,
         responses={HTTP_204_NO_CONTENT: None},

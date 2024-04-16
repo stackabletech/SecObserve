@@ -98,6 +98,7 @@ const ObservationList = () => {
                     <SeverityField source="current_severity" />
                     <ChipField source="current_status" label="Status" />
                     <NumberField source="epss_score" label="EPSS" />
+                    <NumberField source="stackable_score" label="Stackable Score" />
                     <TextField source="origin_service_name" label="Service" />
                     <TextField source="origin_component_name_version" label="Component" />
                     <TextField source="origin_docker_image_name_tag_short" label="Container" />

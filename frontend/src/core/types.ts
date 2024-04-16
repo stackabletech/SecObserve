@@ -126,6 +126,7 @@ export interface Observation extends RaRecord {
     cvss3_vector: string;
     epss_score: number;
     epss_percentile: number;
+    stackable_score: number;
     cwe: number;
     found: Date;
     scanner: string;
