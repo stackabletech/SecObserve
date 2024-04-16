@@ -121,6 +121,26 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component, recommendation
                         )
 
+                        observation_found_by_other_scanner = (
+                            Observation.objects.filter(
+                                title=title,
+                                origin_component_name=component.name,
+                                origin_component_version=component.version,
+                                origin_docker_image_name=metadata.container_name,
+                                origin_docker_image_tag=metadata.container_tag,
+                            )
+                            .exclude(scanner=metadata.scanner)
+                            .exists()
+                        )
+
+                        if observation_found_by_other_scanner:
+                            print(
+                                "Observation already found by other scanner: "
+                                f"{title} - {component.name} - {component.version} - {metadata.scanner} - "
+                                f"{metadata.container_name} - {metadata.container_tag}"
+                            )
+                            continue
+
                         observation = Observation(
                             title=title,
                             description=description,
