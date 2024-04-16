@@ -431,11 +431,11 @@ class ObservationAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
-    comment = CharField(max_length=255, required=True)
+    comment = CharField(required=True)
 
 
 class ObservationRemoveAssessmentSerializer(Serializer):
-    comment = CharField(max_length=255, required=True)
+    comment = CharField(required=True)
 
 
 class ObservationBulkDeleteSerializer(Serializer):
@@ -447,7 +447,7 @@ class ObservationBulkDeleteSerializer(Serializer):
 class ObservationBulkAssessmentSerializer(Serializer):
     severity = ChoiceField(choices=Severity.SEVERITY_CHOICES, required=False)
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
-    comment = CharField(max_length=255, required=True)
+    comment = CharField(required=True)
     observations = ListField(
         child=IntegerField(min_value=1), min_length=0, max_length=100, required=True
     )
