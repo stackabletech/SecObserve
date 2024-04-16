@@ -1,3 +1,4 @@
+import re
 from json import dumps, load
 from typing import Optional
 
@@ -116,6 +117,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component.json
                         )
 
+                        patched_versions = self._get_patched_versions(
+                            component, recommendation
+                        )
+
                         observation = Observation(
                             title=title,
                             description=description,
@@ -136,6 +141,8 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_docker_image_digest=metadata.container_digest,
                             origin_source_file=metadata.file,
                             origin_component_location=component_location,
+                            patched_in_versions=patched_versions,
+                            patch_available=bool(patched_versions),
                         )
 
                         self._add_references(vulnerability, observation)
@@ -269,4 +276,17 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     return prop.get("value")
                 if prop.get("name") == "aquasecurity:trivy:FilePath":
                     return prop.get("value")
+        return ""
+
+    def _get_patched_versions(self, component: Component, recommendation: str) -> str:
+        if not recommendation:
+            return ""
+
+        group = re.search(
+            r"Upgrade " + component.name + r" to version ([a-z0-9\.\-_\s,]+)",
+            recommendation,
+        )
+        if group:
+            return group.group(1)
+
         return ""

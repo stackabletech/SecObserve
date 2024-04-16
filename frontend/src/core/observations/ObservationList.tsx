@@ -57,6 +57,7 @@ const listFilters = [
     <TextInput source="scanner" alwaysOn />,
     <AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />,
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
+    <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
 ];
 
 const ListActions = () => (
@@ -112,6 +113,7 @@ const ObservationList = () => {
                         render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
                     />
                     <BooleanField source="has_potential_duplicates" label="Dupl." />
+                    <BooleanField source="patch_available" label="Patched" />
                 </Datagrid>
             </List>
         </Fragment>

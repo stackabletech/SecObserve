@@ -510,6 +510,8 @@ class Observation(Model):
         "self", related_name="duplicates", on_delete=PROTECT, null=True
     )
     vex_remediations = JSONField(blank=True, null=True)
+    patch_available = BooleanField(default=False)
+    patched_in_versions = CharField(max_length=255, blank=True)
 
     class Meta:
         indexes = [
@@ -529,6 +531,7 @@ class Observation(Model):
             Index(fields=["epss_score"]),
             Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
+            Index(fields=["patch_available"]),
         ]
 
     def __str__(self):
