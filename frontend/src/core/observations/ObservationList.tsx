@@ -46,14 +46,14 @@ const listFilters = [
     <TextInput source="title" alwaysOn />,
     <AutocompleteInput source="current_severity" label="Severity" choices={OBSERVATION_SEVERITY_CHOICES} alwaysOn />,
     <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
-    <ReferenceInput label="Service" source="origin_service" reference="services" sort={{ field: "name", order: "ASC" }}>
-        <AutocompleteInputWide label="Service" optionText="name_with_product" />
-    </ReferenceInput>,
+    // <ReferenceInput label="Service" source="origin_service" reference="services" sort={{ field: "name", order: "ASC" }}>
+    //     <AutocompleteInputWide label="Service" optionText="name_with_product" />
+    // </ReferenceInput>,
     <TextInput source="origin_component_name_version" label="Component" />,
     <TextInput source="origin_docker_image_name_tag_short" label="Container" />,
-    <TextInput source="origin_endpoint_hostname" label="Host" />,
-    <TextInput source="origin_source_file" label="Source" />,
-    <TextInput source="origin_cloud_qualified_resource" label="Resource" />,
+    // <TextInput source="origin_endpoint_hostname" label="Host" />,
+    // <TextInput source="origin_source_file" label="Source" />,
+    // <TextInput source="origin_cloud_qualified_resource" label="Resource" />,
     <TextInput source="scanner" alwaysOn />,
     <AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />,
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
@@ -100,12 +100,12 @@ const ObservationList = () => {
                     <ChipField source="current_status" label="Status" />
                     <NumberField source="epss_score" label="EPSS" />
                     <NumberField source="stackable_score" label="Stackable Score" />
-                    <TextField source="origin_service_name" label="Service" />
+                    {/* <TextField source="origin_service_name" label="Service" /> */}
                     <TextField source="origin_component_name_version" label="Component" />
                     <TextField source="origin_docker_image_name_tag_short" label="Container" />
-                    <TextField source="origin_endpoint_hostname" label="Host" />
-                    <TextField source="origin_source_file" label="Source" />
-                    <TextField source="origin_cloud_qualified_resource" label="Resource" />,
+                    {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
+                    {/* <TextField source="origin_source_file" label="Source" /> */}
+                    {/* <TextField source="origin_cloud_qualified_resource" label="Resource" />, */}
                     <TextField source="scanner_name" label="Scanner" />
                     <FunctionField<Observation>
                         label="Age"
