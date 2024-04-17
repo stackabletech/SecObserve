@@ -179,7 +179,7 @@ const ObservationShowComponent = () => {
                                     <MarkdownField content={observation.recommendation} />
                                 </Labeled>
                             )}
-                            {observation.duplicates && observation.duplicates.length && (
+                            {observation.duplicates && observation.duplicates.length > 0 && (
                                 <Labeled label="Duplicates">
                                     <Stack direction="row" spacing={2}>
                                         {observation.duplicates.map((duplicate: any) => (

@@ -113,7 +113,7 @@ const ObservationList = () => {
                         render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
                     />
                     <BooleanField source="has_potential_duplicates" label="Dupl." />
-                    <BooleanField source="patch_available" label="Patched" />
+                    <BooleanField source="patch_available" label="Patch" />
                 </Datagrid>
             </List>
         </Fragment>
