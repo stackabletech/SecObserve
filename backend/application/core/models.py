@@ -25,7 +25,13 @@ from application.core.services.observation import (
     get_identity_hash,
     normalize_observation_fields,
 )
-from application.core.types import Assessment_Status, Severity, Status, VexJustification
+from application.core.types import (
+    Assessment_Status,
+    ExploitSource,
+    Severity,
+    Status,
+    VexJustification,
+)
 from application.import_observations.types import Parser_Source, Parser_Type
 from application.issue_tracker.types import Issue_Tracker
 
@@ -467,6 +473,8 @@ class Observation(Model):
         decimal_places=3,
         null=True,
     )
+    in_vulncheck_kev = BooleanField(default=False)
+    exploit_available = BooleanField(default=False)
     found = DateField(null=True)
     scanner = CharField(max_length=255, blank=True)
     upload_filename = CharField(max_length=255, blank=True)
@@ -532,6 +540,8 @@ class Observation(Model):
             Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
             Index(fields=["patch_available"]),
+            Index(fields=["in_vulncheck_kev"]),
+            Index(fields=["exploit_available"]),
         ]
 
     def __str__(self):
@@ -623,3 +633,18 @@ class Potential_Duplicate(Model):
             "observation",
             "potential_duplicate_observation",
         )
+
+
+class Exploit(Model):
+    vulnerability_id = CharField(max_length=255, blank=True)
+    url = CharField(max_length=2048)
+    source = CharField(max_length=16, choices=ExploitSource.EXPLOIT_SOURCE_CHOICES)
+    source_id = CharField(max_length=255, blank=True)
+    created = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            Index(fields=["vulnerability_id", "-created"]),
+            Index(fields=["-created"]),
+        ]
+        ordering = ["vulnerability_id", "-created"]

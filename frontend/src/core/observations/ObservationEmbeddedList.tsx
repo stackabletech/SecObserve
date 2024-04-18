@@ -77,6 +77,8 @@ function listFilters(product: Product) {
         <TextInput source="api_configuration_name" label="API configuration" />,
         <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
         <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
+        <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
+        <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     ];
 }
 

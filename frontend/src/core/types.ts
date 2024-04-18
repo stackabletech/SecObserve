@@ -147,6 +147,8 @@ export interface Observation extends RaRecord {
     vex_remediations: string;
     patch_available: boolean;
     patched_in_versions: string;
+    in_vulncheck_kev: boolean;
+    exploit_available: boolean;
 }
 
 export const OBSERVATION_SEVERITY_CRITICAL = "Critical";

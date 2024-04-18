@@ -530,6 +530,26 @@ CONSTANCE_CONFIG = {
         "Generate VEX documents in OpenVEX and CSAF format",
         bool,
     ),
+    "EXPLOITS_LAST_SYNC_VULNCHECK_KEV": (
+        "",
+        "Last sync date of Vulncheck KEV data",
+        str,
+    ),
+    "EXPLOITS_LAST_SYNC_GITHUB_POC": (
+        "",
+        "Last sync date of GitHub PoC data",
+        str,
+    ),
+    "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES": (
+        "0",
+        "Minutes crontab expression for exploit data import",
+        str,
+    ),
+    "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_HOURS": (
+        "3",
+        "Hours crontab expression for exploit data import (UTC)",
+        str,
+    ),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
@@ -558,6 +578,8 @@ CONSTANCE_CONFIG_FIELDSETS = {
         "BACKGROUND_PRODUCT_METRICS_INTERVAL_MINUTES",
         "BACKGROUND_EPSS_IMPORT_CRONTAB_MINUTES",
         "BACKGROUND_EPSS_IMPORT_CRONTAB_HOURS",
+        "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES",
+        "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_HOURS",
     ),
     "Housekeeping for branches": (
         "BRANCH_HOUSEKEEPING_CRONTAB_MINUTES",
@@ -567,6 +589,10 @@ CONSTANCE_CONFIG_FIELDSETS = {
         "BRANCH_HOUSEKEEPING_EXEMPT_BRANCHES",
     ),
     "Features": ("FEATURE_VEX",),
+    "Markers": (
+        "EXPLOITS_LAST_SYNC_VULNCHECK_KEV",
+        "EXPLOITS_LAST_SYNC_GITHUB_POC",
+    ),
 }
 
 FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY")
