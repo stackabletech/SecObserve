@@ -108,3 +108,13 @@ class VexRemediationCategory:
         (VEX_REMEDIATION_CATEGORY_VENDOR_FIX, "Vendor fix"),
         (VEX_REMEDIATION_CATEGORY_WORKAROUND, "Workaround"),
     ]
+
+
+class ExploitSource:
+    POC_IN_GITHUB = "PoC in GitHub"
+    VULNCHECK = "VulnCheck"
+
+    EXPLOIT_SOURCE_CHOICES = [
+        (POC_IN_GITHUB, POC_IN_GITHUB),
+        (VULNCHECK, VULNCHECK),
+    ]

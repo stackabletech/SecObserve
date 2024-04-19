@@ -25,7 +25,7 @@ from application.core.services.observation import (
     get_identity_hash,
     normalize_observation_fields,
 )
-from application.core.types import Assessment_Status, Severity, Status, VexJustification
+from application.core.types import Assessment_Status, ExploitSource, Severity, Status, VexJustification
 from application.import_observations.types import Parser_Source, Parser_Type
 from application.issue_tracker.types import Issue_Tracker
 
@@ -467,6 +467,8 @@ class Observation(Model):
         decimal_places=3,
         null=True,
     )
+    in_vulncheck_kev = BooleanField(default=False)
+    exploit_available = BooleanField(default=False)
     found = DateField(null=True)
     scanner = CharField(max_length=255, blank=True)
     upload_filename = CharField(max_length=255, blank=True)

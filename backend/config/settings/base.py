@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+from datetime import datetime
 from pathlib import Path
 
 import environ
@@ -124,6 +125,7 @@ LOCAL_APPS = [
     "application.metrics",
     "application.rules",
     "application.vex",
+    "application.exploits",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -530,6 +532,21 @@ CONSTANCE_CONFIG = {
         "Generate VEX documents in OpenVEX and CSAF format",
         bool,
     ),
+    "VULNCHECK_KEV_LAST_MOD_START_DATE": (
+        "",
+        "Import Vulncheck KEV entries starting from this date",
+        datetime,
+    ),
+    "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES": (
+        "0",
+        "Minutes crontab expression for exploit data import",
+        str,
+    ),
+    "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_HOURS": (
+        "3",
+        "Hours crontab expression for exploit data import (UTC)",
+        str,
+    ),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
@@ -558,6 +575,8 @@ CONSTANCE_CONFIG_FIELDSETS = {
         "BACKGROUND_PRODUCT_METRICS_INTERVAL_MINUTES",
         "BACKGROUND_EPSS_IMPORT_CRONTAB_MINUTES",
         "BACKGROUND_EPSS_IMPORT_CRONTAB_HOURS",
+        "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES",
+        "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_HOURS",
     ),
     "Housekeeping for branches": (
         "BRANCH_HOUSEKEEPING_CRONTAB_MINUTES",
@@ -567,6 +586,7 @@ CONSTANCE_CONFIG_FIELDSETS = {
         "BRANCH_HOUSEKEEPING_EXEMPT_BRANCHES",
     ),
     "Features": ("FEATURE_VEX",),
+    "Markers": ("VULNCHECK_KEV_LAST_MOD_START_DATE",),
 }
 
 FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY")
