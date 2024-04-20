@@ -535,7 +535,7 @@ CONSTANCE_CONFIG = {
     "VULNCHECK_KEV_LAST_MOD_START_DATE": (
         "",
         "Import Vulncheck KEV entries starting from this date",
-        datetime,
+        str,
     ),
     "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES": (
         "0",
