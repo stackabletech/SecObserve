@@ -246,6 +246,7 @@ def get_observation_logs() -> QuerySet[Observation_Log]:
 
     return observation_logs
 
+
 def get_current_observation_log(observation: Observation):
     try:
         return Observation_Log.objects.filter(observation=observation).latest("created")

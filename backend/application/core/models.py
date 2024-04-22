@@ -3,9 +3,9 @@ from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
+    DO_NOTHING,
     PROTECT,
     SET_NULL,
-    DO_NOTHING,
     BooleanField,
     CharField,
     DateField,
@@ -26,7 +26,13 @@ from application.core.services.observation import (
     get_identity_hash,
     normalize_observation_fields,
 )
-from application.core.types import Assessment_Status, ExploitSource, Severity, Status, VexJustification
+from application.core.types import (
+    Assessment_Status,
+    ExploitSource,
+    Severity,
+    Status,
+    VexJustification,
+)
 from application.import_observations.types import Parser_Source, Parser_Type
 from application.issue_tracker.types import Issue_Tracker
 
@@ -515,6 +521,7 @@ class Observation(Model):
     vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
+
     class Meta:
         indexes = [
             Index(fields=["product", "branch"]),
@@ -627,6 +634,7 @@ class Potential_Duplicate(Model):
             "observation",
             "potential_duplicate_observation",
         )
+
 
 class Exploit(Model):
     vulnerability_id = CharField(max_length=255, blank=True)

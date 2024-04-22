@@ -129,7 +129,8 @@ def stackable_score_apply_observations() -> None:
                 / number_of_observations
             )
             observation.stackable_score = round(
-                float(observation.epss_score or 0) + (percentage_of_total_observations * 10),
+                float(observation.epss_score or 0)
+                + (percentage_of_total_observations * 10),
                 3,
             )
             updates.append(observation)

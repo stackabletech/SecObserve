@@ -1,11 +1,11 @@
 import logging
 
-from application.core.services.exploits import import_github_poc, import_vulncheck_kev
 from constance import config
 from huey import crontab
 from huey.contrib.djhuey import db_periodic_task, lock_task
 
 from application.commons.services.tasks import handle_task_exception
+from application.core.services.exploits import import_github_poc, import_vulncheck_kev
 from application.core.services.housekeeping import delete_inactive_branches
 
 logger = logging.getLogger("secobserve.core")

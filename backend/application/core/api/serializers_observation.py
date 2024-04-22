@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 import validators
@@ -15,6 +15,7 @@ from rest_framework.serializers import (
     SerializerMethodField,
     ValidationError,
 )
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 from application.commons.services.global_request import get_current_user
 from application.core.api.serializers_helpers import (
@@ -78,10 +79,12 @@ class EvidenceSerializer(ModelSerializer):
     def get_product(self, evidence: Evidence) -> int:
         return evidence.observation.product.pk
 
+
 class ExploitSerializer(ModelSerializer):
     class Meta:
         model = Exploit
         fields = "__all__"
+
 
 class NestedObservationIdSerializer(ModelSerializer):
     class Meta:
@@ -217,8 +220,11 @@ class ObservationSerializer(ModelSerializer):
 
         return product
 
-    def get_exploits(self, observation: Observation) -> list:
-        return ExploitSerializer(Exploit.objects.filter(vulnerability_id=observation.vulnerability_id), many=True).data
+    def get_exploits(self, observation: Observation) -> ReturnDict[Any, Any]:
+        return ExploitSerializer(
+            Exploit.objects.filter(vulnerability_id=observation.vulnerability_id),
+            many=True,
+        ).data
 
 
 class ObservationListSerializer(ModelSerializer):
