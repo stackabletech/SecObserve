@@ -125,7 +125,6 @@ LOCAL_APPS = [
     "application.metrics",
     "application.rules",
     "application.vex",
-    "application.exploits",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -532,9 +531,14 @@ CONSTANCE_CONFIG = {
         "Generate VEX documents in OpenVEX and CSAF format",
         bool,
     ),
-    "VULNCHECK_KEV_LAST_MOD_START_DATE": (
+    "EXPLOITS_LAST_SYNC_VULNCHECK_KEV": (
         "",
-        "Import Vulncheck KEV entries starting from this date",
+        "Last sync date of Vulncheck KEV data",
+        str,
+    ),
+    "EXPLOITS_LAST_SYNC_GITHUB_POC": (
+        "",
+        "Last sync date of GitHub PoC data",
         str,
     ),
     "BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES": (
@@ -586,7 +590,7 @@ CONSTANCE_CONFIG_FIELDSETS = {
         "BRANCH_HOUSEKEEPING_EXEMPT_BRANCHES",
     ),
     "Features": ("FEATURE_VEX",),
-    "Markers": ("VULNCHECK_KEV_LAST_MOD_START_DATE",),
+    "Markers": ("EXPLOITS_LAST_SYNC_VULNCHECK_KEV", "EXPLOITS_LAST_SYNC_GITHUB_POC",),
 }
 
 FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY")

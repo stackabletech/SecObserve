@@ -5,6 +5,7 @@ from django.db.models import (
     CASCADE,
     PROTECT,
     SET_NULL,
+    DO_NOTHING,
     BooleanField,
     CharField,
     DateField,
@@ -514,7 +515,6 @@ class Observation(Model):
     vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
-
     class Meta:
         indexes = [
             Index(fields=["product", "branch"]),
@@ -534,6 +534,8 @@ class Observation(Model):
             Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
             Index(fields=["patch_available"]),
+            Index(fields=["in_vulncheck_kev"]),
+            Index(fields=["exploit_available"]),
         ]
 
     def __str__(self):
@@ -625,3 +627,17 @@ class Potential_Duplicate(Model):
             "observation",
             "potential_duplicate_observation",
         )
+
+class Exploit(Model):
+    vulnerability_id = CharField(max_length=255, blank=True)
+    url = CharField(max_length=2048)
+    source = CharField(max_length=16, choices=ExploitSource.EXPLOIT_SOURCE_CHOICES)
+    source_id = CharField(max_length=255, blank=True)
+    created = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            Index(fields=["vulnerability_id", "-created"]),
+            Index(fields=["-created"]),
+        ]
+        ordering = ["vulnerability_id", "-created"]

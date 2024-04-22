@@ -31,6 +31,7 @@ from application.core.api.serializers_product import (
 from application.core.models import (
     Branch,
     Evidence,
+    Exploit,
     Observation,
     Observation_Log,
     Parser,
@@ -77,6 +78,10 @@ class EvidenceSerializer(ModelSerializer):
     def get_product(self, evidence: Evidence) -> int:
         return evidence.observation.product.pk
 
+class ExploitSerializer(ModelSerializer):
+    class Meta:
+        model = Exploit
+        fields = "__all__"
 
 class NestedObservationIdSerializer(ModelSerializer):
     class Meta:
@@ -90,6 +95,7 @@ class ObservationSerializer(ModelSerializer):
     parser_data = ParserSerializer(source="parser")
     references = NestedReferenceSerializer(many=True)
     evidences = NestedEvidenceSerializer(many=True)
+    exploits = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
     origin_component_purl_type = SerializerMethodField()
     origin_component_purl_namespace = SerializerMethodField()
@@ -104,6 +110,7 @@ class ObservationSerializer(ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response["evidences"] = sorted(response["evidences"], key=lambda x: x["name"])
+        # response["exploits"] = sorted(response["exploits"], key=lambda x: x["created"])
         return response
 
     def get_branch_name(self, observation: Observation) -> str:
@@ -209,6 +216,9 @@ class ObservationSerializer(ModelSerializer):
             raise ValidationError("Product must not be a product group")
 
         return product
+
+    def get_exploits(self, observation: Observation) -> list:
+        return ExploitSerializer(Exploit.objects.filter(vulnerability_id=observation.vulnerability_id), many=True).data
 
 
 class ObservationListSerializer(ModelSerializer):

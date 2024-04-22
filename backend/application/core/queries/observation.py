@@ -7,6 +7,7 @@ from application.commons.services.global_request import get_current_user
 from application.core.models import (
     Branch,
     Evidence,
+    Exploit,
     Observation,
     Observation_Log,
     Potential_Duplicate,
@@ -245,9 +246,19 @@ def get_observation_logs() -> QuerySet[Observation_Log]:
 
     return observation_logs
 
-
 def get_current_observation_log(observation: Observation):
     try:
         return Observation_Log.objects.filter(observation=observation).latest("created")
     except Observation_Log.DoesNotExist:
         return None
+
+
+def get_exploits(observation: Observation) -> QuerySet[Exploit]:
+    user = get_current_user()
+
+    if user is None:
+        return Exploit.objects.none()
+
+    exploits = Exploit.objects.filter(vulnerability_id=observation.vulnerability_id)
+
+    return exploits

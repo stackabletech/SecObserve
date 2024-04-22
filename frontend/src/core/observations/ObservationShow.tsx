@@ -1,7 +1,9 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    ArrayField,
     ChipField,
+    Datagrid,
     DateField,
     EditButton,
     Labeled,
@@ -10,6 +12,7 @@ import {
     Show,
     TextField,
     TopToolbar,
+    UrlField,
     WithRecord,
     useRecordContext,
 } from "react-admin";
@@ -471,6 +474,22 @@ const ObservationShowComponent = () => {
                                     </Stack>
                                 </Fragment>
                             )}
+                        </Paper>
+                    )}
+
+                    {observation && observation.exploit_available && (
+                        <Paper sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2, paddingRight: 2 }}>
+                            <Typography variant="h6" sx={{ paddingBottom: 1 }}>
+                                PoC exploits
+                            </Typography>
+                            <ArrayField source="exploits" label={false}>
+                                <Datagrid
+                                    bulkActionButtons={false}
+                                    sx={{ paddingBottom: 2 }}
+                                >
+                                    <UrlField source="url" label={false} target="_blank" className={classes.link} />
+                                </Datagrid>
+                            </ArrayField>
                         </Paper>
                     )}
 

@@ -230,6 +230,8 @@ class ObservationFilter(FilterSet):
             ("stackable_score", "stackable_score"),
             ("has_potential_duplicates", "has_potential_duplicates"),
             ("patch_available", "patch_available"),
+            ("in_vulncheck_kev", "in_vulncheck_kev"),
+            ("exploit_available", "exploit_available"),
         ),
     )
 
@@ -248,6 +250,8 @@ class ObservationFilter(FilterSet):
             "origin_service",
             "has_potential_duplicates",
             "patch_available",
+            "in_vulncheck_kev",
+            "exploit_available",
         ]
 
     def get_age(self, queryset, field_name, value):  # pylint: disable=unused-argument
