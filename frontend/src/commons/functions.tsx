@@ -12,7 +12,7 @@ import {
     OBSERVATION_STATUS_NOT_SECURITY,
     OBSERVATION_STATUS_RISK_ACCEPTED,
 } from "../core/types";
-import { getSettingTheme } from "./settings/functions";
+import { getSettingTheme } from "./user_settings/functions";
 
 export function getIconAndFontColor() {
     if (getSettingTheme() == "dark") {

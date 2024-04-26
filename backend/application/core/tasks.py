@@ -1,9 +1,9 @@
 import logging
 
-from constance import config
 from huey import crontab
 from huey.contrib.djhuey import db_periodic_task, lock_task
 
+from application.commons import settings_static
 from application.commons.services.tasks import handle_task_exception
 from application.core.services.exploits import import_github_poc, import_vulncheck_kev
 from application.core.services.housekeeping import delete_inactive_branches
@@ -13,8 +13,8 @@ logger = logging.getLogger("secobserve.core")
 
 @db_periodic_task(
     crontab(
-        minute=config.BRANCH_HOUSEKEEPING_CRONTAB_MINUTES,
-        hour=config.BRANCH_HOUSEKEEPING_CRONTAB_HOURS,
+        minute=settings_static.branch_housekeeping_crontab_minutes,
+        hour=settings_static.branch_housekeeping_crontab_hours,
     )
 )
 @lock_task("branch_housekeeping")
@@ -31,8 +31,8 @@ def task_branch_housekeeping() -> None:
 
 @db_periodic_task(
     crontab(
-        minute=config.BACKGROUND_EXPLOITS_IMPORT_CRONTAB_MINUTES,
-        hour=config.BACKGROUND_EXPLOITS_IMPORT_CRONTAB_HOURS,
+        minute=settings_static.background_exploits_import_crontab_minutes,
+        hour=settings_static.background_exploits_import_crontab_hours,
     )
 )
 @lock_task("import_exploits")

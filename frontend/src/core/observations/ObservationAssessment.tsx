@@ -13,7 +13,7 @@ import {
     useRefresh,
 } from "react-admin";
 
-import { validate_required } from "../../commons/custom_validators";
+import { validate_required, validate_required_4096 } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
@@ -138,7 +138,12 @@ const ObservationAssessment = () => {
                                 </SimpleFormIterator>
                             </ArrayInput>
                         )}
-                        <TextInputWide multiline={true} source="comment" validate={validate_required} />
+                        <TextInputWide
+                            multiline={true}
+                            source="comment"
+                            validate={validate_required_4096}
+                            minRows={3}
+                        />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

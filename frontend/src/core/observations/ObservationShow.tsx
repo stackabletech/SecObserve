@@ -26,7 +26,8 @@ import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { get_component_purl_url, get_cwe_url, get_vulnerability_url } from "../../commons/functions";
-import { useStyles } from "../../commons/layout/themes";
+import { useLinkStyles, useStyles } from "../../commons/layout/themes";
+import { getSettingTheme } from "../../commons/user_settings/functions";
 import AssessmentApproval from "../observation_logs/AssessmentApproval";
 import ObservationLogEmbeddedList from "../observation_logs/ObservationLogEmbeddedList";
 import { OBSERVATION_STATUS_IN_REVIEW, OBSERVATION_STATUS_OPEN } from "../types";
@@ -104,6 +105,7 @@ const ShowActions = () => {
 
 const ObservationShowComponent = () => {
     const { classes } = useStyles();
+    const linkStyles = useLinkStyles({ setting_theme: getSettingTheme() });
 
     return (
         <WithRecord
@@ -484,7 +486,12 @@ const ObservationShowComponent = () => {
                             </Typography>
                             <ArrayField source="exploits" label={false}>
                                 <Datagrid bulkActionButtons={false} sx={{ paddingBottom: 2 }}>
-                                    <UrlField source="url" label={false} target="_blank" className={classes.link} />
+                                    <UrlField
+                                        source="url"
+                                        label={false}
+                                        target="_blank"
+                                        className={linkStyles.classes.link}
+                                    />
                                 </Datagrid>
                             </ArrayField>
                         </Paper>
