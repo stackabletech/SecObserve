@@ -113,7 +113,6 @@ class ObservationSerializer(ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response["evidences"] = sorted(response["evidences"], key=lambda x: x["name"])
-        # response["exploits"] = sorted(response["exploits"], key=lambda x: x["created"])
         return response
 
     def get_branch_name(self, observation: Observation) -> str:
@@ -221,8 +220,15 @@ class ObservationSerializer(ModelSerializer):
         return product
 
     def get_exploits(self, observation: Observation) -> ReturnDict[Any, Any]:
+        # multiple exploits with the same url can be present, so we need to filter them to have only one exploit per url
+        exploits = (
+            Exploit.objects.filter(vulnerability_id=observation.vulnerability_id)
+            .order_by("url", "-created")
+            .distinct("url")
+        )
+
         return ExploitSerializer(
-            Exploit.objects.filter(vulnerability_id=observation.vulnerability_id),
+            exploits,
             many=True,
         ).data
 
