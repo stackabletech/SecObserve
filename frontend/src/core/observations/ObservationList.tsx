@@ -29,6 +29,7 @@ import {
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     Observation,
+    PURL_TYPE_CHOICES,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
@@ -60,6 +61,7 @@ const listFilters = [
     <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
     <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
+    <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
 ];
 
 const ListActions = () => (

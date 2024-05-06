@@ -520,6 +520,7 @@ class Observation(Model):
     vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
+    purl_type = CharField(max_length=16, blank=True, null=True)
 
     class Meta:
         indexes = [

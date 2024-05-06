@@ -232,6 +232,7 @@ class ObservationFilter(FilterSet):
             ("patch_available", "patch_available"),
             ("in_vulncheck_kev", "in_vulncheck_kev"),
             ("exploit_available", "exploit_available"),
+            ("purl_type", "purl_type"),
         ),
     )
 
@@ -252,6 +253,7 @@ class ObservationFilter(FilterSet):
             "patch_available",
             "in_vulncheck_kev",
             "exploit_available",
+            "purl_type",
         ]
 
     def get_age(self, queryset, field_name, value):  # pylint: disable=unused-argument

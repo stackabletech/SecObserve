@@ -149,6 +149,7 @@ export interface Observation extends RaRecord {
     patched_in_versions: string;
     in_vulncheck_kev: boolean;
     exploit_available: boolean;
+    purl_type: string;
 }
 
 export const OBSERVATION_SEVERITY_CRITICAL = "Critical";
@@ -263,4 +264,17 @@ export const ASSESSMENT_STATUS_REJECTED = "Rejected";
 export const ASSESSMENT_STATUS_CHOICES = [
     { id: ASSESSMENT_STATUS_APPROVED, name: ASSESSMENT_STATUS_APPROVED },
     { id: ASSESSMENT_STATUS_REJECTED, name: ASSESSMENT_STATUS_REJECTED },
+];
+
+export const PURL_TYPE_CHOICES = [
+    { id: "maven", name: "Maven" },
+    { id: "npm", name: "NPM" },
+    { id: "cargo", name: "Rust" },
+    { id: "docker", name: "Docker" },
+    { id: "rpm", name: "RPM" },
+    { id: "golang", name: "Go" },
+    { id: "github", name: "GitHub" },
+    { id: "generic", name: "Generic" },
+    { id: "oci", name: "OCI" },
+    { id: "pypi", name: "PyPI" },
 ];

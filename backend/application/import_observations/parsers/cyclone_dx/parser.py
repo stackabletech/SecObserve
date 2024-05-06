@@ -3,6 +3,7 @@ from json import dumps, load
 from typing import Optional
 
 from django.core.files.base import File
+from packageurl import PackageURL
 from trycast import trycast
 
 from application.core.models import Observation
@@ -141,6 +142,11 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             )
                             continue
 
+                        purl_type = None
+                        if component.purl:
+                            purl = PackageURL.from_string(component.purl)
+                            purl_type = purl.type
+
                         observation = Observation(
                             title=title,
                             description=description,
@@ -163,6 +169,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_component_location=component_location,
                             patched_in_versions=patched_versions,
                             patch_available=bool(patched_versions),
+                            purl_type=purl_type,
                         )
 
                         self._add_references(vulnerability, observation)
