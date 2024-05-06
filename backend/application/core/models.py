@@ -109,6 +109,7 @@ class Product(Model):
     last_observation_change = DateTimeField(default=timezone.now)
     assessments_need_approval = BooleanField(default=False)
     new_observations_in_review = BooleanField(default=False)
+    product_rules_need_approval = BooleanField(default=False)
 
     class Meta:
         indexes = [
@@ -377,6 +378,8 @@ class Parser(Model):
     name = CharField(max_length=255, unique=True)
     type = CharField(max_length=16, choices=Parser_Type.TYPE_CHOICES)
     source = CharField(max_length=16, choices=Parser_Source.SOURCE_CHOICES)
+    module_name = CharField(max_length=255, blank=True)
+    class_name = CharField(max_length=255, blank=True)
 
     class Meta:
         indexes = [
@@ -588,6 +591,20 @@ class Observation_Log(Model):
         related_name="observation_logs_approver",
         on_delete=PROTECT,
         null=True,
+    )
+    general_rule = ForeignKey(
+        "rules.Rule",
+        related_name="observation_log_general_rules",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    product_rule = ForeignKey(
+        "rules.Rule",
+        related_name="observation_log_product_rules",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
     )
 
     class Meta:

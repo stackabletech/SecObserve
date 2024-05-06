@@ -25,7 +25,11 @@ class TestRuleEngine(BaseTestCase):
 
         self.assertEqual(rule_engine.rules, [self.product_rule_1])
         mock_rule.assert_called_once()
-        mock_rule.assert_called_with(product=self.product_1, enabled=True)
+        mock_rule.assert_called_with(
+            product=self.product_1,
+            enabled=True,
+            approval_status__in=["Approved", "Auto approved"],
+        )
 
     @patch("application.rules.models.Rule.objects.filter")
     def test_init_apply_general_rules(self, mock_rule):
@@ -37,8 +41,16 @@ class TestRuleEngine(BaseTestCase):
         self.assertEqual(rule_engine.rules, [self.product_rule_1, self.general_rule])
         mock_rule.assert_has_calls(
             [
-                call(product=self.product_1, enabled=True),
-                call(product__isnull=True, enabled=True),
+                call(
+                    product=self.product_1,
+                    enabled=True,
+                    approval_status__in=["Approved", "Auto approved"],
+                ),
+                call(
+                    product__isnull=True,
+                    enabled=True,
+                    approval_status__in=["Approved", "Auto approved"],
+                ),
             ]
         )
 
@@ -47,17 +59,25 @@ class TestRuleEngine(BaseTestCase):
     # --- _check_regex ---
 
     def test_check_regex_no_pattern(self):
-        rule_engine = Rule_Engine(Product())
+        product = Product()
+        product.save()
+        rule_engine = Rule_Engine(product)
         self.assertTrue(rule_engine._check_regex(None, "value"))
 
     def test_check_regex_no_value(self):
-        rule_engine = Rule_Engine(Product())
+        product = Product()
+        product.save()
+        rule_engine = Rule_Engine(product)
         self.assertFalse(rule_engine._check_regex("pattern", None))
 
     def test_check_regex_no_match(self):
-        rule_engine = Rule_Engine(Product())
+        product = Product()
+        product.save()
+        rule_engine = Rule_Engine(product)
         self.assertFalse(rule_engine._check_regex("pattern", "value"))
 
     def test_check_regex_match(self):
-        rule_engine = Rule_Engine(Product())
+        product = Product()
+        product.save()
+        rule_engine = Rule_Engine(product)
         self.assertTrue(rule_engine._check_regex("v.+lue", "VALUE"))

@@ -157,6 +157,12 @@ class Settings(Model):
     feature_vex = BooleanField(
         default=False, help_text="Generate VEX documents in OpenVEX and CSAF format"
     )
+    feature_disable_user_login = BooleanField(
+        default=False, help_text="Disable user login"
+    )
+    feature_general_rules_need_approval = BooleanField(
+        default=False, help_text="General rules need approval"
+    )
 
     exploits_last_sync_vulncheck_kev = DateTimeField(
         null=True, help_text="Last sync date of Vulncheck KEV data"
