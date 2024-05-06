@@ -33,6 +33,7 @@ import {
     OBSERVATION_STATUS_OPEN,
     Observation,
     Product,
+    PURL_TYPE_CHOICES,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import ObservationBulkDeleteButton from "./ObservationBulkDeleteButton";
@@ -79,6 +80,7 @@ function listFilters(product: Product) {
         <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
         <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
         <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
+        <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
     ];
 }
 
