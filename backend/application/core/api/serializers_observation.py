@@ -462,7 +462,7 @@ class ObservationRemoveAssessmentSerializer(Serializer):
 
 class ObservationBulkDeleteSerializer(Serializer):
     observations = ListField(
-        child=IntegerField(min_value=1), min_length=0, max_length=100, required=True
+        child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
     )
 
 
@@ -471,7 +471,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
     comment = CharField(max_length=4096, required=True)
     observations = ListField(
-        child=IntegerField(min_value=1), min_length=0, max_length=100, required=True
+        child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
     )
     vex_justification = ChoiceField(
         choices=VexJustification.VEX_JUSTIFICATION_CHOICES,
@@ -484,7 +484,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
 class ObservationBulkMarkDuplicatesSerializer(Serializer):
     observation_id = IntegerField(min_value=1, required=True)
     potential_duplicates = ListField(
-        child=IntegerField(min_value=1), min_length=0, max_length=100, required=True
+        child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
     )
 
 

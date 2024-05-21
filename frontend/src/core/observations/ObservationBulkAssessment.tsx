@@ -2,10 +2,10 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Backdrop, Button, CircularProgress, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { SaveButton, SimpleForm, Toolbar, useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
+import { ArrayInput, SaveButton, SimpleForm, SimpleFormIterator, Toolbar, useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
 
 import { validate_required_4096 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus } from "../../commons/functions";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {
@@ -13,6 +13,7 @@ import {
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
+    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../types";
 
 type ObservationBulkAssessmentButtonProps = {
@@ -23,6 +24,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
+    const remediationsEnabled = remediationsAreEnabledForStatus(status);
     const refresh = useRefresh();
     const [loading, setLoading] = useState(false);
     const notify = useNotify();
@@ -46,6 +48,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
             status: data.current_status,
             comment: data.comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
+            vex_remediations: remediationsEnabled ? data.vex_remediations : "",
             observations: selectedIds,
         };
 
@@ -136,6 +139,18 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                                 label="VEX justification"
                                 choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                             />
+                        )}
+                        {remediationsEnabled && (
+                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
+                                <SimpleFormIterator disableReordering inline>
+                                    <AutocompleteInputMedium
+                                        source="category"
+                                        label=""
+                                        choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                                    />
+                                    <TextInputWide source="text" />
+                                </SimpleFormIterator>
+                            </ArrayInput>
                         )}
                         <TextInputWide
                             source="comment"
