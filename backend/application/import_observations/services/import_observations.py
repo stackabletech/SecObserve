@@ -321,6 +321,7 @@ def _process_current_observation(
     observation_before.cwe = imported_observation.cwe
     observation_before.found = imported_observation.found
     observation_before.scanner = imported_observation.scanner
+    observation_before.origin_component_location = imported_observation.origin_component_location
 
     observation_before.origin_component_dependencies = (
         imported_observation.origin_component_dependencies
