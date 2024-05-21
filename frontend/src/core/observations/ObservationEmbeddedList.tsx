@@ -32,8 +32,8 @@ import {
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     Observation,
-    Product,
     PURL_TYPE_CHOICES,
+    Product,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import ObservationBulkDeleteButton from "./ObservationBulkDeleteButton";

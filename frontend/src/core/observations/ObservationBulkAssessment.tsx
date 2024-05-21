@@ -2,7 +2,17 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Backdrop, Button, CircularProgress, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { ArrayInput, SaveButton, SimpleForm, SimpleFormIterator, Toolbar, useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
+import {
+    ArrayInput,
+    SaveButton,
+    SimpleForm,
+    SimpleFormIterator,
+    Toolbar,
+    useListContext,
+    useNotify,
+    useRefresh,
+    useUnselectAll,
+} from "react-admin";
 
 import { validate_required_4096 } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
