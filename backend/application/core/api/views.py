@@ -404,6 +404,14 @@ class ObservationViewSet(ModelViewSet):
             .select_related("parser")
         )
 
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        order_by = list(queryset.query.order_by)
+        order_by.append("id")
+
+        return queryset.order_by(*order_by)
+
     def perform_destroy(self, instance: Observation) -> None:
         product = instance.product
         issue_id = instance.issue_tracker_issue_id
