@@ -202,6 +202,7 @@ class ObservationFilter(FilterSet):
         field_name="product__product_group",
         queryset=Product.objects.filter(is_product_group=True),
     )
+    branch_name = CharFilter(field_name="branch__name", lookup_expr="icontains")
 
     ordering = OrderingFilter(
         # tuple-mapping retains order

@@ -62,6 +62,7 @@ const listFilters = [
     <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
+    <TextInput source="branch_name" label="Branch / Version name" />,
 ];
 
 const ListActions = () => (
