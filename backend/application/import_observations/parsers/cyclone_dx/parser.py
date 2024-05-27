@@ -310,7 +310,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             return ""
 
         group = re.search(
-            r"Upgrade (\S+:)" + component.name + r" to version ([a-z0-9\.\-_\s,]+)",
+            r"Upgrade (\S+:)?" + component.name + r" to version ([a-z0-9\.\-_\s,]+)",
             recommendation,
         )
         if group:
