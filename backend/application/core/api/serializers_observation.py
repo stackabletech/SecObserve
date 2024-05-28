@@ -105,6 +105,7 @@ class ObservationSerializer(ModelSerializer):
     issue_tracker_issue_url = SerializerMethodField()
     duplicates = NestedObservationIdSerializer(many=True)
     assessment_needs_approval = SerializerMethodField()
+    origin_component_name_version = SerializerMethodField()
 
     class Meta:
         model = Observation
@@ -231,6 +232,9 @@ class ObservationSerializer(ModelSerializer):
             exploits,
             many=True,
         ).data
+
+    def get_origin_component_name_version(self, observation: Observation) -> str:
+        return get_origin_component_name_version(observation)
 
 
 class ObservationListSerializer(ModelSerializer):
@@ -527,6 +531,9 @@ class ObservationLogSerializer(ModelSerializer):
 
 class ObservationLogListSerializer(ModelSerializer):
     observation_title = SerializerMethodField()
+    product_name = SerializerMethodField()
+    branch_name = SerializerMethodField()
+    origin_component_name_version = SerializerMethodField()
     user_full_name = SerializerMethodField()
     approval_user_full_name = SerializerMethodField()
 
@@ -544,6 +551,15 @@ class ObservationLogListSerializer(ModelSerializer):
             return obj.approval_user.full_name
 
         return None
+
+    def get_product_name(self, obj: Observation_Log) -> str:
+        return obj.observation.product.name
+
+    def get_branch_name(self, obj: Observation_Log) -> str:
+        return get_branch_name(obj.observation)
+
+    def get_origin_component_name_version(self, obj: Observation_Log) -> str:
+        return get_origin_component_name_version(obj.observation)
 
     class Meta:
         model = Observation_Log

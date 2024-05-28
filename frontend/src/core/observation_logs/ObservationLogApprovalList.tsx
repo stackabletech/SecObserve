@@ -1,3 +1,4 @@
+import ChecklistIcon from "@mui/icons-material/Checklist";
 import {
     AutocompleteInput,
     ChipField,
@@ -11,10 +12,12 @@ import {
     TextInput,
     useListController,
 } from "react-admin";
+import { Fragment } from "react/jsx-runtime";
 
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { feature_vex_enabled } from "../../commons/functions";
-import { AutocompleteInputMedium } from "../../commons/layout/themes";
+import ListHeader from "../../commons/layout/ListHeader";
+import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import { OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
@@ -27,16 +30,32 @@ function listFilters() {
         </ReferenceInput>,
         <AutocompleteInput source="severity" label="Severity" choices={OBSERVATION_SEVERITY_CHOICES} alwaysOn />,
         <AutocompleteInput source="status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
+        <ReferenceInput source="product" reference="products" sort={{ field: "name", order: "ASC" }} alwaysOn>
+            <AutocompleteInputMedium optionText="name" />
+        </ReferenceInput>,
+        <ReferenceInput
+            source="product_group"
+            reference="product_groups"
+            sort={{ field: "name", order: "ASC" }}
+            alwaysOn
+        >
+            <AutocompleteInputMedium optionText="name" />
+        </ReferenceInput>,
+        <ReferenceInput source="branch" reference="branches" sort={{ field: "name", order: "ASC" }} alwaysOn>
+            <AutocompleteInputWide optionText="name_with_product" label="Branch / Version" />
+        </ReferenceInput>,
+        <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
+        <TextInput source="origin_component_name_version" label="Component" alwaysOn />,
     ];
 }
 
 type ObservationLogApprovalListProps = {
-    product: any;
+    // product: any;
 };
 
-const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps) => {
+const ObservationLogApprovalList = ({} /*product*/ : ObservationLogApprovalListProps) => {
     const listContext = useListController({
-        filter: { product: Number(product.id), assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
+        filter: { /*product: Number(product.id),*/ assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
         perPage: 25,
         resource: "observation_logs",
         sort: { field: "created", order: "ASC" },
@@ -68,31 +87,36 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
     localStorage.removeItem("observationlogembeddedlist");
 
     return (
-        <ListContextProvider value={listContext}>
-            <div style={{ width: "100%" }}>
-                <FilterForm filters={listFilters()} />
-                <Datagrid
-                    size={getSettingListSize()}
-                    sx={{ width: "100%" }}
-                    bulkActionButtons={false}
-                    rowClick={ShowObservationLogs}
-                >
-                    <ChipField source="assessment_status" sortable={false} />
-                    <ReferenceField source="observation" reference="observations" link="show">
-                        <TextField source="title" />
-                    </ReferenceField>
-                    <TextField source="user_full_name" label="User" />
-                    <TextField source="severity" emptyText="---" />
-                    <TextField source="status" emptyText="---" />
-                    {feature_vex_enabled() && (
-                        <TextField label="VEX justification" source="vex_justification" emptyText="---" />
-                    )}
-                    <TextField source="comment_shortened" sortable={false} label="Comment" />
-                    <DateField source="created" showTime />
-                </Datagrid>
-                <CustomPagination />
-            </div>
-        </ListContextProvider>
+        <Fragment>
+            <ListHeader icon={ChecklistIcon} title="Reviews" />
+            <ListContextProvider value={listContext}>
+                <div style={{ width: "100%" }}>
+                    <FilterForm filters={listFilters()} />
+                    <Datagrid
+                        size={getSettingListSize()}
+                        sx={{ width: "100%" }}
+                        bulkActionButtons={false}
+                        rowClick={ShowObservationLogs}
+                    >
+                        <DateField source="created" showTime />
+                        <TextField source="user_full_name" label="User" />
+                        <ReferenceField source="observation" reference="observations" link="show">
+                            <TextField source="title" />
+                        </ReferenceField>
+                        <TextField source="product_name" label="Product" />
+                        <TextField source="branch_name" label="Branch / Version" />
+                        <TextField source="origin_component_name_version" label="Component" />
+                        <TextField source="severity" emptyText="---" />
+                        <TextField source="status" emptyText="---" />
+                        {feature_vex_enabled() && (
+                            <TextField label="VEX justification" source="vex_justification" emptyText="---" />
+                        )}
+                        <TextField source="comment_shortened" sortable={false} label="Comment" />
+                    </Datagrid>
+                    <CustomPagination />
+                </div>
+            </ListContextProvider>
+        </Fragment>
     );
 };
 
