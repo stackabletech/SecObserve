@@ -37,15 +37,11 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
     const [loading, setLoading] = useState(false);
     const notify = useNotify();
 
-    const days = [
-        new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        new Date(Date.now()).toLocaleDateString(),
-    ];
+    const days = [];
+    for (let i = 90; i >= 1; i--) {
+        days.push(new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString());
+    }
+    days.push(new Date(Date.now()).toLocaleDateString());
 
     function get_metrics(date: Date, metrics_data: any) {
         const date_string = date.toISOString().split("T")[0];
@@ -72,7 +68,7 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
     function get_data() {
         setLoading(true);
 
-        let url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/metrics/product_metrics_timeline/?age=Past%207%20days";
+        let url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/metrics/product_metrics_timeline/?age=Past%2090%20days";
         if (props.product_id) {
             url += "&product_id=" + props.product_id;
         }
@@ -88,53 +84,16 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                 const none_observations = [];
                 const unkown_observations = [];
 
-                let metrics = get_metrics(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
-
-                metrics = get_metrics(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
-
-                metrics = get_metrics(new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
-
-                metrics = get_metrics(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
-
-                metrics = get_metrics(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
-
-                metrics = get_metrics(new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unkown_observations.push(metrics.open_unknown);
+                let metrics = null;
+                for (let i = 90; i >= 1; i--) {
+                    metrics = get_metrics(new Date(Date.now() - i * 24 * 60 * 60 * 1000), result.json);
+                    critical_observations.push(metrics.open_critical);
+                    high_observations.push(metrics.open_high);
+                    medium_observations.push(metrics.open_medium);
+                    low_observations.push(metrics.open_low);
+                    none_observations.push(metrics.open_none);
+                    unkown_observations.push(metrics.open_unknown);
+                }
 
                 metrics = get_metrics(new Date(Date.now()), result.json);
                 critical_observations.push(metrics.open_critical);
@@ -251,7 +210,7 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                         plugins: {
                             title: {
                                 display: true,
-                                text: "Severities of open observations (last 7 days)",
+                                text: "Severities of open observations (last 90 days)",
                                 color: getFontColor(),
                             },
                             legend: {
