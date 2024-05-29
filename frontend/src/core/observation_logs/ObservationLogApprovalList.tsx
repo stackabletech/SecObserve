@@ -55,7 +55,6 @@ function listFilters() {
     ];
 }
 
-
 const ObservationLogApprovalList = () => {
     const listContext = useListController({
         filter: { assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },

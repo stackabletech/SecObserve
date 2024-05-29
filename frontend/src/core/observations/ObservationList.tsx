@@ -44,6 +44,7 @@ const listFilters = [
     <ReferenceInput source="branch" reference="branches" sort={{ field: "name", order: "ASC" }} alwaysOn>
         <AutocompleteInputWide optionText="name_with_product" label="Branch / Version" />
     </ReferenceInput>,
+    <TextInput source="branch_name" label="Branch / Version name" />,
     <TextInput source="title" alwaysOn />,
     <AutocompleteInput source="current_severity" label="Severity" choices={OBSERVATION_SEVERITY_CHOICES} alwaysOn />,
     <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
@@ -62,8 +63,7 @@ const listFilters = [
     <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
-    <TextInput source="branch_name" label="Branch / Version name" />,
-    // <NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />,
+    <NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />,
 ];
 
 const ListActions = () => (
