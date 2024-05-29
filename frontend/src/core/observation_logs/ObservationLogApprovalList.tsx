@@ -1,7 +1,6 @@
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import {
     AutocompleteInput,
-    ChipField,
     Datagrid,
     DateField,
     FilterForm,
@@ -21,6 +20,13 @@ import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/la
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import { OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
+import AssessmentBulkApproval from "./AssessmentBulkApproval";
+
+const BulkActionButtons = () => (
+    <Fragment>
+        <AssessmentBulkApproval />
+    </Fragment>
+);
 
 function listFilters() {
     return [
@@ -49,13 +55,10 @@ function listFilters() {
     ];
 }
 
-type ObservationLogApprovalListProps = {
-    // product: any;
-};
 
-const ObservationLogApprovalList = ({} /*product*/ : ObservationLogApprovalListProps) => {
+const ObservationLogApprovalList = () => {
     const listContext = useListController({
-        filter: { /*product: Number(product.id),*/ assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
+        filter: { assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
         perPage: 25,
         resource: "observation_logs",
         sort: { field: "created", order: "ASC" },
@@ -95,7 +98,7 @@ const ObservationLogApprovalList = ({} /*product*/ : ObservationLogApprovalListP
                     <Datagrid
                         size={getSettingListSize()}
                         sx={{ width: "100%" }}
-                        bulkActionButtons={false}
+                        bulkActionButtons={<BulkActionButtons />}
                         rowClick={ShowObservationLogs}
                     >
                         <DateField source="created" showTime />

@@ -95,7 +95,13 @@ def save_assessment(
             else ""
         )
 
-        if log_severity or log_status or log_vex_justification or log_vex_remediations or comment:
+        if (
+            log_severity
+            or log_status
+            or log_vex_justification
+            or log_vex_remediations
+            or comment
+        ):
             create_observation_log(
                 observation,
                 log_severity,

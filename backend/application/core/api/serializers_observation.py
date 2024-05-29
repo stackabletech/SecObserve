@@ -573,6 +573,16 @@ class ObservationLogApprovalSerializer(Serializer):
     approval_remark = CharField(max_length=255, required=True)
 
 
+class ObservationLogBulkApprovalSerializer(Serializer):
+    assessment_status = ChoiceField(
+        choices=Assessment_Status.ASSESSMENT_STATUS_CHOICES_APPROVAL, required=False
+    )
+    approval_remark = CharField(max_length=255, required=True)
+    observation_logs = ListField(
+        child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
+    )
+
+
 class PotentialDuplicateSerializer(ModelSerializer):
     potential_duplicate_observation = NestedObservationSerializer()
 
