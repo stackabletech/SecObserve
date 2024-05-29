@@ -1,5 +1,5 @@
 import { styled } from "@mui/system";
-import { AutocompleteInput, PasswordInput, TextInput, defaultTheme } from "react-admin";
+import { AutocompleteInput, NullableBooleanInput, PasswordInput, TextInput, defaultTheme } from "react-admin";
 import { tss } from "tss-react";
 
 export const AutocompleteInputWide = styled(AutocompleteInput)({
@@ -16,6 +16,12 @@ export const TextInputWide = styled(TextInput)({
 
 export const PasswordInputWide = styled(PasswordInput)({
     width: "30em",
+});
+
+export const NullableBooleanInputWide = styled(NullableBooleanInput)({
+    "&.RaNullableBooleanInput-input": {
+        width: "12em",
+    },
 });
 
 export function getLinkColor(setting_theme: string) {

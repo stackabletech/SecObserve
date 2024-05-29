@@ -21,7 +21,7 @@ import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { humanReadableDate } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
-import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
+import { AutocompleteInputMedium, NullableBooleanInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import {
     AGE_CHOICES,
@@ -36,13 +36,13 @@ import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 
 const listFilters = [
     <ReferenceInput source="product" reference="products" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInputMedium optionText="name" />
+        <AutocompleteInput optionText="name" />
     </ReferenceInput>,
     <ReferenceInput source="product_group" reference="product_groups" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInputMedium optionText="name" />
+        <AutocompleteInput optionText="name" />
     </ReferenceInput>,
     <ReferenceInput source="branch" reference="branches" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInputWide optionText="name_with_product" label="Branch / Version" />
+        <AutocompleteInputMedium optionText="name_with_product" label="Branch / Version" />
     </ReferenceInput>,
     <TextInput source="branch_name" label="Branch / Version name" />,
     <TextInput source="title" alwaysOn />,
@@ -57,13 +57,13 @@ const listFilters = [
     // <TextInput source="origin_source_file" label="Source" />,
     // <TextInput source="origin_cloud_qualified_resource" label="Resource" />,
     <TextInput source="scanner" alwaysOn />,
-    <AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />,
+    <AutocompleteInputMedium source="age" choices={AGE_CHOICES} />,
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
-    <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
-    <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
-    <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
+    <NullableBooleanInputWide source="patch_available" label="Patch available" alwaysOn />,
+    <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
+    <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
+    <NullableBooleanInputWide source="has_pending_assessment" label="Pending assessment" alwaysOn />,
     <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
-    <NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />,
 ];
 
 const ListActions = () => (
