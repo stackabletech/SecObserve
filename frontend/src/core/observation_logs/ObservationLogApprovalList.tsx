@@ -55,9 +55,13 @@ function listFilters() {
     ];
 }
 
-const ObservationLogApprovalList = () => {
+type ObservationLogApprovalListProps = {
+    product: any;
+};
+
+const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps) => {
     const listContext = useListController({
-        filter: { assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
+        filter: { product: product ? Number(product.id) : null, assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL },
         perPage: 25,
         resource: "observation_logs",
         sort: { field: "created", order: "ASC" },
