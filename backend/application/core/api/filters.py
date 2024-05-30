@@ -224,7 +224,7 @@ class ObservationFilter(FilterSet):
                     assessment_status="Needs approval"
                 ).values("observation_id")
             )
-        else:
+        elif value == "false":
             return queryset.exclude(
                 id__in=Observation_Log.objects.filter(
                     assessment_status="Needs approval"
