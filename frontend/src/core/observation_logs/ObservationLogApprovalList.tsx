@@ -65,7 +65,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
         perPage: 25,
         resource: "observation_logs",
         sort: { field: "created", order: "ASC" },
-        disableSyncWithLocation: true,
+        disableSyncWithLocation: false,
         storeKey: "observation_logs.approval",
     });
 
