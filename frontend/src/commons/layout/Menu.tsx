@@ -2,8 +2,7 @@ import ChecklistIcon from "@mui/icons-material/Checklist";
 import SecurityIcon from "@mui/icons-material/Security";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Box from "@mui/material/Box";
-import { Fragment } from "react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { DashboardMenuItem, MenuItemLink, MenuProps, useSidebarState } from "react-admin";
 
 import administration from "../../access_control/access_control_administration";
