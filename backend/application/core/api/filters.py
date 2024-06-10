@@ -224,12 +224,15 @@ class ObservationFilter(FilterSet):
                     assessment_status="Needs approval"
                 ).values("observation_id")
             )
-        elif value == "false":
+
+        if value == "false":
             return queryset.exclude(
                 id__in=Observation_Log.objects.filter(
                     assessment_status="Needs approval"
                 ).values("observation_id")
             )
+
+        return queryset
 
     ordering = OrderingFilter(
         # tuple-mapping retains order

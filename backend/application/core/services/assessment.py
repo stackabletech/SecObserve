@@ -41,6 +41,11 @@ def save_assessment(
         and new_vex_justification != observation.current_vex_justification
         else ""
     )
+    log_vex_remediations = (
+        new_vex_remediations
+        if new_vex_remediations and new_vex_remediations != observation.vex_remediations
+        else ""
+    )
 
     assessment_status = (
         Assessment_Status.ASSESSMENT_STATUS_NEEDS_APPROVAL
@@ -124,10 +129,8 @@ def _update_observation(
         )
 
     previous_vex_remediations = observation.vex_remediations
-    log_vex_remediations = ""
     if new_vex_remediations and new_vex_remediations != observation.vex_remediations:
         observation.vex_remediations = new_vex_remediations
-        log_vex_remediations = observation.vex_remediations
 
     if (
         previous_current_severity  # pylint: disable=too-many-boolean-expressions
