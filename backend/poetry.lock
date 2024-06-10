@@ -958,12 +958,12 @@ tornado = ["tornado (>=0.2)"]
 
 [[package]]
 name = "huey"
-version = "2.5.0"
+version = "2.5.1"
 description = "huey, a little task queue"
 optional = false
 python-versions = "*"
 files = [
-    {file = "huey-2.5.0.tar.gz", hash = "sha256:2ffb52fb5c46a1b0d53c79d59df3622312b27e2ab68d81a580985a8ea4ca3480"},
+    {file = "huey-2.5.1.tar.gz", hash = "sha256:8a323783ab434a095a4e72b8c48c5b8f957f9031fa860474a390a0927e957112"},
 ]
 
 [package.extras]
@@ -1142,13 +1142,13 @@ test = ["MarkupSafe (>=0.23)", "PyYAML (>=5.1)", "docutils (>=0.12)", "flaky", "
 
 [[package]]
 name = "jsonpickle"
-version = "3.0.4"
-description = "Serialize any Python object to JSON"
+version = "3.2.1"
+description = "Python library for serializing arbitrary object graphs into JSON"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jsonpickle-3.0.4-py3-none-any.whl", hash = "sha256:04ae7567a14269579e3af66b76bda284587458d7e8a204951ca8f71a3309952e"},
-    {file = "jsonpickle-3.0.4.tar.gz", hash = "sha256:a1b14c8d6221cd8f394f2a97e735ea1d7edc927fbd135b26f2f8700657c8c62b"},
+    {file = "jsonpickle-3.2.1-py3-none-any.whl", hash = "sha256:ec291e4719674dd35d390fbdb521ac6517fbe9f541d361c8bffc8131133b1661"},
+    {file = "jsonpickle-3.2.1.tar.gz", hash = "sha256:4b6d7640974199f7acf9035295365b5a1a71a91109effa15ba170fbb48cf871c"},
 ]
 
 [package.extras]
@@ -2437,4 +2437,8 @@ brotli = ["Brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.10, < 3.13"
+<<<<<<< HEAD
 content-hash = "1b9a991e5e3715e4ccdf6908b25c98a1a2668bf22c77c4052c89d9bb8c827c88"
+=======
+content-hash = "c3220e12d9ddca15b7b319c70c62e6fd8df3db935d0a46290d8a2e4eb820cc65"
+>>>>>>> 78794e1ec9373428aba772eddc168fe3c7c40676
