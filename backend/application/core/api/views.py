@@ -50,6 +50,7 @@ from application.core.api.serializers_observation import (
     ObservationListSerializer,
     ObservationLogApprovalSerializer,
     ObservationLogBulkApprovalSerializer,
+    ObservationLogBulkDeleteSerializer,
     ObservationLogListSerializer,
     ObservationLogSerializer,
     ObservationRemoveAssessmentSerializer,
@@ -570,7 +571,7 @@ class ObservationLogViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         return Response()
 
     @extend_schema(
-        methods=["POST"],
+        methods=["PATCH"],
         request=ObservationLogBulkApprovalSerializer,
         responses={HTTP_204_NO_CONTENT: None},
     )
@@ -585,6 +586,23 @@ class ObservationLogViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
             request_serializer.validated_data.get("approval_remark"),
             request_serializer.validated_data.get("observation_logs"),
         )
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        methods=["DELETE"],
+        request=ObservationLogBulkApprovalSerializer,
+        responses={HTTP_204_NO_CONTENT: None},
+    )
+    @action(detail=False, methods=["delete"])
+    def bulk_delete(self, request):
+        request_serializer = ObservationLogBulkDeleteSerializer(data=request.data)
+        if not request_serializer.is_valid():
+            raise ValidationError(request_serializer.errors)
+
+        Observation_Log.objects.filter(
+            id__in=request_serializer.validated_data.get("observation_logs"),
+            user=get_current_user(),
+        ).delete()
         return Response(status=HTTP_204_NO_CONTENT)
 
 
