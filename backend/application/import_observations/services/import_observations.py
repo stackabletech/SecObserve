@@ -441,26 +441,15 @@ def _resolve_unimported_observations(
     # and seem to have been resolved.
     observations_resolved: set[Observation] = set()
     for observation in observations_before.values():
-        old_status = get_current_status(observation)
-
-        observation.parser_status = Status.STATUS_RESOLVED
-        observation.save()
-
-        new_status = get_current_status(observation)
-        if old_status != new_status:
-            if old_status == Status.STATUS_OPEN:
-                observations_resolved.add(observation)
-
-            observation.current_status = new_status
-            create_observation_log(
-                observation,
-                "",
-                observation.current_status,
-                "Observation not found in latest scan",
-                "",
-                "",
-                Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
-            )
+        create_observation_log(
+            observation,
+            "",
+            "",
+            "Observation not found in latest scan",
+            "",
+            "",
+            Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+        )
 
     return observations_resolved
 
