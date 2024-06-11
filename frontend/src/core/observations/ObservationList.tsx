@@ -1,4 +1,3 @@
-import { Stack } from "@mui/material";
 import { Fragment } from "react";
 import {
     AutocompleteInput,
@@ -6,14 +5,16 @@ import {
     ChipField,
     Datagrid,
     FilterButton,
+    FilterForm,
     FunctionField,
-    List,
+    ListContextProvider,
     NullableBooleanInput,
     NumberField,
     ReferenceInput,
     TextField,
     TextInput,
     TopToolbar,
+    useListController,
 } from "react-admin";
 
 import observations from ".";
@@ -34,7 +35,7 @@ import {
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 
-const listFilters = [
+const listFilters = () => [
     <ReferenceInput source="product" reference="products" sort={{ field: "name", order: "ASC" }} alwaysOn>
         <AutocompleteInput optionText="name" />
     </ReferenceInput>,
@@ -66,14 +67,6 @@ const listFilters = [
     <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
 ];
 
-const ListActions = () => (
-    <TopToolbar>
-        <Stack spacing={0.5} alignItems="flex-end">
-            <FilterButton />
-        </Stack>
-    </TopToolbar>
-);
-
 const BulkActionButtons = () => (
     <Fragment>
         <ObservationBulkAssessment product={null} />
@@ -82,46 +75,60 @@ const BulkActionButtons = () => (
 
 const ObservationList = () => {
     setListIdentifier(IDENTIFIER_OBSERVATION_LIST);
+    const listContext = useListController({
+        filter: { current_status: OBSERVATION_STATUS_OPEN },
+        perPage: 25,
+        resource: "observations",
+        sort: { field: "current_severity", order: "ASC" },
+        storeKey: "observations.list",
+        disableSyncWithLocation: false,
+    });
+
+    if (listContext.isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    // hack to sync parameters to location URL if they are loaded from the store
+    if (listContext.sort && !document.location.hash.match(/#\/observations.*\?/)) {
+        listContext.setSort(listContext.sort);
+    }
 
     return (
         <Fragment>
             <ListHeader icon={observations.icon} title="Observations" />
-            <List
-                perPage={25}
-                pagination={<CustomPagination />}
-                filters={listFilters}
-                sort={{ field: "current_severity", order: "ASC" }}
-                filterDefaultValues={{ current_status: OBSERVATION_STATUS_OPEN }}
-                disableSyncWithLocation={false}
-                storeKey="observations.list"
-                actions={<ListActions />}
-                sx={{ marginTop: 1 }}
-            >
-                <Datagrid size={getSettingListSize()} rowClick="show" bulkActionButtons={<BulkActionButtons />}>
-                    <TextField source="product_data.name" label="Product" />
-                    <TextField source="product_data.product_group_name" label="Group" />
-                    <TextField source="branch_name" label="Branch / Version" />
-                    <TextField source="title" />
-                    <SeverityField source="current_severity" />
-                    <ChipField source="current_status" label="Status" />
-                    <NumberField source="epss_score" label="EPSS" />
-                    <NumberField source="stackable_score" label="Stackable Score" />
-                    {/* <TextField source="origin_service_name" label="Service" /> */}
-                    <TextField source="origin_component_name_version" label="Component" />
-                    <TextField source="origin_docker_image_name_tag_short" label="Container" />
-                    {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
-                    {/* <TextField source="origin_source_file" label="Source" /> */}
-                    {/* <TextField source="origin_cloud_qualified_resource" label="Resource" />, */}
-                    <TextField source="scanner_name" label="Scanner" />
-                    <FunctionField<Observation>
-                        label="Age"
-                        sortBy="last_observation_log"
-                        render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
-                    />
-                    <BooleanField source="has_potential_duplicates" label="Dupl." />
-                    <BooleanField source="patch_available" label="Patch" />
-                </Datagrid>
-            </List>
+            <ListContextProvider value={listContext}>
+                <div style={{ width: "100%", marginTop: 1 }}>
+                    <TopToolbar>
+                        <FilterForm filters={listFilters()} />
+                        <FilterButton filters={listFilters()} />
+                    </TopToolbar>
+                    <Datagrid size={getSettingListSize()} rowClick="show" bulkActionButtons={<BulkActionButtons />}>
+                        <TextField source="product_data.name" label="Product" />
+                        <TextField source="product_data.product_group_name" label="Group" />
+                        <TextField source="branch_name" label="Branch / Version" />
+                        <TextField source="title" />
+                        <SeverityField source="current_severity" />
+                        <ChipField source="current_status" label="Status" />
+                        <NumberField source="epss_score" label="EPSS" />
+                        <NumberField source="stackable_score" label="Stackable Score" />
+                        {/* <TextField source="origin_service_name" label="Service" /> */}
+                        <TextField source="origin_component_name_version" label="Component" />
+                        <TextField source="origin_docker_image_name_tag_short" label="Container" />
+                        {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
+                        {/* <TextField source="origin_source_file" label="Source" /> */}
+                        {/* <TextField source="origin_cloud_qualified_resource" label="Resource" />, */}
+                        <TextField source="scanner_name" label="Scanner" />
+                        <FunctionField<Observation>
+                            label="Age"
+                            sortBy="last_observation_log"
+                            render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
+                        />
+                        <BooleanField source="has_potential_duplicates" label="Dupl." />
+                        <BooleanField source="patch_available" label="Patch" />
+                    </Datagrid>
+                    <CustomPagination />
+                </div>
+            </ListContextProvider>
         </Fragment>
     );
 };

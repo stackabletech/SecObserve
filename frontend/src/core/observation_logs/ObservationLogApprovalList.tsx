@@ -94,6 +94,11 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
     localStorage.setItem("observationlogapprovallist", "true");
     localStorage.removeItem("observationlogembeddedlist");
 
+    // hack to sync parameters to location URL if they are loaded from the store
+    if (listContext.sort && !document.location.hash.match(/#\/observation_logs.*\?/)) {
+        listContext.setSort(listContext.sort);
+    }
+
     return (
         <Fragment>
             <ListHeader icon={ChecklistIcon} title="Reviews" />
