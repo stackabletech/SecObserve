@@ -76,7 +76,7 @@ const BulkActionButtons = () => (
 const ObservationList = () => {
     setListIdentifier(IDENTIFIER_OBSERVATION_LIST);
     const listContext = useListController({
-        filter: { current_status: OBSERVATION_STATUS_OPEN },
+        filterDefaultValues: { current_status: OBSERVATION_STATUS_OPEN },
         perPage: 25,
         resource: "observations",
         sort: { field: "current_severity", order: "ASC" },
