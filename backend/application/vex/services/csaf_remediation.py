@@ -14,8 +14,8 @@ def set_remediation(vulnerability: CSAFVulnerability, observation: Observation):
         observation_log = get_current_observation_log(observation)
         if observation_log and observation_log.vex_remediations:
             for remediation in observation_log.vex_remediations:
-                category = remediation['category']
-                details = remediation['text']
+                category = remediation["category"]
+                details = remediation["text"]
 
                 found = _check_and_append_remediation(
                     vulnerability, product_or_relationship_id, category, details
