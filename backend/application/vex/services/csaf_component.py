@@ -74,11 +74,11 @@ def _create_component(
     component_name_version: str, purl: Optional[str], cpe: Optional[str]
 ) -> CSAFFullProductName:
     product_identification_helper = None
-    if purl or cpe:
+    if purl: # or cpe:
         purl = purl if purl else None
-        cpe = cpe if cpe else None
+        # cpe = cpe if cpe else None
         product_identification_helper = CSAFProductIdentificationHelper(
-            purl=purl, cpe=cpe
+            purl=purl, cpe=None
         )
 
     component_id = get_component_id(component_name_version, purl, cpe)

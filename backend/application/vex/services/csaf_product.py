@@ -62,18 +62,18 @@ def append_product_to_product_tree(
 def _create_product(product: Product, branch: Optional[Branch]) -> CSAFFullProductName:
     product_identification_helper = None
     if branch:
-        if branch.purl or branch.cpe23:
+        if branch.purl: # or branch.cpe23:
             purl = branch.purl if branch.purl else None
-            cpe = branch.cpe23 if branch.cpe23 else None
+            # cpe = branch.cpe23 if branch.cpe23 else None
             product_identification_helper = CSAFProductIdentificationHelper(
-                purl=purl, cpe=cpe
+                purl=purl, cpe=None
             )
     else:
-        if product.purl or product.cpe23:
+        if product.purl: # or product.cpe23:
             purl = product.purl if product.purl else None
-            cpe = product.cpe23 if product.cpe23 else None
+            #cpe = product.cpe23 if product.cpe23 else None
             product_identification_helper = CSAFProductIdentificationHelper(
-                purl=purl, cpe=cpe
+                purl=purl, cpe=None
             )
 
     product_name = f"{product.name}:{branch.name}" if branch else product.name
