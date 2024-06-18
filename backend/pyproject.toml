@@ -43,7 +43,7 @@ defusedcsv = "2.0.0"  # https://github.com/raphaelm/defusedcsv
 openpyxl = "3.1.4"  # https://foss.heptapod.net/openpyxl/openpyxl
 # Package URL
 # ------------------------------------------------------------------------------
-packageurl-python = "0.15.0"  # https://github.com/package-url/packageurl-python
+packageurl-python = "0.15.1"  # https://github.com/package-url/packageurl-python
 # Task queue
 # ------------------------------------------------------------------------------
 huey = "2.5.1"  # https://github.com/coleifer/huey
@@ -64,7 +64,7 @@ ipdb = "0.13.13"  # https://github.com/gotcha/ipdb
 watchgod = "0.8.2"  # https://github.com/samuelcolvin/watchgod
 # Code quality
 # ------------------------------------------------------------------------------
-flake8 = "7.0.0"  # https://github.com/PyCQA/flake8
+flake8 = "7.1.0"  # https://github.com/PyCQA/flake8
 flake8-isort = "6.1.1"  # https://github.com/gforcada/flake8-isort
 black = "24.4.2"  # https://github.com/psf/black
 pylint-django = "2.5.5"  # https://github.com/PyCQA/pylint-django
