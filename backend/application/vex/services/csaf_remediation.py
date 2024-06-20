@@ -1,10 +1,10 @@
 from application.core.models import Observation
+from application.core.queries.observation import get_current_observation_log
 from application.vex.services.csaf_helpers import (
     get_product_or_relationship_id,
     map_status,
 )
 from application.vex.types import CSAF_Status, CSAFRemediation, CSAFVulnerability
-from application.core.queries.observation import get_current_observation_log
 
 
 def set_remediation(vulnerability: CSAFVulnerability, observation: Observation):
