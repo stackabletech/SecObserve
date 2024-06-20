@@ -161,6 +161,7 @@ class CSAFThreat:
 @dataclass()
 class CSAFVulnerability:
     cve: Optional[str]
+    title: Optional[str]
     notes: list[CSAFNote]
     flags: list[CSAFFlag]
     ids: list[CSAFId]
