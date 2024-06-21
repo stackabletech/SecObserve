@@ -10,6 +10,7 @@ from application.core.models import (
     Branch,
     Evidence,
     Observation,
+    Observation_Log,
     Parser,
     Product,
     Reference,
@@ -441,6 +442,14 @@ def _resolve_unimported_observations(
     # and seem to have been resolved.
     observations_resolved: set[Observation] = set()
     for observation in observations_before.values():
+
+        # Check if this observation log entry already exists
+        if Observation_Log.objects.filter(
+            observation=observation,
+            comment="Observation not found in latest scan",
+        ).exists():
+            continue
+
         create_observation_log(
             observation,
             "",
