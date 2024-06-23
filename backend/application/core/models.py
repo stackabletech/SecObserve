@@ -412,6 +412,7 @@ class Observation(Model):
     )
     current_status = CharField(max_length=16, choices=Status.STATUS_CHOICES)
     parser_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
+    vex_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
     rule_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
     assessment_status = CharField(
         max_length=16, choices=Status.STATUS_CHOICES, blank=True
@@ -511,6 +512,9 @@ class Observation(Model):
     parser_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
+    vex_vex_justification = CharField(
+        max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
+    )
     rule_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
@@ -524,6 +528,13 @@ class Observation(Model):
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
     purl_type = CharField(max_length=16, blank=True, null=True)
+    vex_statement = ForeignKey(
+        "vex.VEX_Statement",
+        related_name="vex_statements",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
 
     class Meta:
         indexes = [
@@ -602,6 +613,13 @@ class Observation_Log(Model):
     product_rule = ForeignKey(
         "rules.Rule",
         related_name="observation_log_product_rules",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    vex_statement = ForeignKey(
+        "vex.VEX_Statement",
+        related_name="observation_log_vex_statements",
         blank=True,
         null=True,
         on_delete=SET_NULL,

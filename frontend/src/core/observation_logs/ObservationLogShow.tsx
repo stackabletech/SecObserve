@@ -20,6 +20,7 @@ import {
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
 import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
+import { is_superuser } from "../../commons/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import AssessmentApproval from "./AssessmentApproval";
 
@@ -145,6 +146,16 @@ const ObservationLogComponent = () => {
                                         source="product_rule"
                                         reference="product_rules"
                                         label="Product rule name"
+                                        link="show"
+                                    />
+                                </Labeled>
+                            )}
+                            {is_superuser() && observation_log.vex_statement != null && (
+                                <Labeled label="VEX statement">
+                                    <ReferenceField
+                                        source="vex_statement"
+                                        reference="vex/vex_statements"
+                                        label="VEX statement"
                                         link="show"
                                     />
                                 </Labeled>
