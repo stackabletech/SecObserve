@@ -57,7 +57,7 @@ const BranchEmbeddedList = ({ product }: BranchEmbeddedListProps) => {
                     <TextField source="purl" label="PURL" />
                     <TextField source="cpe23" label="CPE 2.3" />
                     <ObservationsCountField withLabel={false} />
-                    <DateField source="last_import" showTime />
+                    <DateField locales="de-DE" source="last_import" showTime />
                     <WithRecord
                         label="Protect"
                         render={(branch) => !branch.is_default_branch && <BooleanField source="housekeeping_protect" />}

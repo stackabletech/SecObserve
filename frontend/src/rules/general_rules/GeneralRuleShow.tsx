@@ -185,7 +185,7 @@ const GeneralRuleComponent = () => {
                                 )}
                                 {rule.approval_date && (
                                     <Labeled label="Approval/rejection date">
-                                        <DateField source="approval_date" showTime />
+                                        <DateField locales="de-DE" source="approval_date" showTime />
                                     </Labeled>
                                 )}
                             </Stack>

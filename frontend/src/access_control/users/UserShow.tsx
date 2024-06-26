@@ -99,7 +99,7 @@ const UserComponent = () => {
                             )}
                             {user.date_joined && (
                                 <Labeled label="Created">
-                                    <DateField source="date_joined" showTime />
+                                    <DateField locales="de-DE" source="date_joined" showTime />
                                 </Labeled>
                             )}
                             {user.has_password != undefined && (

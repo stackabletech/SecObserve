@@ -96,8 +96,8 @@ const MetaData = () => {
                                 />
                             </Labeled>
                         )}
-                        <DateField source="import_last_seen" showTime />
-                        <DateField source="created" showTime />
+                        <DateField locales="de-DE" source="import_last_seen" showTime />
+                        <DateField locales="de-DE" source="created" showTime />
                     </SimpleShowLayout>
                 )}
             />

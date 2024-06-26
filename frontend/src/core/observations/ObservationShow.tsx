@@ -173,7 +173,7 @@ const ObservationShowComponent = () => {
                             </Stack>
                             {observation.found != null && (
                                 <Labeled>
-                                    <DateField source="found" />
+                                    <DateField locales="de-DE" source="found" />
                                 </Labeled>
                             )}
                             <Labeled>

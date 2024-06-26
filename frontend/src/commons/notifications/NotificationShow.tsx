@@ -35,7 +35,7 @@ const NotificationShow = () => {
                         <Typography variant="h6">Notification</Typography>
                         <TextField source="type" />
                         <TextField source="name" />
-                        <DateField source="created" showTime={true} />
+                        <DateField locales="de-DE" source="created" showTime={true} />
                         {notification && notification.message && <TextField source="message" />}
                         {notification && notification.function && <TextField source="function" />}
                         {notification && notification.arguments && <TextField source="arguments" />}

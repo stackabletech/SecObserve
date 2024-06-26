@@ -111,7 +111,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         bulkActionButtons={<BulkActionButtons />}
                         rowClick={ShowObservationLogs}
                     >
-                        <DateField source="created" showTime />
+                        <DateField locales="de-DE" source="created" showTime />
                         <TextField source="user_full_name" label="User" />
                         <ReferenceField source="observation" reference="observations" link="show">
                             <TextField source="title" />

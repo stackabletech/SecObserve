@@ -42,7 +42,7 @@ const VEXDocumentList = () => {
                     <TextField source="type" />
                     <TextField source="document_id" label="Document ID" />
                     <TextField source="version" />
-                    <DateField source="current_release_date" label="Current release" />
+                    <DateField locales="de-DE" source="current_release_date" label="Current release" />
                     <TextField source="author" />
                     <TextField source="role" />
                 </Datagrid>

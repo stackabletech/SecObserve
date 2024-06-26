@@ -64,7 +64,7 @@ const NotificationList = () => {
                 >
                     <TextField source="type" />
                     <TextField source="name" />
-                    <DateField source="created" showTime={true} />
+                    <DateField locales="de-DE" source="created" showTime={true} />
                     <TextField source="message" />
                     <TextField source="function" />
                     <TextField source="product_name" label="Product" />

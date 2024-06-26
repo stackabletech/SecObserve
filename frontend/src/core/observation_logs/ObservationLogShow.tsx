@@ -164,7 +164,7 @@ const ObservationLogComponent = () => {
                                 <MarkdownField content={observation_log.comment} />
                             </Labeled>
                             <Labeled label="Created">
-                                <DateField source="created" showTime />
+                                <DateField locales="de-DE" source="created" showTime />
                             </Labeled>
                         </Stack>
                     </Paper>
@@ -196,7 +196,7 @@ const ObservationLogComponent = () => {
                                     )}
                                     {observation_log.approval_date && (
                                         <Labeled label="Approval/rejection date">
-                                            <DateField source="approval_date" showTime />
+                                            <DateField locales="de-DE" source="approval_date" showTime />
                                         </Labeled>
                                     )}
                                 </Stack>

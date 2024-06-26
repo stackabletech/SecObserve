@@ -74,8 +74,8 @@ const OpenVEXShow = () => {
                         <TextField source="role" />
                         <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                         <Typography variant="h6">Tracking</Typography>
-                        <DateField source="timestamp" showTime={true} />
-                        <DateField source="last_updated" showTime={true} />
+                        <DateField locales="de-DE" source="timestamp" showTime={true} />
+                        <DateField locales="de-DE" source="last_updated" showTime={true} />
                     </SimpleShowLayout>
                 )}
             />

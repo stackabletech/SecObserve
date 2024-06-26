@@ -74,11 +74,13 @@ const CSAFShow = () => {
                         <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                         <Typography variant="h6">Tracking</Typography>
                         <DateField
+                            locales="de-DE"
                             source="tracking_initial_release_date"
                             showTime={true}
                             label="Initial release date"
                         />
                         <DateField
+                            locales="de-DE"
                             source="tracking_current_release_date"
                             showTime={true}
                             label="Current release date"
