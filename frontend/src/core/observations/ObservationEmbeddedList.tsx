@@ -5,6 +5,7 @@ import {
     BooleanField,
     ChipField,
     DatagridConfigurable,
+    FilterButton,
     FilterForm,
     FunctionField,
     Identifier,
@@ -69,6 +70,7 @@ function listFilters(product: Product) {
         // </ReferenceInput>,
         <TextInput source="origin_component_name_version" label="Component" alwaysOn />,
         <TextInput source="origin_docker_image_name_tag_short" label="Container" alwaysOn />,
+        <TextInput source="origin_component_location" label="Component location" />,
         // <TextInput source="origin_endpoint_hostname" label="Host" alwaysOn />,
         // <TextInput source="origin_source_file" label="Source" alwaysOn />,
         // <TextInput source="origin_cloud_qualified_resource" label="Resource" alwaysOn />,
@@ -103,8 +105,9 @@ const BulkActionButtons = (product: any) => (
     </Fragment>
 );
 
-const ListActions = () => (
+const ListActions = (product: any) => (
     <TopToolbar>
+        <FilterButton filters={listFilters(product)} />
         <SelectColumnsButton preferenceKey="observations.embedded" />
     </TopToolbar>
 );
@@ -148,12 +151,13 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
             <div style={{ width: "100%" }}>
                 <Stack direction="row" spacing={2} justifyContent="center" alignItems="flex-end">
                     <FilterForm filters={listFilters(product)} />
-                    <ListActions />
+                    <ListActions product={product} />
                 </Stack>
                 <DatagridConfigurable
                     size={getSettingListSize()}
                     sx={{ width: "100%" }}
                     rowClick={ShowObservations}
+                    omit={["scanner_name", "stackable_score", "has_potential_duplicates"]}
                     bulkActionButtons={
                         product &&
                         (product.permissions.includes(PERMISSION_OBSERVATION_ASSESSMENT) ||
@@ -172,6 +176,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                     {/* <TextField source="origin_service_name" label="Service" /> */}
                     <TextField source="origin_component_name_version" label="Component" />
                     <TextField source="origin_docker_image_name_tag_short" label="Container" />
+                    <TextField source="origin_component_location" label="Component location" />
                     {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
                     {/* <TextField source="origin_source_file" label="Source" /> */}
                     {/* <TextField source="origin_cloud_qualified_resource" label="Resource" /> */}

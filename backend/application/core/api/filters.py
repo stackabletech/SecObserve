@@ -196,6 +196,9 @@ class ObservationFilter(FilterSet):
     origin_cloud_qualified_resource = CharFilter(
         field_name="origin_cloud_qualified_resource", lookup_expr="icontains"
     )
+    origin_component_location = CharFilter(
+        field_name="origin_component_location", lookup_expr="icontains"
+    )
     scanner = CharFilter(field_name="scanner", lookup_expr="icontains")
     age = ChoiceFilter(field_name="age", method="get_age", choices=AGE_CHOICES)
     product_group = ModelChoiceFilter(
@@ -259,6 +262,7 @@ class ObservationFilter(FilterSet):
             ("last_observation_log", "last_observation_log"),
             ("epss_score", "epss_score"),
             ("stackable_score", "stackable_score"),
+            ("origin_component_location", "origin_component_location"),
             ("has_potential_duplicates", "has_potential_duplicates"),
             ("patch_available", "patch_available"),
             ("in_vulncheck_kev", "in_vulncheck_kev"),

@@ -93,7 +93,7 @@ const BulkActionButtons = (product: any) => (
 
 const ListActions = () => (
     <TopToolbar>
-        <SelectColumnsButton preferenceKey="observations.embedded" />
+        <SelectColumnsButton preferenceKey="observations.review" />
     </TopToolbar>
 );
 
@@ -135,7 +135,7 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                             <BulkActionButtons product={product} />
                         )
                     }
-                    preferenceKey="observations.embedded"
+                    preferenceKey="observations.review"
                 >
                     <TextField source="branch_name" label="Branch / Version" />
                     <TextField source="title" />
