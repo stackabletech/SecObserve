@@ -70,6 +70,7 @@ def get_observations_for_vulnerability(
         get_observations()
         .filter(vulnerability_id=vulnerability_name)
         .exclude(current_status=Status.STATUS_DUPLICATE)
+        .exclude(current_status=Status.STATUS_OPEN)
         .order_by("id")
     )
 
