@@ -29,6 +29,9 @@ from application.core.services.observation import (
 from application.core.services.observation_log import create_observation_log
 from application.core.services.potential_duplicates import find_potential_duplicates
 from application.core.services.product import set_repository_default_branch
+from application.core.services.risk_acceptance_expiry import (
+    calculate_risk_acceptance_expiry_date,
+)
 from application.core.services.security_gate import check_security_gate
 from application.core.types import Assessment_Status, Status
 from application.epss.services.epss import epss_apply_observation
@@ -347,6 +350,11 @@ def _process_current_observation(
         if observation_before.parser_status == Status.STATUS_RESOLVED:
             observation_before.parser_status = Status.STATUS_OPEN
     observation_before.current_status = get_current_status(observation_before)
+    observation_before.risk_acceptance_expiry_date = (
+        calculate_risk_acceptance_expiry_date(observation_before.product)
+        if observation_before.current_status == Status.STATUS_RISK_ACCEPTED
+        else None
+    )
 
     epss_apply_observation(observation_before)
     observation_before.import_last_seen = timezone.now()
@@ -395,6 +403,7 @@ def _process_current_observation(
             "",
             "",
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            observation_before.risk_acceptance_expiry_date,
         )
 
 
@@ -404,6 +413,11 @@ def _process_new_observation(imported_observation: Observation) -> None:
     if not imported_observation.parser_status:
         imported_observation.parser_status = Status.STATUS_OPEN
     imported_observation.current_status = get_current_status(imported_observation)
+    imported_observation.risk_acceptance_expiry_date = (
+        calculate_risk_acceptance_expiry_date(imported_observation.product)
+        if imported_observation.current_status == Status.STATUS_RISK_ACCEPTED
+        else None
+    )
 
     # Observation has not been imported before, so it is a new one
     epss_apply_observation(imported_observation)
@@ -436,6 +450,7 @@ def _process_new_observation(imported_observation: Observation) -> None:
         "",
         "",
         Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+        imported_observation.risk_acceptance_expiry_date,
     )
 
 
@@ -462,6 +477,7 @@ def _resolve_unimported_observations(
             "",
             "",
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            None,
         )
 
     return observations_resolved

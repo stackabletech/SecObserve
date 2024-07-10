@@ -4,6 +4,8 @@ import { Backdrop, Button, CircularProgress, Dialog, DialogContent, DialogTitle 
 import { Fragment, useState } from "react";
 import {
     ArrayInput,
+    DateInput,
+    FormDataConsumer,
     SaveButton,
     SimpleForm,
     SimpleFormIterator,
@@ -14,14 +16,19 @@ import {
     useUnselectAll,
 } from "react-admin";
 
-import { validate_required_4096 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
+import { validate_after_today, validate_required_4096 } from "../../commons/custom_validators";
+import {
+    justificationIsEnabledForStatus,
+    remediationsAreEnabledForStatus,
+    settings_risk_acceptance_expiry_date,
+} from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
+    OBSERVATION_STATUS_RISK_ACCEPTED,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../types";
@@ -60,6 +67,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.vex_remediations : "",
             observations: selectedIds,
+            risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
 
         httpClient(url, {
@@ -162,6 +170,25 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                                 </SimpleFormIterator>
                             </ArrayInput>
                         )}
+                        <FormDataConsumer>
+                            {({ formData }) =>
+                                formData.current_status &&
+                                formData.current_status == OBSERVATION_STATUS_RISK_ACCEPTED &&
+                                (formData.risk_acceptance_expiry_date_calculated ||
+                                    settings_risk_acceptance_expiry_date()) && (
+                                    <DateInput
+                                        source="risk_acceptance_expiry_date"
+                                        label="Risk acceptance expiry date"
+                                        defaultValue={
+                                            formData.risk_acceptance_expiry_date_calculated
+                                                ? formData.risk_acceptance_expiry_date_calculated
+                                                : settings_risk_acceptance_expiry_date()
+                                        }
+                                        validate={validate_after_today()}
+                                    />
+                                )
+                            }
+                        </FormDataConsumer>
                         <TextInputWide
                             source="comment"
                             validate={validate_required_4096}

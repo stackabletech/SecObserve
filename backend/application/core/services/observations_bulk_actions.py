@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from django.db.models.query import QuerySet
@@ -27,8 +28,8 @@ from application.issue_tracker.services.issue_tracker import (
 )
 
 
-# pylint: disable=too-many-arguments
-def observations_bulk_assessment(
+def observations_bulk_assessment(  # pylint: disable=too-many-arguments
+    # All arguments are required
     product: Optional[Product],
     new_severity: str,
     new_status: str,
@@ -36,6 +37,7 @@ def observations_bulk_assessment(
     observation_ids: list[int],
     new_vex_justification: str,
     new_vex_remediations: str,
+    new_risk_acceptance_expiration_date: Optional[date],
 ) -> None:
     observations = _check_observations(product, observation_ids)
     for observation in observations:
@@ -46,6 +48,7 @@ def observations_bulk_assessment(
             comment,
             new_vex_justification,
             new_vex_remediations,
+            new_risk_acceptance_expiration_date,
         )
 
 
@@ -103,7 +106,7 @@ def observations_bulk_mark_duplicates(
     for duplicate in duplicates:
         duplicate.has_potential_duplicates = False
         duplicate.duplicate_of = observation
-        save_assessment(duplicate, None, Status.STATUS_DUPLICATE, comment, "", "")
+        save_assessment(duplicate, None, Status.STATUS_DUPLICATE, comment, "", "", None)
 
     set_potential_duplicate(observation)
 

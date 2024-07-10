@@ -7,6 +7,7 @@ from packageurl import PackageURL
 from rest_framework.serializers import (
     CharField,
     ChoiceField,
+    DateField,
     IntegerField,
     JSONField,
     ListField,
@@ -325,6 +326,7 @@ class ObservationUpdateSerializer(ModelSerializer):
                 actual_vex_justification,
                 actual_vex_remediations,
                 Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+                observation.risk_acceptance_expiry_date,
             )
 
         check_security_gate(observation.product)
@@ -368,6 +370,7 @@ class ObservationUpdateSerializer(ModelSerializer):
             "cvss3_score",
             "cvss3_vector",
             "cwe",
+            "risk_acceptance_expiry_date",
         ]
 
 
@@ -401,6 +404,7 @@ class ObservationCreateSerializer(ModelSerializer):
             observation.current_vex_justification,
             observation.vex_remediations,
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            observation.risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)
@@ -445,6 +449,7 @@ class ObservationCreateSerializer(ModelSerializer):
             "cvss3_score",
             "cvss3_vector",
             "cwe",
+            "risk_acceptance_expiry_date",
         ]
 
 
@@ -457,6 +462,7 @@ class ObservationAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
+    risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
     comment = CharField(max_length=4096, required=True)
 
 
@@ -483,6 +489,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
+    risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
 
 
 class ObservationBulkMarkDuplicatesSerializer(Serializer):
