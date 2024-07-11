@@ -53,6 +53,9 @@ class Rule_Engine:
         self.product = product
 
     def apply_rules_for_observation(self, observation: Observation) -> None:
+        if observation.current_status != Status.STATUS_OPEN:
+            return
+
         previous_product_rule = None
         if observation.product_rule:
             previous_product_rule = observation.product_rule
