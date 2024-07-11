@@ -530,7 +530,10 @@ class Observation(Model):
     duplicate_of = ForeignKey(
         "self", related_name="duplicates", on_delete=PROTECT, null=True
     )
-    vex_remediations = JSONField(blank=True, null=True)
+    current_vex_remediations = JSONField(blank=True, null=True)
+    rule_vex_remediations = JSONField(blank=True, null=True)
+    vex_vex_remediations = JSONField(blank=True, null=True)
+    assessment_vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
     purl_type = CharField(max_length=16, blank=True, null=True)

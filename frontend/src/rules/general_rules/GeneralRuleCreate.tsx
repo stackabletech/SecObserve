@@ -1,6 +1,6 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import { useState } from "react";
-import { BooleanInput, Create, ReferenceInput, SimpleForm } from "react-admin";
+import { ArrayInput, BooleanInput, Create, ReferenceInput, SimpleForm, SimpleFormIterator } from "react-admin";
 
 import {
     validate_255,
@@ -9,19 +9,21 @@ import {
     validate_required_255,
     validate_required_2048,
 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus } from "../../commons/functions";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
+    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../../core/types";
 import { validateRuleForm } from "../functions";
 
 const GeneralRuleCreate = () => {
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
+    const remediationsEnabled = remediationsAreEnabledForStatus(status);
 
     const transform = (data: any) => {
         if (data.scanner_prefix == null) {
@@ -60,6 +62,9 @@ const GeneralRuleCreate = () => {
         if (!justificationEnabled || data.new_vex_justification == null) {
             data.new_vex_justification = "";
         }
+        if (!remediationsEnabled || data.new_vex_remediations == null) {
+            data.new_vex_remediations = "";
+        }
         return data;
     };
 
@@ -90,6 +95,18 @@ const GeneralRuleCreate = () => {
                             source="new_vex_justification"
                             choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                         />
+                    )}
+                    {remediationsEnabled && (
+                        <ArrayInput source="new_vex_remediations" defaultValue={""} label="New VEX remediations">
+                            <SimpleFormIterator disableReordering inline>
+                                <AutocompleteInputMedium
+                                    source="category"
+                                    label=""
+                                    choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                                />
+                                <TextInputWide source="text" />
+                            </SimpleFormIterator>
+                        </ArrayInput>
                     )}
                     <BooleanInput source="enabled" defaultValue={true} />
                 </Stack>

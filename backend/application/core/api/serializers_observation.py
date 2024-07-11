@@ -286,7 +286,7 @@ class ObservationUpdateSerializer(ModelSerializer):
         actual_severity = instance.current_severity
         actual_status = instance.current_status
         actual_vex_justification = instance.current_vex_justification
-        actual_vex_remediations = instance.vex_remediations
+        actual_vex_remediations = instance.current_vex_remediations
 
         instance.origin_component_name = ""
         instance.origin_component_version = ""
@@ -312,8 +312,8 @@ class ObservationUpdateSerializer(ModelSerializer):
         else:
             actual_vex_justification = ""
 
-        if actual_vex_remediations != observation.vex_remediations:
-            actual_vex_remediations = observation.vex_remediations
+        if actual_vex_remediations != observation.current_vex_remediations:
+            actual_vex_remediations = observation.current_vex_remediations
         else:
             actual_vex_remediations = ""
 
@@ -402,7 +402,7 @@ class ObservationCreateSerializer(ModelSerializer):
             observation.current_status,
             "Observation created manually",
             observation.current_vex_justification,
-            observation.vex_remediations,
+            observation.current_vex_remediations,
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
             observation.risk_acceptance_expiry_date,
         )

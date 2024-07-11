@@ -65,7 +65,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
             status: data.current_status,
             comment: data.comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
-            vex_remediations: remediationsEnabled ? data.vex_remediations : "",
+            vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
             observations: selectedIds,
             risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
@@ -159,7 +159,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                             />
                         )}
                         {remediationsEnabled && (
-                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
+                            <ArrayInput source="current_vex_remediations" defaultValue={""} label="VEX remediations">
                                 <SimpleFormIterator disableReordering inline>
                                     <AutocompleteInputMedium
                                         source="category"

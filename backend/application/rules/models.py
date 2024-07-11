@@ -9,6 +9,7 @@ from django.db.models import (
     Model,
     TextField,
 )
+from django.db.models.fields.json import JSONField
 
 from application.access_control.models import User
 from application.commons.models import Settings
@@ -39,6 +40,7 @@ class Rule(Model):
     new_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
+    new_vex_remediations = JSONField(blank=True, null=True)
     enabled = BooleanField(default=True)
     user = ForeignKey(
         User,

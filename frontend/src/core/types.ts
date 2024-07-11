@@ -144,7 +144,9 @@ export interface Observation extends RaRecord {
     parser_vex_justification: string;
     assessment_vex_justification: string;
     rule_vex_justification: string;
-    vex_remediations: string;
+    current_vex_remediations: string;
+    assessment_vex_remediations: string;
+    rule_vex_remediations: string;
     patch_available: boolean;
     patched_in_versions: string;
     in_vulncheck_kev: boolean;

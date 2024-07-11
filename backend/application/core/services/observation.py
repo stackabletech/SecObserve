@@ -121,6 +121,19 @@ def get_current_vex_justification(observation) -> str:
     return ""
 
 
+def get_current_vex_remediations(observation) -> str:
+    if observation.assessment_vex_remediations:
+        return observation.assessment_vex_remediations
+
+    if observation.rule_vex_remediations:
+        return observation.rule_vex_remediations
+
+    if observation.vex_vex_remediations:
+        return observation.vex_vex_remediations
+
+    return ""
+
+
 def normalize_observation_fields(observation) -> None:
     normalize_origin_component(observation)
     normalize_origin_docker(observation)
@@ -130,6 +143,7 @@ def normalize_observation_fields(observation) -> None:
     normalize_severity(observation)
     normalize_status(observation)
     normalize_vex_justification(observation)
+    normalize_vex_remediations(observation)
 
     normalize_description(observation)
 
@@ -378,6 +392,19 @@ def normalize_vex_justification(observation):
         observation.vex_vex_justification = ""
 
     observation.current_vex_justification = get_current_vex_justification(observation)
+
+
+def normalize_vex_remediations(observation):
+    if observation.current_vex_remediations is None:
+        observation.current_vex_remediations = ""
+    if observation.assessment_vex_remediations is None:
+        observation.assessment_vex_remediations = ""
+    if observation.rule_vex_remediations is None:
+        observation.rule_vex_remediations = ""
+    if observation.vex_vex_remediations is None:
+        observation.vex_vex_remediations = ""
+
+    observation.current_vex_remediations = get_current_vex_remediations(observation)
 
 
 def clip_fields(model: str, my_object) -> None:

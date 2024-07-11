@@ -1,12 +1,14 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import {
+    ArrayInput,
     BooleanInput,
     DeleteButton,
     Edit,
     ReferenceInput,
     SaveButton,
     SimpleForm,
+    SimpleFormIterator,
     Toolbar,
     useRecordContext,
 } from "react-admin";
@@ -18,12 +20,13 @@ import {
     validate_required_255,
     validate_required_2048,
 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus } from "../../commons/functions";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
+    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../../core/types";
 import { validateRuleForm } from "../functions";
 
@@ -73,6 +76,9 @@ const GeneralRuleEdit = () => {
         if (!justificationIsEnabledForStatus(data.new_status) || !data.new_vex_justification) {
             data.new_vex_justification = "";
         }
+        if (!remediationsAreEnabledForStatus(data.new_status) || !data.new_vex_remediations) {
+            data.new_vex_remediations = "";
+        }
         return data;
     };
 
@@ -86,6 +92,7 @@ const GeneralRuleEditForm = () => {
     const generalRule = useRecordContext();
     const [status, setStatus] = useState(generalRule.new_status);
     const justificationEnabled = justificationIsEnabledForStatus(status);
+    const remediationsEnabled = remediationsAreEnabledForStatus(status);
 
     return (
         <SimpleForm warnWhenUnsavedChanges toolbar={<CustomToolbar />} validate={validateRuleForm}>
@@ -113,6 +120,18 @@ const GeneralRuleEditForm = () => {
                         source="new_vex_justification"
                         choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                     />
+                )}
+                {remediationsEnabled && (
+                    <ArrayInput source="new_vex_remediations" defaultValue={""} label="New VEX remediations">
+                        <SimpleFormIterator disableReordering inline>
+                            <AutocompleteInputMedium
+                                source="category"
+                                label=""
+                                choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                            />
+                            <TextInputWide source="text" />
+                        </SimpleFormIterator>
+                    </ArrayInput>
                 )}
                 <BooleanInput source="enabled" defaultValue={true} />
             </Stack>

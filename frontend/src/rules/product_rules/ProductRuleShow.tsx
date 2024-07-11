@@ -1,8 +1,10 @@
-import { Paper, Stack, Typography } from "@mui/material";
+import { Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    ArrayField,
     BooleanField,
     ChipField,
+    Datagrid,
     DateField,
     EditButton,
     Labeled,
@@ -62,6 +64,14 @@ const ShowActions = () => {
         </TopToolbar>
     );
 };
+const VEXRemediationHeader = () => (
+    <TableHead>
+        <TableRow>
+            <TableCell>Category</TableCell>
+            <TableCell>Text</TableCell>
+        </TableRow>
+    </TableHead>
+);
 
 const ProductRuleComponent = () => {
     const { classes } = useStyles();
@@ -103,6 +113,20 @@ const ProductRuleComponent = () => {
                             {feature_vex_enabled() && rule.new_vex_justification && (
                                 <Labeled label="New VEX justification">
                                     <TextField source="new_vex_justification" />
+                                </Labeled>
+                            )}
+                            {feature_vex_enabled() && rule.new_vex_remediations && (
+                                <Labeled label="New VEX remediations">
+                                    <ArrayField source="new_vex_remediations" label="New VEX remediations">
+                                        <Datagrid
+                                            bulkActionButtons={false}
+                                            header={VEXRemediationHeader}
+                                            sx={{ paddingBottom: 2 }}
+                                        >
+                                            <TextField source="category" />
+                                            <TextField source="text" />
+                                        </Datagrid>
+                                    </ArrayField>
                                 </Labeled>
                             )}
                             <Labeled label="Enabled">
