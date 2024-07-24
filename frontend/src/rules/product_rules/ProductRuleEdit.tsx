@@ -98,7 +98,7 @@ const ProductRuleEdit = () => {
 };
 const ProductRuleEditForm = () => {
     const productRule = useRecordContext();
-    const [status, setStatus] = useState(productRule.new_status);
+    const [status, setStatus] = useState(productRule ? productRule.new_status : "");
     const justificationEnabled = justificationIsEnabledForStatus(status);
     const remediationsEnabled = remediationsAreEnabledForStatus(status);
 
