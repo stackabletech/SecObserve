@@ -64,8 +64,8 @@ const NotificationList = () => {
                 >
                     <TextField source="type" />
                     <TextField source="name" />
-                    <DateField locales="de-DE" source="created" showTime={true} />
-                    <TextField source="message" />
+                    <DateField source="created" showTime={true} />
+                    <TextField source="message" sx={{ wordBreak: "break-word" }} />
                     <TextField source="function" />
                     <TextField source="product_name" label="Product" />
                     <TextField source="observation_title" label="Observation" />
