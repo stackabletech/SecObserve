@@ -34,6 +34,7 @@ import {
     PURL_TYPE_CHOICES,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
+import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 
 const listFilters = () => [
@@ -66,7 +67,12 @@ const listFilters = () => [
     <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <NullableBooleanInputWide source="has_pending_assessment" label="Pending assessment" alwaysOn />,
-    <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
+    <AutocompleteInput
+        source="origin_component_purl_type"
+        label="Component type"
+        choices={PURL_TYPE_CHOICES}
+        alwaysOn
+    />,
 ];
 
 const BulkActionButtons = () => (
@@ -111,6 +117,8 @@ const ObservationList = () => {
                         rowClick="show"
                         bulkActionButtons={<BulkActionButtons />}
                         preferenceKey="observations.list"
+                        expand={<ObservationExpand />}
+                        expandSingle
                     >
                         <TextField source="product_data.name" label="Product" />
                         <TextField source="product_data.product_group_name" label="Group" />

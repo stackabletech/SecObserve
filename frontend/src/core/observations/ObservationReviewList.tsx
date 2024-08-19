@@ -30,9 +30,11 @@ import {
     OBSERVATION_STATUS_IN_REVIEW,
     OBSERVATION_STATUS_OPEN,
     Observation,
+    PURL_TYPE_CHOICES,
     Product,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
+import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_REVIEW_LIST, setListIdentifier } from "./functions";
 
 function listFilters(product: Product) {
@@ -72,6 +74,12 @@ function listFilters(product: Product) {
         <TextInput source="upload_filename" label="Filename" />,
         <TextInput source="api_configuration_name" label="API configuration" />,
         <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
+        <AutocompleteInput
+            source="origin_component_purl_type"
+            label="Component type"
+            choices={PURL_TYPE_CHOICES}
+            alwaysOn
+        />,
     ];
 }
 
@@ -133,6 +141,8 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                     }
                     resource="observations"
                     preferenceKey="observations.review"
+                    expand={<ObservationExpand />}
+                    expandSingle
                 >
                     <TextField source="branch_name" label="Branch / Version" />
                     <TextField source="title" />
