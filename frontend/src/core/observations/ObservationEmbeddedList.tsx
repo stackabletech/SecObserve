@@ -180,9 +180,21 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                     <NumberField source="epss_score" label="EPSS" />
                     <NumberField source="stackable_score" label="Stackable Score" />
                     {/* <TextField source="origin_service_name" label="Service" /> */}
-                    <TextField source="origin_component_name_version" label="Component" sx={{ wordBreak: "break-word" }} />
-                    <TextField source="origin_docker_image_name_tag_short" label="Container" sx={{ wordBreak: "break-word" }} />
-                    <TextField source="origin_component_location" label="Component location" sx={{ wordBreak: "break-word" }} />
+                    <TextField
+                        source="origin_component_name_version"
+                        label="Component"
+                        sx={{ wordBreak: "break-word" }}
+                    />
+                    <TextField
+                        source="origin_docker_image_name_tag_short"
+                        label="Container"
+                        sx={{ wordBreak: "break-word" }}
+                    />
+                    <TextField
+                        source="origin_component_location"
+                        label="Component location"
+                        sx={{ wordBreak: "break-word" }}
+                    />
                     {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
                     {/* <TextField source="origin_source_file" label="Source" /> */}
                     {/* <TextField source="origin_cloud_qualified_resource" label="Resource" /> */}

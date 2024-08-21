@@ -30,7 +30,7 @@ import {
 const ObservationAssessment = () => {
     const observation = useRecordContext();
     const [open, setOpen] = useState(false);
-    const [status, setStatus] = useState(observation.current_status);
+    const [status, setStatus] = useState(observation?.current_status);
     const justificationEnabled = justificationIsEnabledForStatus(status);
     const remediationsEnabled = remediationsAreEnabledForStatus(status);
     const refresh = useRefresh();

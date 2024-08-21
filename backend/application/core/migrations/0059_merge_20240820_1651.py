@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0057_alter_observation_origin_component_dependencies'),
-        ('core', '0058_remove_observation_purl_type'),
+        ("core", "0057_alter_observation_origin_component_dependencies"),
+        ("core", "0058_remove_observation_purl_type"),
     ]
 
-    operations = [
-    ]
+    operations = []

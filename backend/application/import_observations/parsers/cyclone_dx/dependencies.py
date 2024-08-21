@@ -1,5 +1,5 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
 
@@ -105,13 +105,13 @@ def _get_dependencies(
     component_dependencies: list[dict],
     components: dict[str, Component],
     metadata: Metadata,
-) -> list[str]:
+) -> dict[str, set[str]]:
     roots = _get_roots(component_dependencies)
 
     dependencies: list[str] = []
     try:
         for root in roots:
-            dependency = _get_dependencies_recursive(
+            sub_dependencies = _get_dependencies_recursive(
                 root,
                 _translate_component(root, components),
                 root,
@@ -119,13 +119,13 @@ def _get_dependencies(
                 component_dependencies,
                 components,
             )
-            if dependency not in dependencies:
-                dependencies += dependency
+            dependencies += sub_dependencies
+
     except RecursionError as e:
         logger.warning(
             "%s:%s -> %s", metadata.container_name, metadata.container_tag, str(e)
         )
-        return []
+        return {}
 
     return_dependencies = []
     for dependency in dependencies:
@@ -141,6 +141,7 @@ def _get_dependencies(
     reduced_graph = remove_redundant_paths(graph)
 
     return reduced_graph
+
 
 def _get_dependencies_recursive(
     root: str,
@@ -197,14 +198,17 @@ def _get_roots(
     return roots
 
 
-def parse_mermaid_graph_content(mermaid_graph_content: list[str]) -> list[tuple[str, str]]:
+def parse_mermaid_graph_content(
+    mermaid_graph_content: list[str],
+) -> list[tuple[str, str]]:
     edges = []
     for line in mermaid_graph_content:
-        parts = line.strip().split('-->')
+        parts = line.strip().split("-->")
         parts = [part.strip() for part in parts]
         for i in range(len(parts) - 1):
             edges.append((parts[i], parts[i + 1]))
     return edges
+
 
 def build_graph(edges: list[tuple[str, str]]) -> dict[str, set[str]]:
     graph = defaultdict(set)
@@ -212,9 +216,13 @@ def build_graph(edges: list[tuple[str, str]]) -> dict[str, set[str]]:
         graph[src].add(dest)
     return graph
 
+
 def remove_redundant_paths(graph: dict[str, set[str]]) -> dict[str, set[str]]:
     # Perform a DFS to remove redundant paths
-    def dfs(node, visited):
+    def dfs(
+        node: str,
+        visited: dict[str, set[str]],
+    ) -> set[str]:
         if node in visited:
             return visited[node]
         visited[node] = set()
@@ -223,7 +231,7 @@ def remove_redundant_paths(graph: dict[str, set[str]]) -> dict[str, set[str]]:
             visited[node].update(dfs(neighbor, visited))
         return visited[node]
 
-    visited = {}
+    visited: dict[str, set[str]] = {}
     for node in list(graph.keys()):
         if node not in visited:
             dfs(node, visited)
@@ -231,13 +239,16 @@ def remove_redundant_paths(graph: dict[str, set[str]]) -> dict[str, set[str]]:
     reduced_graph = defaultdict(set)
     for node, neighbors in graph.items():
         for neighbor in neighbors:
-            if not any(neighbor in visited[other] for other in neighbors if other != neighbor):
+            if not any(
+                neighbor in visited[other] for other in neighbors if other != neighbor
+            ):
                 reduced_graph[node].add(neighbor)
     return reduced_graph
+
 
 def generate_dependency_list_as_text(graph: dict[str, set[str]]) -> str:
     lines = []
     for src, dests in graph.items():
         for dest in dests:
             lines.append(f"{src} --> {dest}")
-    return '\n'.join(lines)
+    return "\n".join(lines)

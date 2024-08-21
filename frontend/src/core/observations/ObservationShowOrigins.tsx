@@ -1,11 +1,11 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import mermaid from "mermaid";
 import { Fragment } from "react";
-import { Labeled, TextField, useRecordContext, WrapperField } from "react-admin";
+import { Labeled, TextField, WrapperField, useRecordContext } from "react-admin";
 
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { get_component_purl_url } from "../../commons/functions";
 import { getElevation } from "../../metrics/functions";
-import mermaid from "mermaid";
 
 mermaid.initialize({});
 
@@ -18,7 +18,7 @@ const openMermaidSvgInNewTab = () => {
     const blob = new Blob([svgData], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
-}
+};
 
 type ObservationShowOriginsProps = {
     elevated: boolean;
@@ -223,9 +223,13 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
                             </Fragment>
                         )}
                         {observation.origin_component_dependencies != "" && (
-                            <Labeled sx={{width: "100%", marginTop: 2}}>
+                            <Labeled sx={{ width: "100%", marginTop: 2 }}>
                                 <WrapperField label="Component dependency graph">
-                                    <pre className="mermaid" onClick={openMermaidSvgInNewTab} style={{cursor: "pointer"}}>
+                                    <pre
+                                        className="mermaid"
+                                        onClick={openMermaidSvgInNewTab}
+                                        style={{ cursor: "pointer" }}
+                                    >
                                         {createMermaidGraph(observation.origin_component_dependencies)}
                                     </pre>
                                 </WrapperField>
@@ -238,12 +242,12 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
 };
 
 const createMermaidGraph = (dependencies_str: string) => {
-    let dependencies = dependencies_str.split("\n");
+    const dependencies = dependencies_str.split("\n");
     let mermaid_content = "graph LR\n";
     for (let i = 0; i < dependencies.length; i++) {
-        mermaid_content += '    '+dependencies[i]+"\n";
+        mermaid_content += "    " + dependencies[i] + "\n";
     }
     return mermaid_content;
-}
+};
 
 export default ObservationShowOrigins;

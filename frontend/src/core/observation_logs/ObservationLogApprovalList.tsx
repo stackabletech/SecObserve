@@ -120,9 +120,19 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         <TextField source="severity" emptyText="---" />
                         <TextField source="status" emptyText="---" />
                         {feature_vex_enabled() && (
-                            <TextField label="VEX justification" source="vex_justification" emptyText="---" sx={{ wordBreak: "break-word" }} />
+                            <TextField
+                                label="VEX justification"
+                                source="vex_justification"
+                                emptyText="---"
+                                sx={{ wordBreak: "break-word" }}
+                            />
                         )}
-                        <TextField source="comment_shortened" sortable={false} label="Comment" sx={{ wordBreak: "break-word" }} />
+                        <TextField
+                            source="comment_shortened"
+                            sortable={false}
+                            label="Comment"
+                            sx={{ wordBreak: "break-word" }}
+                        />
                     </Datagrid>
                     <CustomPagination />
                 </div>

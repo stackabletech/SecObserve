@@ -3,7 +3,6 @@ from json import dumps, load
 from typing import Optional
 
 from django.core.files.base import File
-from packageurl import PackageURL
 from trycast import trycast
 
 from application.core.models import Observation

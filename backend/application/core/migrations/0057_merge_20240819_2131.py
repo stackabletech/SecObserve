@@ -6,9 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0045_populate_observation_purl_type'),
-        ('core', '0056_rename_vex_remediations_observation_current_vex_remediations_and_more'),
+        ("core", "0045_populate_observation_purl_type"),
+        (
+            "core",
+            "0056_rename_vex_remediations_observation_current_vex_remediations_and_more",
+        ),
     ]
 
-    operations = [
-    ]
+    operations = []
