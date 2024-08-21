@@ -38,6 +38,7 @@ import {
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import ObservationBulkDeleteButton from "./ObservationBulkDeleteButton";
+import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_EMBEDDED_LIST, setListIdentifier } from "./functions";
 
 function listFilters(product: Product) {
@@ -82,7 +83,13 @@ function listFilters(product: Product) {
         <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
         <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
         <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
-        <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
+        <NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />,
+        <AutocompleteInput
+            source="origin_component_purl_type"
+            label="Component type"
+            choices={PURL_TYPE_CHOICES}
+            alwaysOn
+        />,
     ];
 }
 
@@ -163,6 +170,8 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                     }
                     resource="observations"
                     preferenceKey="observations.embedded"
+                    expand={<ObservationExpand />}
+                    expandSingle
                 >
                     <TextField source="branch_name" label="Branch / Version" />
                     <TextField source="title" />
@@ -171,9 +180,9 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                     <NumberField source="epss_score" label="EPSS" />
                     <NumberField source="stackable_score" label="Stackable Score" />
                     {/* <TextField source="origin_service_name" label="Service" /> */}
-                    <TextField source="origin_component_name_version" label="Component" />
-                    <TextField source="origin_docker_image_name_tag_short" label="Container" />
-                    <TextField source="origin_component_location" label="Component location" />
+                    <TextField source="origin_component_name_version" label="Component" sx={{ wordBreak: "break-word" }} />
+                    <TextField source="origin_docker_image_name_tag_short" label="Container" sx={{ wordBreak: "break-word" }} />
+                    <TextField source="origin_component_location" label="Component location" sx={{ wordBreak: "break-word" }} />
                     {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
                     {/* <TextField source="origin_source_file" label="Source" /> */}
                     {/* <TextField source="origin_cloud_qualified_resource" label="Resource" /> */}

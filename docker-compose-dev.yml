@@ -1,29 +1,22 @@
-version: "3"
-
 volumes:
   dev_huey_data:
   dev_postgres_data:
+  dev_node_modules:
 
 services:
   frontend:
     build:
       context: .
-      dockerfile: ./docker/frontend/dev.Dockerfile
+      dockerfile: ./docker/frontend/dev/Dockerfile
     image: secobserve_frontend
-    command: ["/bin/sh", "-c", "NODE_ENV=development runtime-env-cra --env-file=./.env.example && vite --host 0.0.0.0"]
     profiles:
       - frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
-    environment:
-      API_BASE_URL: ${SO_API_BASE_URL:-http://localhost:8000/api}
-      OIDC_ENABLE: ${SO_OIDC_ENABLE:-true}
-      OIDC_AUTHORITY: ${SO_OIDC_AUTHORITY:-http://localhost:8080/realms/secobserve}
-      OIDC_CLIENT_ID: ${SO_OIDC_CLIENT_ID:-secobserve}
-      OIDC_REDIRECT_URI: ${SO_OIDC_REDIRECT_URI:-http://localhost:3000}
-      OIDC_POST_LOGOUT_REDIRECT_URI: ${SO_OIDC_POST_LOGOUT_REDIRECT_URI:-http://localhost:3000}
+      - ./frontend/:/app
+      - dev_node_modules:/app/node_modules
+    command : sh -c "npm run start -- --host"
 
   backend:
     build:
@@ -57,9 +50,10 @@ services:
     ports:
       - "8000:8000"
     command: /start
+      #command: ["sleep","999"]
 
   postgres:
-    image: postgres:15.6-alpine
+    image: postgres:15.8-alpine
     volumes:
       - dev_postgres_data:/var/lib/postgresql/data
     environment:

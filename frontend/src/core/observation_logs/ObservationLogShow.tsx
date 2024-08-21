@@ -1,4 +1,4 @@
-import { Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
     ArrayField,
@@ -9,7 +9,6 @@ import {
     PrevNextButtons,
     ReferenceField,
     Show,
-    SimpleShowLayout,
     SortPayload,
     TextField,
     TopToolbar,
@@ -73,7 +72,7 @@ const ObservationLogComponent = () => {
     return (
         <WithRecord
             render={(observation_log) => (
-                <SimpleShowLayout>
+                <Box width={"100%"}>
                     <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                         <Stack spacing={1}>
                             <Typography variant="h6">Observation Log</Typography>
@@ -220,7 +219,7 @@ const ObservationLogComponent = () => {
                                 </Stack>
                             </Paper>
                         )}
-                </SimpleShowLayout>
+                </Box>
             )}
         />
     );

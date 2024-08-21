@@ -429,6 +429,7 @@ class Observation(Model):
     origin_component_version = CharField(max_length=255, blank=True)
     origin_component_name_version = CharField(max_length=513, blank=True)
     origin_component_purl = CharField(max_length=255, blank=True)
+    origin_component_purl_type = CharField(max_length=16, blank=True)
     origin_component_cpe = CharField(max_length=255, blank=True)
     origin_component_location = TextField(max_length=255, blank=True)
     origin_component_dependencies = TextField(max_length=32768, blank=True)
@@ -536,7 +537,6 @@ class Observation(Model):
     assessment_vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
-    purl_type = CharField(max_length=16, blank=True, null=True)
     vex_statement = ForeignKey(
         "vex.VEX_Statement",
         related_name="vex_statements",

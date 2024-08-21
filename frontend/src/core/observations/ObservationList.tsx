@@ -34,6 +34,7 @@ import {
     PURL_TYPE_CHOICES,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
+import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 
 const listFilters = () => [
@@ -66,7 +67,12 @@ const listFilters = () => [
     <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <NullableBooleanInputWide source="has_pending_assessment" label="Pending assessment" alwaysOn />,
-    <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />,
+    <AutocompleteInput
+        source="origin_component_purl_type"
+        label="Component type"
+        choices={PURL_TYPE_CHOICES}
+        alwaysOn
+    />,
 ];
 
 const BulkActionButtons = () => (
@@ -111,6 +117,8 @@ const ObservationList = () => {
                         rowClick="show"
                         bulkActionButtons={<BulkActionButtons />}
                         preferenceKey="observations.list"
+                        expand={<ObservationExpand />}
+                        expandSingle
                     >
                         <TextField source="product_data.name" label="Product" />
                         <TextField source="product_data.product_group_name" label="Group" />
@@ -121,9 +129,9 @@ const ObservationList = () => {
                         <NumberField source="epss_score" label="EPSS" />
                         <NumberField source="stackable_score" label="Stackable Score" />
                         {/* <TextField source="origin_service_name" label="Service" /> */}
-                        <TextField source="origin_component_name_version" label="Component" />
-                        <TextField source="origin_docker_image_name_tag_short" label="Container" />
-                        <TextField source="origin_component_location" label="Component location" />
+                        <TextField source="origin_component_name_version" label="Component" sx={{ wordBreak: "break-word" }} />
+                        <TextField source="origin_docker_image_name_tag_short" label="Container" sx={{ wordBreak: "break-word" }} />
+                        <TextField source="origin_component_location" label="Component location" sx={{ wordBreak: "break-word" }} />
                         {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
                         {/* <TextField source="origin_source_file" label="Source" /> */}
                         {/* <TextField source="origin_cloud_qualified_resource" label="Resource" />, */}
