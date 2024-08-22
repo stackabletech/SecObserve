@@ -130,6 +130,11 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
                                 )}
                             </Fragment>
                         )}
+                        {observation.origin_component_location != "" && (
+                            <Labeled>
+                                <TextField source="origin_component_location" label="Component location" />
+                            </Labeled>
+                        )}
                         {observation.origin_endpoint_url != "" && (
                             <Fragment>
                                 <Typography variant="subtitle1" sx={{ paddingTop: 1 }}>
