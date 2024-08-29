@@ -1,3 +1,4 @@
+from packageurl import PackageURL
 from typing import Optional
 
 from application.core.models import Observation
@@ -29,27 +30,39 @@ def append_component_to_product_tree(
     if not observation.origin_component_name_version:
         return
 
-    components_branch_name = "_components_"
+    purl = PackageURL.from_string(observation.origin_component_purl)
+    vendor_branch_name = purl.namespace
 
     found = False
-    for components_branch in product_tree.branches:
-        if components_branch.name == components_branch_name:
+    for vendor_branch in product_tree.branches:
+        if vendor_branch.name == vendor_branch_name:
             found = True
             break
     if not found:
-        components_branch = CSAFProductBranch(
-            name=components_branch_name,
-            category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_PRODUCT_FAMILY,
+        vendor_branch = CSAFProductBranch(
+            name=vendor_branch_name,
+            category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_VENDOR,
             branches=[],
         )
-        product_tree.branches.append(components_branch)
+        product_tree.branches.append(vendor_branch)
 
     _append_component_to_relationships(product_tree, observation)
 
-    if not components_branch.branches:
-        components_branch.branches = []
+    product_branch_name = purl.name
+    found = False
+    for product_branch in vendor_branch.branches:
+        if product_branch.name == product_branch_name:
+            found = True
+            break
+    if not found:
+        product_branch = CSAFProductBranch(
+            name=product_branch_name,
+            category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_PRODUCT_NAME,
+            branches=[],
+        )
+        vendor_branch.branches.append(product_branch)
 
-    for component_branch in components_branch.branches:
+    for component_branch in product_branch.branches:
         if (
             component_branch.product
             and component_branch.product.product_id
@@ -62,7 +75,7 @@ def append_component_to_product_tree(
             return
 
     component_branch = CSAFProductBranch(
-        name=observation.origin_component_name_version,
+        name=observation.origin_component_name,
         category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_PRODUCT_VERSION,
         product=_create_component(
             observation.origin_component_name_version,
@@ -70,7 +83,7 @@ def append_component_to_product_tree(
             observation.origin_component_cpe,
         ),
     )
-    components_branch.branches.append(component_branch)
+    product_branch.branches.append(component_branch)
 
 
 def _create_component(
