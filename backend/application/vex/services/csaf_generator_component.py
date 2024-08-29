@@ -1,7 +1,10 @@
 from typing import Optional
 
 from application.core.models import Observation
-from application.vex.services.csaf_helpers import get_product_id, get_relationship_name
+from application.vex.services.csaf_generator_helpers import (
+    get_product_id,
+    get_relationship_name,
+)
 from application.vex.types import (
     CSAF_Branch_Category,
     CSAF_Relationship_Category,
@@ -74,7 +77,7 @@ def _create_component(
     component_name_version: str, purl: Optional[str], cpe: Optional[str]
 ) -> CSAFFullProductName:
     product_identification_helper = None
-    if purl: # or cpe:
+    if purl:  # or cpe:
         purl = purl if purl else None
         # cpe = cpe if cpe else None
         product_identification_helper = CSAFProductIdentificationHelper(

@@ -13,6 +13,7 @@
 | [Rule based assessment of severity and status](../usage/rule_engine.md) | :material-plus-circle-outline: |
 | [Security gates](../usage/security_gates.md) | :material-plus-circle-outline: |
 | [Actual and weekly metrics](../usage/metrics.md) | :material-plus-circle-outline: |
+| [Configurable expiry for accepted risks](../usage/risk_acceptance_expiry.md) | :material-plus-circle-outline: |
 
 ## Integrations
 
@@ -23,7 +24,7 @@
 | [Data enrichment from Exploit Prediction Scoring System (EPSS)](../integrations/epss.md) | :material-plus-circle-outline: |
 | [Direct link to source code](../integrations/source_code_repositories.md) | :material-plus-circle-outline: |
 | [Export vulnerabilities to issue trackers (Jira, GitLab, GitHub)](../integrations/issue_trackers.md) | :material-plus-circle-outline: |
-| [Export vulnerabilities to VEX documents (CSAF, OpenVEX)](../integrations/vex.md) | :material-plus-circle-outline: |
+| [Import/export vulnerabilities from/to VEX documents (CSAF, OpenVEX)](../integrations/vex.md) | :material-plus-circle-outline: |
 | [Export of data to Microsoft Excel and CSV](../integrations/observations_export.md) | :material-plus-circle-outline: |
 | [Export metrics to CodeCharta](../integrations/codecharta.md) | :material-plus-circle-outline: |
 | [Notifications to Microsoft Teams, Slack and email](../integrations/notifications.md) | :material-plus-circle-outline: |

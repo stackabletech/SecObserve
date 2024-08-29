@@ -7,9 +7,13 @@ from application.core.services.observation import (
     get_current_severity,
     get_current_status,
     get_current_vex_justification,
+    get_current_vex_remediations,
 )
 from application.core.services.observation_log import create_observation_log
-from application.core.types import Assessment_Status
+from application.core.services.risk_acceptance_expiry import (
+    calculate_risk_acceptance_expiry_date,
+)
+from application.core.types import Assessment_Status, Status
 from application.issue_tracker.services.issue_tracker import (
     push_observation_to_issue_tracker,
 )
@@ -50,6 +54,9 @@ class Rule_Engine:
         self.product = product
 
     def apply_rules_for_observation(self, observation: Observation) -> None:
+        if observation.current_status != Status.STATUS_OPEN:
+            return
+
         previous_product_rule = None
         if observation.product_rule:
             previous_product_rule = observation.product_rule
@@ -106,6 +113,11 @@ class Rule_Engine:
                 if rule.new_status:
                     observation.rule_status = rule.new_status
                     observation.current_status = get_current_status(observation)
+                    observation.risk_acceptance_expiry_date = (
+                        calculate_risk_acceptance_expiry_date(observation.product)
+                        if observation.current_status == Status.STATUS_RISK_ACCEPTED
+                        else None
+                    )
 
                 previous_vex_justification = observation.current_vex_justification
                 previous_rule_vex_justification = observation.rule_vex_justification
@@ -113,6 +125,14 @@ class Rule_Engine:
                     observation.rule_vex_justification = rule.new_vex_justification
                     observation.current_vex_justification = (
                         get_current_vex_justification(observation)
+                    )
+
+                previous_vex_remediations = observation.current_vex_remediations
+                previous_rule_vex_remediations = observation.rule_vex_remediations
+                if rule.new_vex_remediations:
+                    observation.rule_vex_remediations = rule.new_vex_remediations
+                    observation.current_vex_remediations = get_current_vex_remediations(
+                        observation
                     )
 
                 if rule.product:
@@ -132,6 +152,9 @@ class Rule_Engine:
                     != observation.rule_vex_justification
                     or previous_vex_justification
                     != observation.current_vex_justification
+                    or previous_rule_vex_remediations
+                    != observation.rule_vex_remediations
+                    or previous_vex_remediations != observation.current_vex_remediations
                 ):
                     self._write_observation_log(
                         observation,
@@ -139,6 +162,7 @@ class Rule_Engine:
                         previous_severity,
                         previous_status,
                         previous_vex_justification,
+                        previous_vex_remediations,
                     )
                     push_observation_to_issue_tracker(observation, get_current_user())
                 rule_found = True
@@ -180,6 +204,7 @@ class Rule_Engine:
         previous_severity: str,
         previous_status: str,
         previous_vex_justification: str,
+        previous_vex_remediations: str,
     ) -> None:
         if previous_status != observation.current_status:
             status = observation.current_status
@@ -193,6 +218,10 @@ class Rule_Engine:
             vex_justification = observation.current_vex_justification
         else:
             vex_justification = ""
+        if previous_vex_remediations != observation.current_vex_remediations:
+            vex_remediations = observation.current_vex_remediations
+        else:
+            vex_remediations = ""
 
         if rule.description:
             comment = rule.description
@@ -202,17 +231,23 @@ class Rule_Engine:
             else:
                 comment = f"Updated by general rule {rule.name}"
 
+        risk_acceptance_expiry_date = (
+            calculate_risk_acceptance_expiry_date(observation.product)
+            if status == Status.STATUS_RISK_ACCEPTED
+            else None
+        )
+
         create_observation_log(
             observation,
             severity,
             status,
             comment,
             vex_justification,
-            "",
+            vex_remediations,
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            risk_acceptance_expiry_date,
         )
 
-    # Write observation and observation log if status or severity has been changed
     def _write_observation_log_no_rule(
         self,
         observation: Observation,
@@ -222,14 +257,25 @@ class Rule_Engine:
         observation.rule_severity = ""
         previous_severity = observation.current_severity
         observation.current_severity = get_current_severity(observation)
+
         observation.rule_status = ""
         previous_status = observation.current_status
         observation.current_status = get_current_status(observation)
+        observation.risk_acceptance_expiry_date = (
+            calculate_risk_acceptance_expiry_date(observation.product)
+            if observation.current_status == Status.STATUS_RISK_ACCEPTED
+            else None
+        )
+
         observation.rule_vex_justification = ""
         previous_vex_justification = observation.current_vex_justification
         observation.current_vex_justification = get_current_vex_justification(
             observation
         )
+
+        observation.rule_vex_remediations = ""
+        previous_vex_remediations = observation.current_vex_remediations
+        observation.current_vex_remediations = get_current_vex_remediations(observation)
 
         if previous_status != observation.current_status:
             status = observation.current_status
@@ -243,6 +289,10 @@ class Rule_Engine:
             vex_justification = observation.current_vex_justification
         else:
             vex_justification = ""
+        if previous_vex_remediations != observation.current_vex_remediations:
+            vex_remediations = observation.current_vex_remediations
+        else:
+            vex_remediations = ""
 
         if previous_product_rule:
             comment = f"Removed product rule {previous_product_rule.name}"
@@ -251,12 +301,19 @@ class Rule_Engine:
         else:
             comment = "Removed unkown rule"
 
+        risk_acceptance_expiry_date = (
+            calculate_risk_acceptance_expiry_date(observation.product)
+            if status == Status.STATUS_RISK_ACCEPTED
+            else None
+        )
+
         create_observation_log(
             observation,
             severity,
             status,
             comment,
             vex_justification,
-            "",
+            vex_remediations,
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            risk_acceptance_expiry_date,
         )

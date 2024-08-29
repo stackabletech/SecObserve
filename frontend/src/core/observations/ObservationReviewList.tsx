@@ -30,9 +30,11 @@ import {
     OBSERVATION_STATUS_IN_REVIEW,
     OBSERVATION_STATUS_OPEN,
     Observation,
+    PURL_TYPE_CHOICES,
     Product,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
+import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_REVIEW_LIST, setListIdentifier } from "./functions";
 
 function listFilters(product: Product) {
@@ -72,6 +74,12 @@ function listFilters(product: Product) {
         <TextInput source="upload_filename" label="Filename" />,
         <TextInput source="api_configuration_name" label="API configuration" />,
         <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
+        <AutocompleteInput
+            source="origin_component_purl_type"
+            label="Component type"
+            choices={PURL_TYPE_CHOICES}
+            alwaysOn
+        />,
     ];
 }
 
@@ -93,7 +101,7 @@ const BulkActionButtons = (product: any) => (
 
 const ListActions = () => (
     <TopToolbar>
-        <SelectColumnsButton preferenceKey="observations.embedded" />
+        <SelectColumnsButton preferenceKey="observations.review" />
     </TopToolbar>
 );
 
@@ -114,10 +122,6 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
         return <div>Loading...</div>;
     }
 
-    if (listContext.data === undefined) {
-        listContext.data = [];
-    }
-
     return (
         <ListContextProvider value={listContext}>
             <div style={{ width: "100%" }}>
@@ -135,7 +139,10 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                             <BulkActionButtons product={product} />
                         )
                     }
-                    preferenceKey="observations.embedded"
+                    resource="observations"
+                    preferenceKey="observations.review"
+                    expand={<ObservationExpand />}
+                    expandSingle
                 >
                     <TextField source="branch_name" label="Branch / Version" />
                     <TextField source="title" />
@@ -143,11 +150,23 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                     <NumberField source="epss_score" label="EPSS" />
                     <ChipField source="current_status" label="Status" />
                     <TextField source="origin_service_name" label="Service" />
-                    <TextField source="origin_component_name_version" label="Component" />
-                    <TextField source="origin_docker_image_name_tag_short" label="Container" />
-                    <TextField source="origin_endpoint_hostname" label="Host" />
-                    <TextField source="origin_source_file" label="Source" />
-                    <TextField source="origin_cloud_qualified_resource" label="Resource" />
+                    <TextField
+                        source="origin_component_name_version"
+                        label="Component"
+                        sx={{ wordBreak: "break-word" }}
+                    />
+                    <TextField
+                        source="origin_docker_image_name_tag_short"
+                        label="Container"
+                        sx={{ wordBreak: "break-word" }}
+                    />
+                    <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />
+                    <TextField source="origin_source_file" label="Source" sx={{ wordBreak: "break-word" }} />
+                    <TextField
+                        source="origin_cloud_qualified_resource"
+                        label="Resource"
+                        sx={{ wordBreak: "break-word" }}
+                    />
                     <TextField source="scanner_name" label="Scanner" />
                     <FunctionField<Observation>
                         label="Age"

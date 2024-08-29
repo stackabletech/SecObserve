@@ -33,10 +33,6 @@ const ObservationDashboardList = () => {
         return <div>Loading...</div>;
     }
 
-    if (listContext.data === undefined) {
-        listContext.data = [];
-    }
-
     return (
         <Paper sx={{ marginTop: 2, marginBottom: 2, padding: 2 }}>
             <Typography variant="h6" sx={{ paddingBottom: 2 }}>
@@ -49,9 +45,10 @@ const ObservationDashboardList = () => {
                         sx={{ width: "100%" }}
                         rowClick={ShowObservations}
                         bulkActionButtons={false}
+                        resource="observations"
                     >
                         <TextField source="product_data.name" label="Product" />
-                        <TextField source="title" />
+                        <TextField source="title" sx={{ wordBreak: "break-word" }} />
                         <SeverityField source="current_severity" />
                         <ChipField source="current_status" label="Status" />
                         <TextField source="scanner_name" label="Scanner" />

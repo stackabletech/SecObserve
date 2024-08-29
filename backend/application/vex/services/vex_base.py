@@ -1,12 +1,12 @@
 import datetime
 from typing import Optional
 
-from application.core.types import Status
 from rest_framework.exceptions import ValidationError
 
 from application.core.models import Branch, Observation, Product
 from application.core.queries.observation import get_observations
 from application.core.queries.product import get_product_by_id
+from application.core.types import Status
 from application.vex.models import VEX_Counter
 
 
@@ -67,7 +67,11 @@ def get_observations_for_vulnerability(
     vulnerability_name: str,
 ) -> list[Observation]:
     return list(
-        get_observations().filter(vulnerability_id=vulnerability_name).exclude(current_status=Status.STATUS_DUPLICATE).order_by("id")
+        get_observations()
+        .filter(vulnerability_id=vulnerability_name)
+        .exclude(current_status=Status.STATUS_DUPLICATE)
+        .exclude(current_status=Status.STATUS_OPEN)
+        .order_by("id")
     )
 
 

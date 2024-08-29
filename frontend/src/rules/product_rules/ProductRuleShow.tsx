@@ -1,15 +1,16 @@
-import { Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    ArrayField,
     BooleanField,
     ChipField,
+    Datagrid,
     DateField,
     EditButton,
     Labeled,
     PrevNextButtons,
     ReferenceField,
     Show,
-    SimpleShowLayout,
     SortPayload,
     TextField,
     TopToolbar,
@@ -62,6 +63,28 @@ const ShowActions = () => {
         </TopToolbar>
     );
 };
+const VEXRemediationHeader = () => (
+    <TableHead>
+        <TableRow>
+            <TableCell>Category</TableCell>
+            <TableCell>Text</TableCell>
+        </TableRow>
+    </TableHead>
+);
+
+function generateProductURL(product_id: number, is_product_group: boolean): string {
+    if (is_product_group) {
+        return "#/product_groups/" + product_id + "/show/rules";
+    }
+    return "#/products/" + product_id + "/show/rules";
+}
+
+function getProductLabel(product_data: any): string {
+    if (product_data.is_product_group) {
+        return "Product group";
+    }
+    return "Product";
+}
 
 const ProductRuleComponent = () => {
     const { classes } = useStyles();
@@ -69,16 +92,16 @@ const ProductRuleComponent = () => {
     return (
         <WithRecord
             render={(rule) => (
-                <SimpleShowLayout>
+                <Box width={"100%"}>
                     <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                         <Typography variant="h6" sx={{ marginBottom: 1 }}>
                             Product Rule
                         </Typography>
                         <Stack spacing={1}>
-                            <Labeled label="Product">
+                            <Labeled label={getProductLabel(rule.product_data)}>
                                 <TextUrlField
                                     text={rule.product_data.name}
-                                    url={"#/products/" + rule.product_data.id + "/show/rules"}
+                                    url={generateProductURL(rule.product_data.id, rule.product_data.is_product_group)}
                                 />
                             </Labeled>
                             <Labeled label="Name">
@@ -105,6 +128,20 @@ const ProductRuleComponent = () => {
                                     <TextField source="new_vex_justification" />
                                 </Labeled>
                             )}
+                            {feature_vex_enabled() && rule.new_vex_remediations && (
+                                <Labeled label="New VEX remediations">
+                                    <ArrayField source="new_vex_remediations" label="New VEX remediations">
+                                        <Datagrid
+                                            bulkActionButtons={false}
+                                            header={VEXRemediationHeader}
+                                            sx={{ paddingBottom: 2 }}
+                                        >
+                                            <TextField source="category" />
+                                            <TextField source="text" />
+                                        </Datagrid>
+                                    </ArrayField>
+                                </Labeled>
+                            )}
                             <Labeled label="Enabled">
                                 <BooleanField source="enabled" />
                             </Labeled>
@@ -121,9 +158,16 @@ const ProductRuleComponent = () => {
                             Observation
                         </Typography>
                         <Stack spacing={1}>
-                            <Labeled label="Parser">
-                                <ReferenceField source="parser" reference="parsers" link="show" />
-                            </Labeled>
+                            {rule.parser && (
+                                <Labeled label="Parser">
+                                    <ReferenceField
+                                        source="parser"
+                                        reference="parsers"
+                                        link="show"
+                                        sx={{ "& a": { textDecoration: "none" } }}
+                                    />
+                                </Labeled>
+                            )}
                             {rule.scanner_prefix && (
                                 <Labeled label="Scanner prefix">
                                     <TextField source="scanner_prefix" />
@@ -216,13 +260,13 @@ const ProductRuleComponent = () => {
                                     )}
                                     {rule.approval_date && (
                                         <Labeled label="Approval/rejection date">
-                                            <DateField source="approval_date" showTime />
+                                            <DateField locales="de-DE" source="approval_date" showTime />
                                         </Labeled>
                                     )}
                                 </Stack>
                             </Paper>
                         )}
-                </SimpleShowLayout>
+                </Box>
             )}
         />
     );

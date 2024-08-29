@@ -43,10 +43,6 @@ const ProductRuleApprovalList = ({ product }: ProductRuleApprovalListProps) => {
         return <div>Loading...</div>;
     }
 
-    if (listContext.data === undefined) {
-        listContext.data = [];
-    }
-
     const ShowProductRule = (id: any) => {
         return "../../../../product_rules/" + id + "/show";
     };
@@ -63,8 +59,9 @@ const ProductRuleApprovalList = ({ product }: ProductRuleApprovalListProps) => {
                     sx={{ width: "100%" }}
                     bulkActionButtons={false}
                     rowClick={ShowProductRule}
+                    resource="product_rules"
                 >
-                    <TextField source="name" />
+                    <TextField source="name" sx={{ wordBreak: "break-word" }} />
                     <TextField source="new_severity" />
                     <TextField source="new_status" />
                     {product &&
@@ -72,7 +69,12 @@ const ProductRuleApprovalList = ({ product }: ProductRuleApprovalListProps) => {
                             <ChipField source="approval_status" />
                         )}
                     <BooleanField source="enabled" />
-                    <ReferenceField source="parser" reference="parsers" link={false} />
+                    <ReferenceField
+                        source="parser"
+                        reference="parsers"
+                        link={false}
+                        sx={{ "& a": { textDecoration: "none" } }}
+                    />
                     <TextField source="scanner_prefix" />
                     <TextField source="title" label="Observation title" />
                 </Datagrid>

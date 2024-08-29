@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 from django.apps import apps
 from django.db.models.fields import CharField, TextField
+from packageurl import PackageURL
 
 from application.core.types import Severity, Status
 
@@ -96,6 +97,9 @@ def get_current_status(observation) -> str:
     if observation.rule_status:
         return observation.rule_status
 
+    if observation.vex_status:
+        return observation.vex_status
+
     if observation.parser_status:
         return observation.parser_status
 
@@ -109,8 +113,24 @@ def get_current_vex_justification(observation) -> str:
     if observation.rule_vex_justification:
         return observation.rule_vex_justification
 
+    if observation.vex_vex_justification:
+        return observation.vex_vex_justification
+
     if observation.parser_vex_justification:
         return observation.parser_vex_justification
+
+    return ""
+
+
+def get_current_vex_remediations(observation) -> str:
+    if observation.assessment_vex_remediations:
+        return observation.assessment_vex_remediations
+
+    if observation.rule_vex_remediations:
+        return observation.rule_vex_remediations
+
+    if observation.vex_vex_remediations:
+        return observation.vex_vex_remediations
 
     return ""
 
@@ -124,6 +144,7 @@ def normalize_observation_fields(observation) -> None:
     normalize_severity(observation)
     normalize_status(observation)
     normalize_vex_justification(observation)
+    normalize_vex_remediations(observation)
 
     normalize_description(observation)
 
@@ -200,6 +221,16 @@ def normalize_origin_component(observation):  # pylint: disable=too-many-branche
         observation.origin_component_cpe = ""
     if observation.origin_component_dependencies is None:
         observation.origin_component_dependencies = ""
+
+    if observation.origin_component_purl:
+        try:
+            purl = PackageURL.from_string(observation.origin_component_purl)
+            observation.origin_component_purl_type = purl.type
+        except ValueError:
+            observation.origin_component_purl_type = ""
+
+    if observation.origin_component_purl_type is None:
+        observation.origin_component_purl_type = ""
 
 
 def normalize_origin_docker(observation):
@@ -353,6 +384,8 @@ def normalize_status(observation):
         observation.rule_status = ""
     if observation.parser_status is None:
         observation.parser_status = ""
+    if observation.vex_status is None:
+        observation.vex_status = ""
 
     observation.current_status = get_current_status(observation)
 
@@ -366,8 +399,23 @@ def normalize_vex_justification(observation):
         observation.rule_vex_justification = ""
     if observation.parser_vex_justification is None:
         observation.parser_vex_justification = ""
+    if observation.vex_vex_justification is None:
+        observation.vex_vex_justification = ""
 
     observation.current_vex_justification = get_current_vex_justification(observation)
+
+
+def normalize_vex_remediations(observation):
+    if observation.current_vex_remediations is None:
+        observation.current_vex_remediations = ""
+    if observation.assessment_vex_remediations is None:
+        observation.assessment_vex_remediations = ""
+    if observation.rule_vex_remediations is None:
+        observation.rule_vex_remediations = ""
+    if observation.vex_vex_remediations is None:
+        observation.vex_vex_remediations = ""
+
+    observation.current_vex_remediations = get_current_vex_remediations(observation)
 
 
 def clip_fields(model: str, my_object) -> None:

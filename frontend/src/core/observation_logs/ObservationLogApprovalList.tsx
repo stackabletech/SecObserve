@@ -75,17 +75,15 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
         return <div>Loading...</div>;
     }
 
-    if (listContext.data === undefined) {
-        listContext.data = [];
+    if (listContext.data) {
+        listContext.data.forEach((element: any) => {
+            if (element.comment.length > 255) {
+                element.comment_shortened = element.comment.substring(0, 255) + "...";
+            } else {
+                element.comment_shortened = element.comment;
+            }
+        });
     }
-
-    listContext.data.forEach((element: any) => {
-        if (element.comment.length > 255) {
-            element.comment_shortened = element.comment.substring(0, 255) + "...";
-        } else {
-            element.comment_shortened = element.comment;
-        }
-    });
 
     const ShowObservationLogs = (id: any) => {
         return "../../../../observation_logs/" + id + "/show";
@@ -111,7 +109,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         bulkActionButtons={<BulkActionButtons />}
                         rowClick={ShowObservationLogs}
                     >
-                        <DateField source="created" showTime />
+                        <DateField locales="de-DE" source="created" showTime />
                         <TextField source="user_full_name" label="User" />
                         <ReferenceField source="observation" reference="observations" link="show">
                             <TextField source="title" />
@@ -122,9 +120,19 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         <TextField source="severity" emptyText="---" />
                         <TextField source="status" emptyText="---" />
                         {feature_vex_enabled() && (
-                            <TextField label="VEX justification" source="vex_justification" emptyText="---" />
+                            <TextField
+                                label="VEX justification"
+                                source="vex_justification"
+                                emptyText="---"
+                                sx={{ wordBreak: "break-word" }}
+                            />
                         )}
-                        <TextField source="comment_shortened" sortable={false} label="Comment" />
+                        <TextField
+                            source="comment_shortened"
+                            sortable={false}
+                            label="Comment"
+                            sx={{ wordBreak: "break-word" }}
+                        />
                     </Datagrid>
                     <CustomPagination />
                 </div>

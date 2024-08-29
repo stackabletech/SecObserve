@@ -110,6 +110,12 @@ class Product(Model):
     assessments_need_approval = BooleanField(default=False)
     new_observations_in_review = BooleanField(default=False)
     product_rules_need_approval = BooleanField(default=False)
+    risk_acceptance_expiry_active = BooleanField(null=True)
+    risk_acceptance_expiry_days = IntegerField(
+        null=True,
+        validators=[MinValueValidator(0), MaxValueValidator(999999)],
+        help_text="Days before risk acceptance expires, 0 means no expiry",
+    )
 
     class Meta:
         indexes = [
@@ -412,6 +418,7 @@ class Observation(Model):
     )
     current_status = CharField(max_length=16, choices=Status.STATUS_CHOICES)
     parser_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
+    vex_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
     rule_status = CharField(max_length=16, choices=Status.STATUS_CHOICES, blank=True)
     assessment_status = CharField(
         max_length=16, choices=Status.STATUS_CHOICES, blank=True
@@ -422,9 +429,10 @@ class Observation(Model):
     origin_component_version = CharField(max_length=255, blank=True)
     origin_component_name_version = CharField(max_length=513, blank=True)
     origin_component_purl = CharField(max_length=255, blank=True)
+    origin_component_purl_type = CharField(max_length=16, blank=True)
     origin_component_cpe = CharField(max_length=255, blank=True)
     origin_component_location = TextField(max_length=255, blank=True)
-    origin_component_dependencies = TextField(max_length=4096, blank=True)
+    origin_component_dependencies = TextField(max_length=32768, blank=True)
     origin_docker_image_name = CharField(max_length=255, blank=True)
     origin_docker_image_tag = CharField(max_length=255, blank=True)
     origin_docker_image_name_tag = CharField(max_length=513, blank=True)
@@ -511,6 +519,9 @@ class Observation(Model):
     parser_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
+    vex_vex_justification = CharField(
+        max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
+    )
     rule_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
@@ -520,10 +531,20 @@ class Observation(Model):
     duplicate_of = ForeignKey(
         "self", related_name="duplicates", on_delete=PROTECT, null=True
     )
-    vex_remediations = JSONField(blank=True, null=True)
+    current_vex_remediations = JSONField(blank=True, null=True)
+    rule_vex_remediations = JSONField(blank=True, null=True)
+    vex_vex_remediations = JSONField(blank=True, null=True)
+    assessment_vex_remediations = JSONField(blank=True, null=True)
     patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
-    purl_type = CharField(max_length=16, blank=True, null=True)
+    vex_statement = ForeignKey(
+        "vex.VEX_Statement",
+        related_name="vex_statements",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    risk_acceptance_expiry_date = DateField(null=True)
 
     class Meta:
         indexes = [
@@ -606,6 +627,14 @@ class Observation_Log(Model):
         null=True,
         on_delete=SET_NULL,
     )
+    vex_statement = ForeignKey(
+        "vex.VEX_Statement",
+        related_name="observation_log_vex_statements",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    risk_acceptance_expiry_date = DateField(null=True)
 
     class Meta:
         indexes = [

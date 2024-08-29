@@ -50,10 +50,6 @@ const UserAGEmbeddedList = ({ authorization_group }: UserAGEmbeddedListProps) =>
         return <div>Loading...</div>;
     }
 
-    if (listContext.data === undefined) {
-        listContext.data = [];
-    }
-
     localStorage.setItem("useragembeddedlist", "true");
     localStorage.removeItem("userembeddedlist");
     localStorage.setItem("useragembeddedlist.authorization_group", authorization_group.id);
@@ -63,9 +59,9 @@ const UserAGEmbeddedList = ({ authorization_group }: UserAGEmbeddedListProps) =>
             <div style={{ width: "100%" }}>
                 {is_superuser() && <AuthorizationGroupUserAdd id={authorization_group.id} />}
                 <FilterForm filters={listFilters()} />
-                <Datagrid size={getSettingListSize()} rowClick={false} bulkActionButtons={false}>
+                <Datagrid size={getSettingListSize()} rowClick={false} bulkActionButtons={false} resource="users">
                     <TextField source="username" />
-                    <TextField source="full_name" />
+                    <TextField source="full_name" sx={{ wordBreak: "break-word" }} />
                     {is_superuser() && <BooleanField source="is_active" label="Active" />}
                     {is_superuser() && <BooleanField source="is_oidc_user" label="OIDC user" />}
                     {is_superuser() && <BooleanField source="is_external" label="External" />}

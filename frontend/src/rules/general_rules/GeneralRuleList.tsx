@@ -65,12 +65,17 @@ const GeneralRuleList = () => {
                     rowClick="show"
                     bulkActionButtons={is_superuser() && <BulkActionButtons />}
                 >
-                    <TextField source="name" />
+                    <TextField source="name" sx={{ wordBreak: "break-word" }} />
                     <TextField source="new_severity" />
                     <TextField source="new_status" />
                     {feature_general_rules_need_approval_enabled() && <ChipField source="approval_status" />}
                     <BooleanField source="enabled" />
-                    <ReferenceField source="parser" reference="parsers" link={false} />
+                    <ReferenceField
+                        source="parser"
+                        reference="parsers"
+                        link={false}
+                        sx={{ "& a": { textDecoration: "none" } }}
+                    />
                     <TextField source="scanner_prefix" />
                     <TextField source="title" label="Observation title" />
                 </Datagrid>

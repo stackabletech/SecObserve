@@ -41,9 +41,14 @@ const CSAFShow = () => {
             <WithRecord
                 render={(csaf) => (
                     <SimpleShowLayout>
-                        <Typography variant="h6">CSAF</Typography>
+                        <Typography variant="h6">Exported CSAF document</Typography>
                         {csaf && csaf.product_data && csaf.product_data.name && (
-                            <ReferenceField source="product" reference="products" link="show" />
+                            <ReferenceField
+                                source="product"
+                                reference="products"
+                                link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            />
                         )}
                         {csaf && csaf.vulnerability_names && (
                             <ReferenceManyField
@@ -74,11 +79,13 @@ const CSAFShow = () => {
                         <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                         <Typography variant="h6">Tracking</Typography>
                         <DateField
+                            locales="de-DE"
                             source="tracking_initial_release_date"
                             showTime={true}
                             label="Initial release date"
                         />
                         <DateField
+                            locales="de-DE"
                             source="tracking_current_release_date"
                             showTime={true}
                             label="Current release date"

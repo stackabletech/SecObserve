@@ -1,10 +1,10 @@
 # build environment
-FROM node:20.14.0-alpine3.19@sha256:eb17a0816c6475000def8bf0dd0a85bc59340235eb9fbb0aff158b4c9a3c7d6f as build
+FROM node:20.16.0-alpine3.19@sha256:e0ea1e2299d3e4b214ba91a0c1b773f2369ba4ff39cb0b4d3000c2b72ee8334e AS build
 
 ARG VERSION=unkown
 
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
+ENV PATH=/app/node_modules/.bin:$PATH
 COPY frontend/package.json ./
 COPY frontend/package-lock.json ./
 COPY frontend/.npmrc ./
@@ -13,21 +13,24 @@ COPY frontend/.npmrc ./
 RUN npm ci
 COPY ./frontend ./
 # insert version for status endpoint
-RUN sed -i 's/version_unkown/'"${VERSION}"'/g' ./src/commons/about/About.tsx
+RUN sed -i 's/version_unkown/'"${VERSION}"'/g' ./src/commons/about/About.tsx && \
+        npm run build
 
-RUN npm run build
+WORKDIR /app/lib/runtime-env-cra
+RUN npm ci
 
 # production environment
-FROM nginx:stable-alpine-slim@sha256:3df0d85b2e46d4195e7436c22694ef65944c48624282292cadfbf58ee0ad34ce
+FROM nginx:stable-alpine-slim@sha256:28967af9fa8d5e1c58a45feeb35e2f326bb6d99b1208bec25f3374c9fe788f4f
 
 USER root
 
 # kics-scan ignore-block
 # versions of dependencies from distribution are ok
 RUN apk add --no-cache --virtual --update npm && \
-        npm i -g runtime-env-cra@0.2.4
+        npm i -g node
 
 COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/lib/runtime-env-cra /usr/share/nginx/html/lib/runtime-env-cra
 COPY ./frontend/.env.no_oidc /usr/share/nginx/html/.env
 COPY ./frontend/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./frontend/nginx/default.conf /etc/nginx/conf.d/default.conf
@@ -68,4 +71,4 @@ WORKDIR /usr/share/nginx/html
 
 USER ${user}
 
-CMD ["/bin/sh", "-c", "runtime-env-cra && nginx -g \"daemon off;\""]
+CMD ["/bin/sh", "-c", "./lib/runtime-env-cra/lib/index.js --strict false && nginx -g \"daemon off;\""]

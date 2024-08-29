@@ -15,6 +15,7 @@ import {
 import { Link } from "react-router-dom";
 
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
+import { is_superuser } from "../../commons/functions";
 import { useLinkStyles } from "../../commons/layout/themes";
 import { getSettingTheme } from "../../commons/user_settings/functions";
 
@@ -35,20 +36,44 @@ const MetaData = () => {
                 render={(observation) => (
                     <SimpleShowLayout>
                         <Typography variant="h6">Metadata</Typography>
-                        <ReferenceField source="product" reference="products" link="show" />
+                        <ReferenceField
+                            source="product"
+                            reference="products"
+                            link="show"
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        />
                         {observation.branch && (
                             <ReferenceField
                                 source="branch"
                                 reference="branches"
                                 label="Branch / Version"
                                 link={false}
+                                sx={{ "& a": { textDecoration: "none" } }}
                             />
                         )}
-                        <ReferenceField source="parser" reference="parsers" label="Parser name" link="show" />
-                        <ReferenceField source="parser" reference="parsers" label="Parser type" link={false}>
+                        <ReferenceField
+                            source="parser"
+                            reference="parsers"
+                            label="Parser name"
+                            link="show"
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        />
+                        <ReferenceField
+                            source="parser"
+                            reference="parsers"
+                            label="Parser type"
+                            link={false}
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        >
                             <TextField source="type" />
                         </ReferenceField>
-                        <ReferenceField source="parser" reference="parsers" label="Parser source" link={false}>
+                        <ReferenceField
+                            source="parser"
+                            reference="parsers"
+                            label="Parser source"
+                            link={false}
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        >
                             <TextField source="source" />
                         </ReferenceField>
                         {observation.scanner_observation_id != "" && (
@@ -65,6 +90,7 @@ const MetaData = () => {
                                 reference="general_rules"
                                 label="General rule name"
                                 link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
                             />
                         )}
                         {observation.product_rule != null && (
@@ -73,6 +99,16 @@ const MetaData = () => {
                                 reference="product_rules"
                                 label="Product rule name"
                                 link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            />
+                        )}
+                        {is_superuser() && observation.vex_statement != null && (
+                            <ReferenceField
+                                source="vex_statement"
+                                reference="vex/vex_statements"
+                                label="VEX statement"
+                                link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
                             />
                         )}
                         {observation.issue_tracker_issue_id != "" && (
@@ -87,8 +123,8 @@ const MetaData = () => {
                                 />
                             </Labeled>
                         )}
-                        <DateField source="import_last_seen" showTime />
-                        <DateField source="created" showTime />
+                        <DateField locales="de-DE" source="import_last_seen" showTime />
+                        <DateField locales="de-DE" source="created" showTime />
                     </SimpleShowLayout>
                 )}
             />
@@ -115,6 +151,7 @@ const References = () => {
                                     bulkActionButtons={false}
                                     header={EmptyDatagridHeader}
                                     sx={{ paddingBottom: 2 }}
+                                    rowClick={false}
                                 >
                                     <UrlField source="url" label={false} target="_blank" className={classes.link} />
                                 </Datagrid>
@@ -143,6 +180,7 @@ const Evidences = () => {
                                     bulkActionButtons={false}
                                     header={EmptyDatagridHeader}
                                     sx={{ paddingBottom: 2 }}
+                                    rowClick={false}
                                 >
                                     <WithRecord
                                         render={(evidence) => (

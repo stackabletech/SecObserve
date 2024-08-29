@@ -1,15 +1,16 @@
-import { Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    ArrayField,
     BooleanField,
     ChipField,
+    Datagrid,
     DateField,
     EditButton,
     Labeled,
     PrevNextButtons,
     ReferenceField,
     Show,
-    SimpleShowLayout,
     TextField,
     TopToolbar,
     WithRecord,
@@ -39,6 +40,14 @@ const ShowActions = () => {
         </TopToolbar>
     );
 };
+const VEXRemediationHeader = () => (
+    <TableHead>
+        <TableRow>
+            <TableCell>Category</TableCell>
+            <TableCell>Text</TableCell>
+        </TableRow>
+    </TableHead>
+);
 
 const GeneralRuleComponent = () => {
     const { classes } = useStyles();
@@ -46,7 +55,7 @@ const GeneralRuleComponent = () => {
     return (
         <WithRecord
             render={(rule) => (
-                <SimpleShowLayout>
+                <Box width={"100%"}>
                     <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                         <Typography variant="h6" sx={{ marginBottom: 1 }}>
                             General Rule
@@ -76,6 +85,20 @@ const GeneralRuleComponent = () => {
                                     <TextField source="new_vex_justification" />
                                 </Labeled>
                             )}
+                            {feature_vex_enabled() && rule.new_vex_remediations && (
+                                <Labeled label="New VEX remediations">
+                                    <ArrayField source="new_vex_remediations" label="New VEX remediations">
+                                        <Datagrid
+                                            bulkActionButtons={false}
+                                            header={VEXRemediationHeader}
+                                            sx={{ paddingBottom: 2 }}
+                                        >
+                                            <TextField source="category" />
+                                            <TextField source="text" />
+                                        </Datagrid>
+                                    </ArrayField>
+                                </Labeled>
+                            )}
                             <Labeled label="Enabled">
                                 <BooleanField source="enabled" />
                             </Labeled>
@@ -92,9 +115,16 @@ const GeneralRuleComponent = () => {
                             Observation
                         </Typography>
                         <Stack spacing={1}>
-                            <Labeled label="Parser">
-                                <ReferenceField source="parser" reference="parsers" link="show" />
-                            </Labeled>
+                            {rule.parser && (
+                                <Labeled label="Parser">
+                                    <ReferenceField
+                                        source="parser"
+                                        reference="parsers"
+                                        link="show"
+                                        sx={{ "& a": { textDecoration: "none" } }}
+                                    />
+                                </Labeled>
+                            )}
                             {rule.scanner_prefix && (
                                 <Labeled label="Scanner prefix">
                                     <TextField source="scanner_prefix" />
@@ -185,13 +215,13 @@ const GeneralRuleComponent = () => {
                                 )}
                                 {rule.approval_date && (
                                     <Labeled label="Approval/rejection date">
-                                        <DateField source="approval_date" showTime />
+                                        <DateField locales="de-DE" source="approval_date" showTime />
                                     </Labeled>
                                 )}
                             </Stack>
                         </Paper>
                     )}
-                </SimpleShowLayout>
+                </Box>
             )}
         />
     );

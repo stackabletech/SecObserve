@@ -37,9 +37,14 @@ const OpenVEXShow = () => {
             <WithRecord
                 render={(openvex) => (
                     <SimpleShowLayout>
-                        <Typography variant="h6">OpenVEX</Typography>
+                        <Typography variant="h6">Exported OpenVEX document</Typography>
                         {openvex && openvex.product_data && openvex.product_data.name && (
-                            <ReferenceField source="product" reference="products" link="show" />
+                            <ReferenceField
+                                source="product"
+                                reference="products"
+                                link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            />
                         )}
                         {openvex && openvex.vulnerability_names && (
                             <ReferenceManyField
@@ -74,8 +79,8 @@ const OpenVEXShow = () => {
                         <TextField source="role" />
                         <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                         <Typography variant="h6">Tracking</Typography>
-                        <DateField source="timestamp" showTime={true} />
-                        <DateField source="last_updated" showTime={true} />
+                        <DateField locales="de-DE" source="timestamp" showTime={true} />
+                        <DateField locales="de-DE" source="last_updated" showTime={true} />
                     </SimpleShowLayout>
                 )}
             />

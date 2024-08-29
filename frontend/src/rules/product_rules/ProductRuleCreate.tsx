@@ -3,11 +3,13 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { Button, Dialog, DialogContent, DialogTitle, Divider, Typography } from "@mui/material";
 import { Fragment, useState } from "react";
 import {
+    ArrayInput,
     BooleanInput,
     CreateBase,
     ReferenceInput,
     SaveButton,
     SimpleForm,
+    SimpleFormIterator,
     Toolbar,
     useCreate,
     useNotify,
@@ -21,13 +23,14 @@ import {
     validate_required_255,
     validate_required_2048,
 } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus } from "../../commons/functions";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
+    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../../core/types";
 import { validateRuleForm } from "../functions";
 
@@ -42,6 +45,7 @@ const ProductRuleCreate = ({ id }: ProductRuleCreateProps) => {
     const [create] = useCreate();
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
+    const remediationsEnabled = remediationsAreEnabledForStatus(status);
 
     const handleOpen = () => setOpen(true);
     const handleCancel = () => setOpen(false);
@@ -113,6 +117,9 @@ const ProductRuleCreate = ({ id }: ProductRuleCreateProps) => {
         if (!justificationEnabled || !data.new_vex_justification) {
             data.new_vex_justification = "";
         }
+        if (!remediationsEnabled || data.new_vex_remediations == null) {
+            data.new_vex_remediations = "";
+        }
 
         create(
             "product_rules",
@@ -169,6 +176,22 @@ const ProductRuleCreate = ({ id }: ProductRuleCreateProps) => {
                                     source="new_vex_justification"
                                     choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                                 />
+                            )}
+                            {remediationsEnabled && (
+                                <ArrayInput
+                                    source="new_vex_remediations"
+                                    defaultValue={""}
+                                    label="New VEX remediations"
+                                >
+                                    <SimpleFormIterator disableReordering inline>
+                                        <AutocompleteInputMedium
+                                            source="category"
+                                            label=""
+                                            choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                                        />
+                                        <TextInputWide source="text" />
+                                    </SimpleFormIterator>
+                                </ArrayInput>
                             )}
                             <BooleanInput source="enabled" defaultValue={true} />
 

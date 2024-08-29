@@ -1,4 +1,4 @@
-import { Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
     ArrayField,
@@ -9,7 +9,6 @@ import {
     PrevNextButtons,
     ReferenceField,
     Show,
-    SimpleShowLayout,
     SortPayload,
     TextField,
     TopToolbar,
@@ -20,6 +19,7 @@ import {
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
 import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
+import { is_superuser } from "../../commons/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import AssessmentApproval from "./AssessmentApproval";
 
@@ -72,12 +72,17 @@ const ObservationLogComponent = () => {
     return (
         <WithRecord
             render={(observation_log) => (
-                <SimpleShowLayout>
+                <Box width={"100%"}>
                     <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                         <Stack spacing={1}>
                             <Typography variant="h6">Observation Log</Typography>
                             <Labeled label="Product">
-                                <ReferenceField source="observation_data.product" reference="products" link="show">
+                                <ReferenceField
+                                    source="observation_data.product"
+                                    reference="products"
+                                    link="show"
+                                    sx={{ "& a": { textDecoration: "none" } }}
+                                >
                                     <TextField source="name" />
                                 </ReferenceField>
                             </Labeled>
@@ -88,7 +93,12 @@ const ObservationLogComponent = () => {
                                 <TextField source="observation_data.origin_component_name_version" />
                             </Labeled>
                             <Labeled label="Observation">
-                                <ReferenceField source="observation" reference="observations" link="show">
+                                <ReferenceField
+                                    source="observation"
+                                    reference="observations"
+                                    link="show"
+                                    sx={{ "& a": { textDecoration: "none" } }}
+                                >
                                     <TextField source="title" />
                                 </ReferenceField>
                             </Labeled>
@@ -108,6 +118,11 @@ const ObservationLogComponent = () => {
                                             width: "fit-content",
                                         }}
                                     />
+                                </Labeled>
+                            )}
+                            {observation_log.risk_acceptance_expiry_date != null && (
+                                <Labeled label="Risk acceptance expiry">
+                                    <DateField source="risk_acceptance_expiry_date" />
                                 </Labeled>
                             )}
                             {observation_log.vex_justification && (
@@ -136,6 +151,7 @@ const ObservationLogComponent = () => {
                                         reference="general_rules"
                                         label="General rule name"
                                         link="show"
+                                        sx={{ "& a": { textDecoration: "none" } }}
                                     />
                                 </Labeled>
                             )}
@@ -146,6 +162,18 @@ const ObservationLogComponent = () => {
                                         reference="product_rules"
                                         label="Product rule name"
                                         link="show"
+                                        sx={{ "& a": { textDecoration: "none" } }}
+                                    />
+                                </Labeled>
+                            )}
+                            {is_superuser() && observation_log.vex_statement != null && (
+                                <Labeled label="VEX statement">
+                                    <ReferenceField
+                                        source="vex_statement"
+                                        reference="vex/vex_statements"
+                                        label="VEX statement"
+                                        link="show"
+                                        sx={{ "& a": { textDecoration: "none" } }}
                                     />
                                 </Labeled>
                             )}
@@ -153,7 +181,7 @@ const ObservationLogComponent = () => {
                                 <MarkdownField content={observation_log.comment} />
                             </Labeled>
                             <Labeled label="Created">
-                                <DateField source="created" showTime />
+                                <DateField locales="de-DE" source="created" showTime />
                             </Labeled>
                         </Stack>
                     </Paper>
@@ -185,13 +213,13 @@ const ObservationLogComponent = () => {
                                     )}
                                     {observation_log.approval_date && (
                                         <Labeled label="Approval/rejection date">
-                                            <DateField source="approval_date" showTime />
+                                            <DateField locales="de-DE" source="approval_date" showTime />
                                         </Labeled>
                                     )}
                                 </Stack>
                             </Paper>
                         )}
-                </SimpleShowLayout>
+                </Box>
             )}
         />
     );

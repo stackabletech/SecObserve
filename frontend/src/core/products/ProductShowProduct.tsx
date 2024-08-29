@@ -24,7 +24,12 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
                 )}
                 {product.product_group && (
                     <Labeled label="Product group">
-                        <ReferenceField source="product_group" reference="product_groups" link="show">
+                        <ReferenceField
+                            source="product_group"
+                            reference="product_groups"
+                            link="show"
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        >
                             <TextField source="name" />
                         </ReferenceField>
                     </Labeled>
@@ -61,7 +66,12 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
                             </Labeled>
                         )}
                         {product.repository_default_branch && (
-                            <ReferenceField source="repository_default_branch" reference="branches" link={false}>
+                            <ReferenceField
+                                source="repository_default_branch"
+                                reference="branches"
+                                link={false}
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            >
                                 <Labeled label="Default branch / version">
                                     <TextField source="name" />
                                 </Labeled>
@@ -244,10 +254,37 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
                         <BooleanField source="product_group_product_rules_need_approval" />
                     </Labeled>
                 )}
-                {/* <Labeled label="New observations have status 'In review'">
+                <Labeled label='Status "In review" for new observations'>
                     <BooleanField source="new_observations_in_review" />
-                </Labeled> */}
+                </Labeled>
+                {product.product_group_new_observations_in_review && (
+                    <Labeled label='Status "In review" for new observations (from product group)'>
+                        <BooleanField source="product_group_new_observations_in_review" />
+                    </Labeled>
+                )}
             </Stack>
+
+            {product.risk_acceptance_expiry_active != null && (
+                <Fragment>
+                    <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
+                    <Typography variant="h6">Risk acceptance expiry</Typography>
+
+                    <Labeled label="Risk acceptance expiry">
+                        <BooleanField
+                            source="risk_acceptance_expiry_active"
+                            valueLabelFalse="Disabled"
+                            valueLabelTrue="Product specific"
+                        />
+                    </Labeled>
+                    {product.risk_acceptance_expiry_active == true && (
+                        <Stack spacing={1}>
+                            <Labeled label="Risk acceptance expiry (days)">
+                                <NumberField source="risk_acceptance_expiry_days" />
+                            </Labeled>
+                        </Stack>
+                    )}
+                </Fragment>
+            )}
         </Fragment>
     );
 };

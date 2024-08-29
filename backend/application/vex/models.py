@@ -4,10 +4,12 @@ from django.db.models import (
     CharField,
     DateTimeField,
     ForeignKey,
+    Index,
     IntegerField,
     Model,
     TextField,
 )
+from django.utils import timezone
 
 from application.access_control.models import User
 from application.core.models import Branch, Product
@@ -15,6 +17,9 @@ from application.vex.types import (
     CSAF_Publisher_Category,
     CSAF_TLP_Label,
     CSAF_Tracking_Status,
+    VEX_Document_Type,
+    VEX_Justification,
+    VEX_Status,
 )
 
 
@@ -52,8 +57,17 @@ class OpenVEX(VEX_Base):
     id_namespace = CharField(max_length=255)
     author = CharField(max_length=255)
     role = CharField(max_length=255, blank=True)
-    timestamp = DateTimeField(auto_now_add=True)
-    last_updated = DateTimeField(auto_now=True)
+    timestamp = DateTimeField()
+    last_updated = DateTimeField()
+
+    # Make sure that timestamp and last updated date are exactly the
+    # same when creating a new CSAF record
+    def save(self, *args, **kwargs):
+        now = timezone.now()
+        if not self.timestamp:
+            self.timestamp = now
+        self.last_updated = now
+        super().save(*args, **kwargs)
 
 
 class OpenVEX_Branch(Model):
@@ -69,8 +83,8 @@ class OpenVEX_Vulnerability(Model):
 class CSAF(VEX_Base):
     title = CharField(max_length=255)
     tlp_label = CharField(max_length=16, choices=CSAF_TLP_Label.CSAF_TLP_LABEL_CHOICES)
-    tracking_initial_release_date = DateTimeField(auto_now_add=True)
-    tracking_current_release_date = DateTimeField(auto_now=True)
+    tracking_initial_release_date = DateTimeField()
+    tracking_current_release_date = DateTimeField()
     tracking_status = CharField(
         max_length=16, choices=CSAF_Tracking_Status.CSAF_TRACKING_STATUS_CHOICES
     )
@@ -79,6 +93,15 @@ class CSAF(VEX_Base):
         max_length=16, choices=CSAF_Publisher_Category.CSAF_PUBLISHER_CATEGORY_CHOICES
     )
     publisher_namespace = CharField(max_length=255)
+
+    # Make sure that initial release date and current release date are exactly the
+    # same when creating a new CSAF record
+    def save(self, *args, **kwargs):
+        now = timezone.now()
+        if not self.tracking_initial_release_date:
+            self.tracking_initial_release_date = now
+        self.tracking_current_release_date = now
+        super().save(*args, **kwargs)
 
 
 class CSAF_Vulnerability(Model):
@@ -96,3 +119,38 @@ class CSAF_Revision(Model):
     date = DateTimeField()
     version = IntegerField(validators=[MinValueValidator(0), MaxValueValidator(999999)])
     summary = TextField(max_length=255)
+
+
+class VEX_Document(Model):
+    type = CharField(max_length=16, choices=VEX_Document_Type.VEX_DOCUMENT_TYPE_CHOICES)
+    document_id = CharField(max_length=255)
+    version = CharField(max_length=255)
+    current_release_date = DateTimeField()
+    initial_release_date = DateTimeField()
+    author = CharField(max_length=255)
+    role = CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = (
+            "document_id",
+            "author",
+        )
+
+
+class VEX_Statement(Model):
+    document = ForeignKey(VEX_Document, related_name="statements", on_delete=CASCADE)
+    vulnerability_id = CharField(max_length=255)
+    description = TextField(max_length=2048, blank=True)
+    status = CharField(max_length=24, choices=VEX_Status.VEX_STATUS_CHOICES)
+    justification = CharField(
+        max_length=64, choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES, blank=True
+    )
+    impact = CharField(max_length=255, blank=True)
+    remediation = CharField(max_length=255, blank=True)
+    product_purl = CharField(max_length=255, blank=True)
+    component_purl = CharField(max_length=255, blank=True)
+
+    class Meta:
+        indexes = [
+            Index(fields=["product_purl"]),
+        ]

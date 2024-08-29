@@ -13,15 +13,15 @@
           nativeBuildInputs = with pkgs; [ pkg-config ];
           buildInputs = with pkgs; [
             poetry
-            python310Packages.flake8
-            python310Packages.isort
-            python310Packages.mypy
-            python310Packages.django-stubs
-            python310Packages.django-environ
-            python310Packages.pymysql
-            python310Packages.whitenoise
-            python310Packages.djangorestframework
-            python310Packages.pylint
+            #python310Packages.flake8
+            #python310Packages.isort
+            #python310Packages.mypy
+            #python310Packages.django-stubs
+            #python310Packages.django-environ
+            #python310Packages.pymysql
+            #python310Packages.whitenoise
+            #python310Packages.djangorestframework
+            #python310Packages.pylint
             libargon2
             nodejs_21
           ];

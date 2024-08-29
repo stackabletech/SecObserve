@@ -1,7 +1,7 @@
 from typing import Optional
 
 from application.core.models import Branch, Product
-from application.vex.services.csaf_helpers import get_product_id
+from application.vex.services.csaf_generator_helpers import get_product_id
 from application.vex.types import (
     CSAF_Branch_Category,
     CSAFFullProductName,
@@ -62,16 +62,16 @@ def append_product_to_product_tree(
 def _create_product(product: Product, branch: Optional[Branch]) -> CSAFFullProductName:
     product_identification_helper = None
     if branch:
-        if branch.purl: # or branch.cpe23:
+        if branch.purl:  # or branch.cpe23:
             purl = branch.purl if branch.purl else None
             # cpe = branch.cpe23 if branch.cpe23 else None
             product_identification_helper = CSAFProductIdentificationHelper(
                 purl=purl, cpe=None
             )
     else:
-        if product.purl: # or product.cpe23:
+        if product.purl:  # or product.cpe23:
             purl = product.purl if product.purl else None
-            #cpe = product.cpe23 if product.cpe23 else None
+            # cpe = product.cpe23 if product.cpe23 else None
             product_identification_helper = CSAFProductIdentificationHelper(
                 purl=purl, cpe=None
             )

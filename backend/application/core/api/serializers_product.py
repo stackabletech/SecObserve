@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from rest_framework.serializers import (
@@ -31,6 +32,9 @@ from application.core.models import (
 from application.core.queries.product_member import (
     get_product_authorization_group_member,
     get_product_member,
+)
+from application.core.services.risk_acceptance_expiry import (
+    calculate_risk_acceptance_expiry_date,
 )
 from application.core.types import Assessment_Status, Status
 from application.issue_tracker.types import Issue_Tracker
@@ -106,6 +110,7 @@ class ProductCoreSerializer(ModelSerializer):
 
 class ProductGroupSerializer(ProductCoreSerializer):
     products_count = SerializerMethodField()
+    product_rule_approvals = SerializerMethodField()
 
     class Meta:
         model = Product
@@ -136,10 +141,22 @@ class ProductGroupSerializer(ProductCoreSerializer):
             "security_gate_threshold_unkown",
             "assessments_need_approval",
             "product_rules_need_approval",
+            "risk_acceptance_expiry_active",
+            "risk_acceptance_expiry_days",
+            "new_observations_in_review",
+            "product_rule_approvals",
         ]
 
     def get_products_count(self, obj: Product) -> int:
         return obj.products.count()
+
+    def get_product_rule_approvals(self, obj: Product) -> int:
+        if not obj.product_rules_need_approval:
+            return 0
+
+        return Rule.objects.filter(
+            product=obj, approval_status=Rule_Status.RULE_STATUS_NEEDS_APPROVAL
+        ).count()
 
     def create(self, validated_data: dict) -> Product:
         product_group = super().create(validated_data)
@@ -166,10 +183,12 @@ class ProductSerializer(ProductCoreSerializer):
     has_services = SerializerMethodField()
     product_group_product_rules_need_approval = SerializerMethodField()
     product_rule_approvals = SerializerMethodField()
+    risk_acceptance_expiry_date_calculated = SerializerMethodField()
+    product_group_new_observations_in_review = SerializerMethodField()
 
     class Meta:
         model = Product
-        exclude = ["is_product_group", "new_observations_in_review", "members"]
+        exclude = ["is_product_group", "members"]
 
     def get_product_group_name(self, obj: Product) -> str:
         if not obj.product_group:
@@ -241,6 +260,16 @@ class ProductSerializer(ProductCoreSerializer):
         return Rule.objects.filter(
             product=obj, approval_status=Rule_Status.RULE_STATUS_NEEDS_APPROVAL
         ).count()
+
+    def get_risk_acceptance_expiry_date_calculated(
+        self, obj: Product
+    ) -> Optional[date]:
+        return calculate_risk_acceptance_expiry_date(obj)
+
+    def get_product_group_new_observations_in_review(self, obj: Product) -> bool:
+        if not obj.product_group:
+            return False
+        return obj.product_group.new_observations_in_review
 
     def validate(self, attrs: dict):  # pylint: disable=too-many-branches
         # There are quite a lot of branches, but at least they are not nested too much
@@ -326,10 +355,11 @@ class NestedProductSerializer(ModelSerializer):
     permissions = SerializerMethodField()
     product_group_assessments_need_approval = SerializerMethodField()
     product_group_product_rules_need_approval = SerializerMethodField()
+    risk_acceptance_expiry_date_calculated = SerializerMethodField()
 
     class Meta:
         model = Product
-        exclude = ["is_product_group", "new_observations_in_review", "members"]
+        exclude = ["members"]
 
     def get_permissions(self, product: Product) -> list[Permissions]:
         return get_permissions_for_role(get_highest_user_role(product))
@@ -343,6 +373,11 @@ class NestedProductSerializer(ModelSerializer):
         if not obj.product_group:
             return False
         return obj.product_group.product_rules_need_approval
+
+    def get_risk_acceptance_expiry_date_calculated(
+        self, obj: Product
+    ) -> Optional[date]:
+        return calculate_risk_acceptance_expiry_date(obj)
 
 
 class NestedProductListSerializer(ModelSerializer):

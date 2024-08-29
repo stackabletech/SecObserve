@@ -35,15 +35,25 @@ const NotificationShow = () => {
                         <Typography variant="h6">Notification</Typography>
                         <TextField source="type" />
                         <TextField source="name" />
-                        <DateField source="created" showTime={true} />
+                        <DateField locales="de-DE" source="created" showTime={true} />
                         {notification && notification.message && <TextField source="message" />}
                         {notification && notification.function && <TextField source="function" />}
                         {notification && notification.arguments && <TextField source="arguments" />}
                         {notification && notification.product && (
-                            <ReferenceField source="product" reference="products" link="show" />
+                            <ReferenceField
+                                source="product"
+                                reference="products"
+                                link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            />
                         )}
                         {notification && notification.observation && (
-                            <ReferenceField source="observation" reference="observations" link="show" />
+                            <ReferenceField
+                                source="observation"
+                                reference="observations"
+                                link="show"
+                                sx={{ "& a": { textDecoration: "none" } }}
+                            />
                         )}
                         <TextField source="user_full_name" label="User" />
                     </SimpleShowLayout>

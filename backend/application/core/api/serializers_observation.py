@@ -7,6 +7,7 @@ from packageurl import PackageURL
 from rest_framework.serializers import (
     CharField,
     ChoiceField,
+    DateField,
     IntegerField,
     JSONField,
     ListField,
@@ -285,7 +286,7 @@ class ObservationUpdateSerializer(ModelSerializer):
         actual_severity = instance.current_severity
         actual_status = instance.current_status
         actual_vex_justification = instance.current_vex_justification
-        actual_vex_remediations = instance.vex_remediations
+        actual_vex_remediations = instance.current_vex_remediations
 
         instance.origin_component_name = ""
         instance.origin_component_version = ""
@@ -311,8 +312,8 @@ class ObservationUpdateSerializer(ModelSerializer):
         else:
             actual_vex_justification = ""
 
-        if actual_vex_remediations != observation.vex_remediations:
-            actual_vex_remediations = observation.vex_remediations
+        if actual_vex_remediations != observation.current_vex_remediations:
+            actual_vex_remediations = observation.current_vex_remediations
         else:
             actual_vex_remediations = ""
 
@@ -325,6 +326,7 @@ class ObservationUpdateSerializer(ModelSerializer):
                 actual_vex_justification,
                 actual_vex_remediations,
                 Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+                observation.risk_acceptance_expiry_date,
             )
 
         check_security_gate(observation.product)
@@ -368,6 +370,7 @@ class ObservationUpdateSerializer(ModelSerializer):
             "cvss3_score",
             "cvss3_vector",
             "cwe",
+            "risk_acceptance_expiry_date",
         ]
 
 
@@ -399,8 +402,9 @@ class ObservationCreateSerializer(ModelSerializer):
             observation.current_status,
             "Observation created manually",
             observation.current_vex_justification,
-            observation.vex_remediations,
+            observation.current_vex_remediations,
             Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            observation.risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)
@@ -445,6 +449,7 @@ class ObservationCreateSerializer(ModelSerializer):
             "cvss3_score",
             "cvss3_vector",
             "cwe",
+            "risk_acceptance_expiry_date",
         ]
 
 
@@ -457,6 +462,7 @@ class ObservationAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
+    risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
     comment = CharField(max_length=4096, required=True)
 
 
@@ -483,6 +489,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
+    risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
 
 
 class ObservationBulkMarkDuplicatesSerializer(Serializer):
