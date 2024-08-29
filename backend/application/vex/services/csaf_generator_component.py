@@ -82,7 +82,7 @@ def append_component_to_product_tree(
             return
 
     component_branch = CSAFProductBranch(
-        name=observation.origin_component_name,
+        name=observation.origin_component_version,
         category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_PRODUCT_VERSION,
         product=_create_component(
             observation.origin_component_name_version,
