@@ -1,5 +1,6 @@
-from packageurl import PackageURL
 from typing import Optional
+
+from packageurl import PackageURL
 
 from application.core.models import Observation
 from application.vex.services.csaf_generator_helpers import (
@@ -31,7 +32,7 @@ def append_component_to_product_tree(
         return
 
     purl = PackageURL.from_string(observation.origin_component_purl)
-    vendor_branch_name = purl.namespace
+    vendor_branch_name = purl.namespace or "unkown"
 
     found = False
     for vendor_branch in product_tree.branches:
@@ -45,6 +46,9 @@ def append_component_to_product_tree(
             branches=[],
         )
         product_tree.branches.append(vendor_branch)
+
+    if not vendor_branch.branches:
+        vendor_branch.branches = []
 
     _append_component_to_relationships(product_tree, observation)
 
@@ -62,6 +66,9 @@ def append_component_to_product_tree(
         )
         vendor_branch.branches.append(product_branch)
 
+    if not product_branch.branches:
+        product_branch.branches = []
+
     for component_branch in product_branch.branches:
         if (
             component_branch.product
@@ -75,7 +82,7 @@ def append_component_to_product_tree(
             return
 
     component_branch = CSAFProductBranch(
-        name=observation.origin_component_name,
+        name=observation.origin_component_version,
         category=CSAF_Branch_Category.CSAF_BRANCH_CATEGORY_PRODUCT_VERSION,
         product=_create_component(
             observation.origin_component_name_version,
@@ -83,6 +90,7 @@ def append_component_to_product_tree(
             observation.origin_component_cpe,
         ),
     )
+
     product_branch.branches.append(component_branch)
 
 
