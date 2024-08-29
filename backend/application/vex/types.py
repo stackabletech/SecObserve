@@ -152,6 +152,7 @@ class CSAFProductTree:
 class CSAFNote:
     category: str
     text: str
+    title: str
 
 
 @dataclass(frozen=True)
