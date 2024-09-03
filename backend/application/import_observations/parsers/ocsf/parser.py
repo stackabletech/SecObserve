@@ -1,5 +1,6 @@
 import logging
 from json import load
+from typing import Optional
 
 from django.core.files.base import File
 from py_ocsf_models.events.findings.detection_finding import (
@@ -9,7 +10,7 @@ from py_ocsf_models.events.findings.detection_finding import (
 )
 from py_ocsf_models.events.findings.finding import ActivityID
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -58,7 +59,9 @@ class OCSFParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(self, data: list) -> list[Observation]:
+    def get_observations(
+        self, data: list, branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         for element in data:

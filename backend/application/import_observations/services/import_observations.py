@@ -94,7 +94,9 @@ def file_upload_observations(
     if not format_valid:
         raise ValidationError("File format is not valid: " + " / ".join(errors))
 
-    imported_observations = parser_instance.get_observations(data)
+    imported_observations = parser_instance.get_observations(
+        data, file_upload_parameters.branch
+    )
 
     filename = (
         os.path.basename(file_upload_parameters.file.name)
@@ -151,7 +153,7 @@ def api_import_observations(
             "Connection couldn't be established: " + " / ".join(errors)
         )
 
-    imported_observations = parser_instance.get_observations(data)
+    imported_observations = parser_instance.get_observations(data, branch)
 
     import_parameters = ImportParameters(
         product=api_configuration.product,

@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from django.core.files.base import File
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.import_observations.models import Api_Configuration
 
 
@@ -15,7 +15,9 @@ class BaseParser:
     def get_type(cls) -> str:
         raise NotImplementedError("get_type() must be overridden")
 
-    def get_observations(self, data: Any) -> list[Observation]:
+    def get_observations(
+        self, data: Any, branch: Optional[Branch]
+    ) -> list[Observation]:
         raise NotImplementedError("get_observations() must be overridden")
 
     def get_int_or_none(self, value: Optional[str]) -> int | None:

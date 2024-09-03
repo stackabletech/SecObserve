@@ -1,8 +1,9 @@
 from json import load
+from typing import Optional
 
 from django.core.files.base import File
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
     BaseParser,
@@ -30,7 +31,9 @@ class SecObserveParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(self, data: dict) -> list[Observation]:
+    def get_observations(
+        self, data: dict, branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         for uploaded_observation in data.get("observations", []):
