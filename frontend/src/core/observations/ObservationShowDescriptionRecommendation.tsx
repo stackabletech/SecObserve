@@ -23,6 +23,7 @@ const ObservationShowDescriptionRecommendation = () => {
                     <Stack direction="row" spacing={2}>
                         {observation.duplicates.map((duplicate: any) => (
                             <TextUrlField
+                                label="Duplicate"
                                 text={duplicate.id}
                                 url={"#/observations/" + duplicate.id + "/show"}
                                 key={duplicate.id}

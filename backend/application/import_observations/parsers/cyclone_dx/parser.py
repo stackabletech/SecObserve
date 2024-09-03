@@ -127,15 +127,12 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component, recommendation
                         )
 
-                        observation_found = (
-                            Observation.objects.filter(
-                                title=title,
-                                branch=branch,
-                                origin_component_name=component.name,
-                                origin_component_version=component.version,
-                            )
-                            .exists()
-                        )
+                        observation_found = Observation.objects.filter(
+                            title=title,
+                            branch=branch,
+                            origin_component_name=component.name,
+                            origin_component_version=component.version,
+                        ).exists()
 
                         if observation_found:
                             print(
