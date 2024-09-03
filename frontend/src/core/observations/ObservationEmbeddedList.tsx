@@ -42,55 +42,84 @@ import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_EMBEDDED_LIST, setListIdentifier } from "./functions";
 
 function listFilters(product: Product) {
-    return [
-        <ReferenceInput
-            source="branch"
-            reference="branches"
-            sort={{ field: "name", order: "ASC" }}
-            filter={{ product: product.id }}
-            alwaysOn
-        >
-            <AutocompleteInputMedium optionText="name" label="Branch / Version" />
-        </ReferenceInput>,
-        <TextInput source="title" alwaysOn />,
-        <AutocompleteInput
-            source="current_severity"
-            label="Severity"
-            choices={OBSERVATION_SEVERITY_CHOICES}
-            alwaysOn
-        />,
-        <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
-        // <ReferenceInput
-        //     source="origin_service"
-        //     reference="services"
-        //     sort={{ field: "name", order: "ASC" }}
-        //     filter={{ product: product.id }}
-        //     alwaysOn
-        // >
-        //     <AutocompleteInputMedium label="Service" optionText="name" />
-        // </ReferenceInput>,
-        <TextInput source="origin_component_name_version" label="Component" alwaysOn />,
-        <TextInput source="origin_docker_image_name_tag_short" label="Container" alwaysOn />,
-        <TextInput source="origin_component_location" label="Component location" />,
-        // <TextInput source="origin_endpoint_hostname" label="Host" alwaysOn />,
-        // <TextInput source="origin_source_file" label="Source" alwaysOn />,
-        // <TextInput source="origin_cloud_qualified_resource" label="Resource" alwaysOn />,
-        <TextInput source="scanner" alwaysOn />,
-        <AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />,
-        <TextInput source="upload_filename" label="Filename" />,
-        <TextInput source="api_configuration_name" label="API configuration" />,
-        <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
-        <NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />,
-        <NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />,
-        <NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
-        <NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />,
-        <AutocompleteInput
-            source="origin_component_purl_type"
-            label="Component type"
-            choices={PURL_TYPE_CHOICES}
-            alwaysOn
-        />,
-    ];
+    const filters = [];
+    if (product && product.has_branches) {
+        filters.push(
+            <ReferenceInput
+                source="branch"
+                reference="branches"
+                sort={{ field: "name", order: "ASC" }}
+                filter={{ product: product.id }}
+                alwaysOn
+            >
+                <AutocompleteInputMedium optionText="name" label="Branch / Version" />
+            </ReferenceInput>
+        );
+    }
+    filters.push(<TextInput source="title" alwaysOn />);
+    filters.push(
+        <AutocompleteInput source="current_severity" label="Severity" choices={OBSERVATION_SEVERITY_CHOICES} alwaysOn />
+    );
+    filters.push(
+        <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />
+    );
+    if (product && product.has_services) {
+        filters.push(
+            <ReferenceInput
+                source="origin_service"
+                reference="services"
+                sort={{ field: "name", order: "ASC" }}
+                filter={{ product: product.id }}
+                alwaysOn
+            >
+                <AutocompleteInputMedium label="Service" optionText="name" />
+            </ReferenceInput>
+        );
+    }
+
+    if (product && product.has_component) {
+        filters.push(<TextInput source="origin_component_name_version" label="Component" alwaysOn />);
+        filters.push(
+            <AutocompleteInput
+                source="origin_component_purl_type"
+                label="Component type"
+                choices={PURL_TYPE_CHOICES}
+                alwaysOn
+            />
+        );
+    }
+    if (product && product.has_docker_image) {
+        filters.push(<TextInput source="origin_docker_image_name_tag_short" label="Container" alwaysOn />);
+    }
+    if (product && product.has_endpoint) {
+        filters.push(<TextInput source="origin_endpoint_hostname" label="Host" alwaysOn />);
+    }
+    if (product && product.has_source) {
+        filters.push(<TextInput source="origin_source_file" label="Source" alwaysOn />);
+    }
+    if (product && product.has_cloud_resource) {
+        filters.push(<TextInput source="origin_cloud_qualified_resource" label="Cloud resource" alwaysOn />);
+    }
+    if (product && product.has_kubernetes_resource) {
+        filters.push(<TextInput source="origin_kubernetes_qualified_resource" label="Kubernetes resource" alwaysOn />);
+    }
+
+    filters.push(<TextInput source="scanner" alwaysOn />);
+    filters.push(<AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />);
+    filters.push(<TextInput source="upload_filename" label="Filename" />);
+    filters.push(<TextInput source="api_configuration_name" label="API configuration" />);
+    if (product && product.has_potential_duplicates) {
+        filters.push(<NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />);
+    }
+    if (product && product.observation_log_approvals > 0) {
+        filters.push(<NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />);
+    }
+    filters.push(<TextInput source="origin_component_location" label="Component location" />);
+    filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
+    filters.push(<NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />);
+    filters.push(<NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />);
+
+    return filters;
 }
 
 const ShowObservations = (id: any) => {
@@ -169,42 +198,63 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                         )
                     }
                     resource="observations"
-                    preferenceKey="observations.embedded"
                     expand={<ObservationExpand />}
                     expandSingle
                 >
-                    <TextField source="branch_name" label="Branch / Version" />
+                    {product && product.has_branches && <TextField source="branch_name" label="Branch / Version" />}
                     <TextField source="title" />
-                    <SeverityField source="current_severity" />
+                    <SeverityField label="Severity" source="current_severity" />
                     <ChipField source="current_status" label="Status" />
-                    <NumberField source="epss_score" label="EPSS" />
-                    <NumberField source="stackable_score" label="Stackable Score" />
-                    {/* <TextField source="origin_service_name" label="Service" /> */}
-                    <TextField
-                        source="origin_component_name_version"
-                        label="Component"
-                        sx={{ wordBreak: "break-word" }}
-                    />
-                    <TextField
-                        source="origin_docker_image_name_tag_short"
-                        label="Container"
-                        sx={{ wordBreak: "break-word" }}
-                    />
+                    {product && product.has_component && <NumberField source="epss_score" label="EPSS" />}
+                    {product && product.has_services && <TextField source="origin_service_name" label="Service" />}
+                    {product && product.has_component && (
+                        <TextField
+                            source="origin_component_name_version"
+                            label="Component"
+                            sx={{ wordBreak: "break-word" }}
+                        />
+                    )}
+                    {product && product.has_docker_image && (
+                        <TextField
+                            source="origin_docker_image_name_tag_short"
+                            label="Container"
+                            sx={{ wordBreak: "break-word" }}
+                        />
+                    )}
+                    {product && product.has_endpoint && (
+                        <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />
+                    )}
+                    {product && product.has_source && (
+                        <TextField source="origin_source_file" label="Source" sx={{ wordBreak: "break-word" }} />
+                    )}
+                    {product && product.has_cloud_resource && (
+                        <TextField
+                            source="origin_cloud_qualified_resource"
+                            label="Cloud resource"
+                            sx={{ wordBreak: "break-word" }}
+                        />
+                    )}
+                    {product && product.has_kubernetes_resource && (
+                        <TextField
+                            source="origin_kubernetes_qualified_resource"
+                            label="Kubernetes resource"
+                            sx={{ wordBreak: "break-word" }}
+                        />
+                    )}
                     <TextField
                         source="origin_component_location"
                         label="Component location"
                         sx={{ wordBreak: "break-word" }}
                     />
-                    {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
-                    {/* <TextField source="origin_source_file" label="Source" /> */}
-                    {/* <TextField source="origin_cloud_qualified_resource" label="Resource" /> */}
                     <TextField source="scanner_name" label="Scanner" />
                     <FunctionField<Observation>
                         label="Age"
                         sortBy="last_observation_log"
                         render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
                     />
-                    <BooleanField source="has_potential_duplicates" label="Dupl." />
+                    {product && product.has_potential_duplicates && (
+                        <BooleanField source="has_potential_duplicates" label="Dupl." />
+                    )}
                     <BooleanField source="patch_available" label="Patch" />
                 </DatagridConfigurable>
                 <CustomPagination />

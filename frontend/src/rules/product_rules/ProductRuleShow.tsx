@@ -98,8 +98,9 @@ const ProductRuleComponent = () => {
                             Product Rule
                         </Typography>
                         <Stack spacing={1}>
-                            <Labeled label={getProductLabel(rule.product_data)}>
+                            <Labeled>
                                 <TextUrlField
+                                    label={getProductLabel(rule.product_data)}
                                     text={rule.product_data.name}
                                     url={generateProductURL(rule.product_data.id, rule.product_data.is_product_group)}
                                 />
@@ -108,8 +109,8 @@ const ProductRuleComponent = () => {
                                 <TextField source="name" className={classes.fontBigBold} />
                             </Labeled>
                             {rule.description && (
-                                <Labeled label="Description">
-                                    <MarkdownField content={rule.description} />
+                                <Labeled>
+                                    <MarkdownField content={rule.description} label="Description" />
                                 </Labeled>
                             )}
 
@@ -192,7 +193,8 @@ const ProductRuleComponent = () => {
                             rule.origin_endpoint_url ||
                             rule.origin_service_name ||
                             rule.origin_source_file ||
-                            rule.origin_cloud_qualified_resource) && (
+                            rule.origin_cloud_qualified_resource ||
+                            rule.origin_kubernetes_qualified_resource) && (
                             <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                                 <Typography variant="h6" sx={{ marginBottom: 1 }}>
                                     Origins
@@ -226,6 +228,11 @@ const ProductRuleComponent = () => {
                                     {rule.origin_cloud_qualified_resource && (
                                         <Labeled label="Cloud qualified resource">
                                             <TextField source="origin_cloud_qualified_resource" />
+                                        </Labeled>
+                                    )}
+                                    {rule.origin_kubernetes_qualified_resource && (
+                                        <Labeled label="Kubernetes qualified resource">
+                                            <TextField source="origin_kubernetes_qualified_resource" />
                                         </Labeled>
                                     )}
                                 </Stack>

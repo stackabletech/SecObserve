@@ -60,6 +60,7 @@ const listFilters = () => [
     // <TextInput source="origin_endpoint_hostname" label="Host" />,
     // <TextInput source="origin_source_file" label="Source" />,
     // <TextInput source="origin_cloud_qualified_resource" label="Resource" />,
+    // <TextInput source="origin_kubernetes_qualified_resource" label="Kubernetes resource" />,
     <TextInput source="scanner" />,
     <AutocompleteInputMedium source="age" choices={AGE_CHOICES} />,
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" />,
@@ -124,7 +125,7 @@ const ObservationList = () => {
                         <TextField source="product_data.product_group_name" label="Group" />
                         <TextField source="branch_name" label="Branch / Version" />
                         <TextField source="title" />
-                        <SeverityField source="current_severity" />
+                        <SeverityField source="current_severity" label="Severity" />
                         <ChipField source="current_status" label="Status" />
                         <NumberField source="epss_score" label="EPSS" />
                         <NumberField source="stackable_score" label="Stackable Score" />
@@ -144,9 +145,19 @@ const ObservationList = () => {
                             label="Component location"
                             sx={{ wordBreak: "break-word" }}
                         />
-                        {/* <TextField source="origin_endpoint_hostname" label="Host" /> */}
-                        {/* <TextField source="origin_source_file" label="Source" /> */}
-                        {/* <TextField source="origin_cloud_qualified_resource" label="Resource" />, */}
+                        {/*
+                        <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />
+                        <TextField source="origin_source_file" label="Source" sx={{ wordBreak: "break-word" }} />
+                        <TextField
+                            source="origin_cloud_qualified_resource"
+                            label="Cloud res."
+                            sx={{ wordBreak: "break-word" }}
+                        />
+                        <TextField
+                            source="origin_kubernetes_qualified_resource"
+                            label="Kube. res."
+                            sx={{ wordBreak: "break-word" }}
+                        /> */}
                         <TextField source="scanner_name" label="Scanner" />
                         <FunctionField<Observation>
                             label="Age"
