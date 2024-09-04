@@ -197,6 +197,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                             <BulkActionButtons product={product} />
                         )
                     }
+                    preferenceKey="observations.embedded"
                     resource="observations"
                     expand={<ObservationExpand />}
                     expandSingle
