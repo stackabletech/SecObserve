@@ -15,7 +15,6 @@ from application.core.models import (
     Evidence,
     Observation,
     Observation_Log,
-    Parser,
     Potential_Duplicate,
     Product,
     Product_Authorization_Group_Member,
@@ -23,7 +22,6 @@ from application.core.models import (
     Service,
 )
 from application.core.types import Status
-from application.import_observations.types import Parser_Source, Parser_Type
 
 AGE_DAY = "Today"
 AGE_WEEK = "Past 7 days"
@@ -161,21 +159,6 @@ class ServiceFilter(FilterSet):
         fields = ["product", "name"]
 
 
-class ParserFilter(FilterSet):
-    name = CharFilter(field_name="name", lookup_expr="icontains")
-    type = ChoiceFilter(field_name="type", choices=Parser_Type.TYPE_CHOICES)
-    source = ChoiceFilter(field_name="source", choices=Parser_Source.SOURCE_CHOICES)
-
-    ordering = OrderingFilter(
-        # tuple-mapping retains order
-        fields=(("name", "name"), ("type", "type"), ("source", "source")),
-    )
-
-    class Meta:
-        model = Parser
-        fields = ["name", "type", "source"]
-
-
 class ObservationFilter(FilterSet):
     title = CharFilter(field_name="title", lookup_expr="icontains")
     origin_component_name_version = CharFilter(
@@ -198,6 +181,9 @@ class ObservationFilter(FilterSet):
     )
     origin_component_location = CharFilter(
         field_name="origin_component_location", lookup_expr="icontains"
+    )
+    origin_kubernetes_qualified_resource = CharFilter(
+        field_name="origin_kubernetes_qualified_resource", lookup_expr="icontains"
     )
     scanner = CharFilter(field_name="scanner", lookup_expr="icontains")
     age = ChoiceFilter(field_name="age", method="get_age", choices=AGE_CHOICES)
@@ -253,6 +239,10 @@ class ObservationFilter(FilterSet):
             ("origin_endpoint_hostname", "origin_endpoint_hostname"),
             ("origin_source_file", "origin_source_file"),
             ("origin_cloud_qualified_resource", "origin_cloud_qualified_resource"),
+            (
+                "origin_kubernetes_qualified_resource",
+                "origin_kubernetes_qualified_resource",
+            ),
             ("parser__name", "parser_data.name"),
             ("parser__type", "parser_data.type"),
             ("scanner", "scanner_name"),
@@ -419,6 +409,10 @@ class PotentialDuplicateFilter(FilterSet):
             (
                 "potential_duplicate_observation__origin_cloud_qualified_resource",
                 "potential_duplicate_observation.origin_cloud_qualified_resource",
+            ),
+            (
+                "potential_duplicate_observation__origin_kubernetes_qualified_resource",
+                "potential_duplicate_observation__origin_kubernetes_qualified_resource",
             ),
             (
                 "potential_duplicate_observation__scanner",

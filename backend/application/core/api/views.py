@@ -23,7 +23,6 @@ from application.core.api.filters import (
     EvidenceFilter,
     ObservationFilter,
     ObservationLogFilter,
-    ParserFilter,
     PotentialDuplicateFilter,
     ProductAuthorizationGroupMemberFilter,
     ProductFilter,
@@ -56,7 +55,6 @@ from application.core.api.serializers_observation import (
     ObservationRemoveAssessmentSerializer,
     ObservationSerializer,
     ObservationUpdateSerializer,
-    ParserSerializer,
     PotentialDuplicateSerializer,
 )
 from application.core.api.serializers_product import (
@@ -72,7 +70,6 @@ from application.core.models import (
     Evidence,
     Observation,
     Observation_Log,
-    Parser,
     Potential_Duplicate,
     Product,
     Product_Authorization_Group_Member,
@@ -369,14 +366,6 @@ class ServiceViewSet(
 
     def get_queryset(self):
         return get_services()
-
-
-class ParserViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    serializer_class = ParserSerializer
-    filterset_class = ParserFilter
-    queryset = Parser.objects.all()
-    filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ["name"]
 
 
 class ObservationViewSet(ModelViewSet):

@@ -2,10 +2,11 @@ import csv
 import io
 import re
 from json import dumps
+from typing import Optional
 
 from django.core.files.base import File
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
     BaseParser,
@@ -43,7 +44,9 @@ class AzureDefenderParser(BaseParser, BaseFileParser):
 
         return True, [], rows
 
-    def get_observations(self, data: list[dict]) -> list[Observation]:
+    def get_observations(
+        self, data: list[dict], branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         for row in data:

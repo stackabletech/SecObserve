@@ -5,7 +5,7 @@ from typing import Optional
 from django.core.files.base import File
 from trycast import trycast
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -39,10 +39,12 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(self, data: dict) -> list[Observation]:
+    def get_observations(
+        self, data: dict, branch: Optional[Branch]
+    ) -> list[Observation]:
         components = self._get_components(data)
         metadata = self._get_metadata(data)
-        observations = self._create_observations(data, components, metadata)
+        observations = self._create_observations(data, components, metadata, branch)
 
         return observations
 
@@ -83,7 +85,11 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         )
 
     def _create_observations(  # pylint: disable=too-many-locals
-        self, data: dict, components: dict[str, Component], metadata: Metadata
+        self,
+        data: dict,
+        components: dict[str, Component],
+        metadata: Metadata,
+        branch: Optional[Branch],
     ) -> list[Observation]:
         observations = []
 
@@ -121,21 +127,16 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component, recommendation
                         )
 
-                        observation_found_by_other_scanner = (
-                            Observation.objects.filter(
-                                title=title,
-                                origin_component_name=component.name,
-                                origin_component_version=component.version,
-                                origin_docker_image_name=metadata.container_name,
-                                origin_docker_image_tag=metadata.container_tag,
-                            )
-                            .exclude(scanner=metadata.scanner)
-                            .exists()
-                        )
+                        observation_found = Observation.objects.filter(
+                            title=title,
+                            branch=branch,
+                            origin_component_name=component.name,
+                            origin_component_version=component.version,
+                        ).exists()
 
-                        if observation_found_by_other_scanner:
+                        if observation_found:
                             print(
-                                "Observation already found by other scanner: "
+                                "Observation already found: "
                                 f"{title} - {component.name} - {component.version} - {metadata.scanner} - "
                                 f"{metadata.container_name} - {metadata.container_tag}"
                             )

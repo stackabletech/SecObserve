@@ -29,6 +29,7 @@ These scanners have been tested with SecObserve:
 |--------|---------|------|--------|
 | [Dependency Check](https://jeremylong.github.io/DependencyCheck) | SARIF ^1)^ | SCA | API |
 | [Dependency Track](https://dependencytrack.org) | Dependency Track | SCA | API |
+| [Trivy Operator Prometheus](https://github.com/aquasecurity/trivy-operator) | JSON | Cloud infrastructure | API |
 | [Grype](https://github.com/anchore/grype) | CycloneDX | SCA | File |
 | [Trivy](https://aquasecurity.github.io/trivy) | CycloneDX | SCA | File |
 | [Bandit](https://bandit.readthedocs.io/en/latest) | SARIF | Application SAST | File |
@@ -39,13 +40,14 @@ These scanners have been tested with SecObserve:
 | [KICS](https://docs.kics.io/latest) | SARIF | Infrastructure SAST | File |
 | [tfsec](https://aquasecurity.github.io/tfsec) | SARIF | Infrastructure SAST | File |
 | [Trivy](https://aquasecurity.github.io/trivy) | SARIF | Infrastructure SAST | File |
-| [Gitleaks](https://gitleaks.io) | SARIF | Secrets | File |
 | [Trivy](https://aquasecurity.github.io/trivy) | SARIF | Secrets | File |
+| [Gitleaks](https://gitleaks.io) | SARIF | Secrets | File |
 | [CryptoLyzer](https://gitlab.com/coroner/cryptolyzer) ^2)^ | CryptoLyzer | DAST | File |
 | [DrHeader](https://github.com/Santandersecurityresearch/DrHeader) | DrHeader | DAST | File |
 | [ZAP](https://www.zaproxy.org) | ZAP | DAST | File |
 | [Azure Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/) ^3)^ | Azure Defender | Cloud infrastructure | File |
-| [Prowler](https://github.com/prowler-cloud/prowler) | Prowler | Cloud infrastructure | File |
+| [Prowler 3](https://github.com/prowler-cloud/prowler)| Prowler 3 | Cloud infrastructure | File |
+| [Prowler 4](https://github.com/prowler-cloud/prowler)| OCSF (Open Cybersecurity Schema Framework) | Cloud infrastructure | File |
 
 ^1)^ This is the exception to the rule. Even though SARIF is more suited for static code analysis, it works for Dependency Check.
 

@@ -65,8 +65,8 @@ const GeneralRuleComponent = () => {
                                 <TextField source="name" className={classes.fontBigBold} />
                             </Labeled>
                             {rule.description && (
-                                <Labeled label="Description">
-                                    <MarkdownField content={rule.description} />
+                                <Labeled>
+                                    <MarkdownField content={rule.description} label="Description" />
                                 </Labeled>
                             )}
 
@@ -149,7 +149,8 @@ const GeneralRuleComponent = () => {
                             rule.origin_endpoint_url ||
                             rule.origin_service_name ||
                             rule.origin_source_file ||
-                            rule.origin_cloud_qualified_resource) && (
+                            rule.origin_cloud_qualified_resource ||
+                            rule.origin_kubernetes_qualified_resource) && (
                             <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
                                 <Typography variant="h6" sx={{ marginBottom: 1 }}>
                                     Origins
@@ -183,6 +184,11 @@ const GeneralRuleComponent = () => {
                                     {rule.origin_cloud_qualified_resource && (
                                         <Labeled label="Cloud qualified resource">
                                             <TextField source="origin_cloud_qualified_resource" />
+                                        </Labeled>
+                                    )}
+                                    {rule.origin_kubernetes_qualified_resource && (
+                                        <Labeled label="Kubernetes qualified resource">
+                                            <TextField source="origin_kubernetes_qualified_resource" />
                                         </Labeled>
                                     )}
                                 </Stack>

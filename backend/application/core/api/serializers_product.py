@@ -185,6 +185,7 @@ class ProductSerializer(ProductCoreSerializer):
     product_rule_approvals = SerializerMethodField()
     risk_acceptance_expiry_date_calculated = SerializerMethodField()
     product_group_new_observations_in_review = SerializerMethodField()
+    has_branches = SerializerMethodField()
 
     class Meta:
         model = Product
@@ -270,6 +271,9 @@ class ProductSerializer(ProductCoreSerializer):
         if not obj.product_group:
             return False
         return obj.product_group.new_observations_in_review
+
+    def get_has_branches(self, obj: Product) -> bool:
+        return Branch.objects.filter(product=obj).exists()
 
     def validate(self, attrs: dict):  # pylint: disable=too-many-branches
         # There are quite a lot of branches, but at least they are not nested too much
@@ -414,24 +418,29 @@ class ProductMemberSerializer(ModelSerializer):
         if self.instance is None:
             product_member = get_product_member(data_product, data_user)
             if product_member:
-                raise ValidationError(f"Product member {data_user} already exists")
+                raise ValidationError(
+                    f"Product member {data_product} / {data_user} already exists"
+                )
 
         current_user = get_current_user()
         if self.instance is not None:
-            role = get_highest_user_role(self.instance.product, current_user)
+            highest_user_role = get_highest_user_role(
+                self.instance.product, current_user
+            )
         else:
-            role = get_highest_user_role(data_product, current_user)
+            highest_user_role = get_highest_user_role(data_product, current_user)
 
-        if (
-            attrs.get("role")  # pylint: disable=too-many-boolean-expressions
-            != Roles.Owner
-            or (current_user and current_user.is_superuser)
-            or role == Roles.Owner
+        if highest_user_role != Roles.Owner and not (
+            current_user and current_user.is_superuser
         ):
-            # if statement is still structured and readable
-            pass
-        else:
-            raise ValidationError("You are not permitted to add a member as Owner")
+            if attrs.get("role") == Roles.Owner:
+                raise ValidationError("You are not permitted to add a member as Owner")
+            if (
+                attrs.get("role") != Roles.Owner
+                and self.instance is not None
+                and self.instance.role == Roles.Owner
+            ):
+                raise ValidationError("You are not permitted to change the Owner role")
 
         return attrs
 
@@ -468,25 +477,28 @@ class ProductAuthorizationGroupMemberSerializer(ModelSerializer):
             )
             if product_authorization_group_member:
                 raise ValidationError(
-                    f"Product member {data_authorization_group} already exists"
+                    f"Product authorization group member {data_product} / {data_authorization_group} already exists"
                 )
 
         current_user = get_current_user()
         if self.instance is not None:
-            role = get_highest_user_role(self.instance.product, current_user)
+            highest_user_role = get_highest_user_role(
+                self.instance.product, current_user
+            )
         else:
-            role = get_highest_user_role(data_product, current_user)
+            highest_user_role = get_highest_user_role(data_product, current_user)
 
-        if (
-            attrs.get("role")  # pylint: disable=too-many-boolean-expressions
-            != Roles.Owner
-            or (current_user and current_user.is_superuser)
-            or role == Roles.Owner
+        if highest_user_role != Roles.Owner and not (
+            current_user and current_user.is_superuser
         ):
-            # if statement is still structured and readable
-            pass
-        else:
-            raise ValidationError("You are not permitted to add a member as Owner")
+            if attrs.get("role") == Roles.Owner:
+                raise ValidationError("You are not permitted to add a member as Owner")
+            if (
+                attrs.get("role") != Roles.Owner
+                and self.instance is not None
+                and self.instance.role == Roles.Owner
+            ):
+                raise ValidationError("You are not permitted to change the Owner role")
 
         return attrs
 

@@ -11,7 +11,6 @@ from application.core.models import (
     Evidence,
     Observation,
     Observation_Log,
-    Parser,
     Product,
     Reference,
     Service,
@@ -37,6 +36,7 @@ from application.core.types import Assessment_Status, Status
 from application.epss.services.epss import epss_apply_observation
 from application.import_observations.models import (
     Api_Configuration,
+    Parser,
     Vulnerability_Check,
 )
 from application.import_observations.parsers.base_parser import (
@@ -64,6 +64,7 @@ class ImportParameters:
     service: str
     docker_image_name_tag: str
     endpoint_url: str
+    kubernetes_cluster: str
     imported_observations: list[Observation]
 
 
@@ -76,6 +77,7 @@ class FileUploadParameters:
     service: str
     docker_image_name_tag: str
     endpoint_url: str
+    kubernetes_cluster: str
 
 
 def file_upload_observations(
@@ -92,7 +94,9 @@ def file_upload_observations(
     if not format_valid:
         raise ValidationError("File format is not valid: " + " / ".join(errors))
 
-    imported_observations = parser_instance.get_observations(data)
+    imported_observations = parser_instance.get_observations(
+        data, file_upload_parameters.branch
+    )
 
     filename = (
         os.path.basename(file_upload_parameters.file.name)
@@ -109,6 +113,7 @@ def file_upload_observations(
         service=file_upload_parameters.service,
         docker_image_name_tag=file_upload_parameters.docker_image_name_tag,
         endpoint_url=file_upload_parameters.endpoint_url,
+        kubernetes_cluster=file_upload_parameters.kubernetes_cluster,
         imported_observations=imported_observations,
     )
 
@@ -135,6 +140,7 @@ def api_import_observations(
     service: str,
     docker_image_name_tag: str,
     endpoint_url: str,
+    kubernetes_cluster: str,
 ) -> Tuple[int, int, int]:
     parser_instance = _instanciate_parser(api_configuration.parser)
 
@@ -147,7 +153,7 @@ def api_import_observations(
             "Connection couldn't be established: " + " / ".join(errors)
         )
 
-    imported_observations = parser_instance.get_observations(data)
+    imported_observations = parser_instance.get_observations(data, branch)
 
     import_parameters = ImportParameters(
         product=api_configuration.product,
@@ -158,6 +164,7 @@ def api_import_observations(
         service=service,
         docker_image_name_tag=docker_image_name_tag,
         endpoint_url=endpoint_url,
+        kubernetes_cluster=kubernetes_cluster,
         imported_observations=imported_observations,
     )
 
@@ -315,6 +322,10 @@ def _prepare_imported_observation(
         )
     if import_parameters.endpoint_url:
         imported_observation.origin_endpoint_url = import_parameters.endpoint_url
+    if import_parameters.kubernetes_cluster:
+        imported_observation.origin_kubernetes_cluster = (
+            import_parameters.kubernetes_cluster
+        )
 
 
 def _process_current_observation(

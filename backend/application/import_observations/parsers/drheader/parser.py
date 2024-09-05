@@ -1,8 +1,9 @@
 from json import dumps, load
+from typing import Optional
 
 from django.core.files.base import File
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -125,7 +126,9 @@ class DrHEADerParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(self, data: list) -> list[Observation]:
+    def get_observations(
+        self, data: list, branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         for drheader_observation in data:

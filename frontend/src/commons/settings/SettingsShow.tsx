@@ -45,15 +45,22 @@ const SettingsShowComponent = () => {
                             <Labeled label="Product metrics interval (minutes)">
                                 <NumberField source="background_product_metrics_interval_minutes" />
                             </Labeled>
-                            <Labeled label="EPSS import crontab (hours)">
-                                <NumberField source="background_epss_import_crontab_hours" />
-                            </Labeled>
-                            <Labeled label="Exploit data import crontab (minutes)">
-                                <NumberField source="background_exploits_import_crontab_minutes" />
-                            </Labeled>
-                            <Labeled label="Exploit data import crontab (hours)">
-                                <NumberField source="background_exploits_import_crontab_hours" />
-                            </Labeled>
+                            <Stack direction="row" spacing={2}>
+                                <Labeled label="EPSS import crontab (hours)">
+                                    <NumberField source="background_epss_import_crontab_hours" />
+                                </Labeled>
+                                <Labeled label="EPSS import crontab (minutes)">
+                                    <NumberField source="background_epss_import_crontab_minutes" />
+                                </Labeled>
+                            </Stack>
+                            <Stack direction="row" spacing={2}>
+                                <Labeled label="Exploit data import crontab (minutes)">
+                                    <NumberField source="background_exploits_import_crontab_minutes" />
+                                </Labeled>
+                                <Labeled label="Exploit data import crontab (hours)">
+                                    <NumberField source="background_exploits_import_crontab_hours" />
+                                </Labeled>
+                            </Stack>
                         </Stack>
                     </Paper>
 
@@ -75,12 +82,14 @@ const SettingsShowComponent = () => {
                     <Paper sx={{ marginBottom: 2, padding: 2 }}>
                         <Typography variant="h6">Housekeeping for branches</Typography>
                         <Stack spacing={2}>
-                            <Labeled label="Branch housekeeping crontab (hours)">
-                                <NumberField source="branch_housekeeping_crontab_hours" />
-                            </Labeled>
-                            <Labeled label="Branch housekeeping crontab (minutes)">
-                                <NumberField source="branch_housekeeping_crontab_minutes" />
-                            </Labeled>
+                            <Stack direction="row" spacing={2}>
+                                <Labeled label="Branch housekeeping crontab (hours)">
+                                    <NumberField source="branch_housekeeping_crontab_hours" />
+                                </Labeled>
+                                <Labeled label="Branch housekeeping crontab (minutes)">
+                                    <NumberField source="branch_housekeeping_crontab_minutes" />
+                                </Labeled>
+                            </Stack>
                             <Labeled label="Branch housekeeping active">
                                 <BooleanField source="branch_housekeeping_active" />
                             </Labeled>
@@ -162,12 +171,14 @@ const SettingsShowComponent = () => {
                             <Labeled label="Risk acceptance expiry (days)">
                                 <NumberField source="risk_acceptance_expiry_days" />
                             </Labeled>
-                            <Labeled label="Risk acceptance expiry crontab (hours/UTC)">
-                                <NumberField source="risk_acceptance_expiry_crontab_hours" />
-                            </Labeled>
-                            <Labeled label="Risk acceptance expiry crontab (minutes)">
-                                <NumberField source="risk_acceptance_expiry_crontab_minutes" />
-                            </Labeled>
+                            <Stack direction="row" spacing={2}>
+                                <Labeled label="Risk acceptance expiry crontab (hours/UTC)">
+                                    <NumberField source="risk_acceptance_expiry_crontab_hours" />
+                                </Labeled>
+                                <Labeled label="Risk acceptance expiry crontab (minutes)">
+                                    <NumberField source="risk_acceptance_expiry_crontab_minutes" />
+                                </Labeled>
+                            </Stack>
                         </Stack>
                     </Paper>
                 </Box>

@@ -16,13 +16,14 @@ import notifications from "./commons/notifications";
 import drfProvider from "./commons/ra-data-django-rest-framework";
 import settings from "./commons/settings";
 import UserSettings from "./commons/user_settings/UserSettings";
+import { getTheme } from "./commons/user_settings/functions";
 import evidences from "./core/evidences";
 import observation_logs from "./core/observation_logs";
 import observations from "./core/observations";
-import parsers from "./core/parsers";
 import product_groups from "./core/product_groups";
 import products from "./core/products";
 import { Dashboard } from "./dashboard";
+import parsers from "./import_observations/parsers";
 import general_rules from "./rules/general_rules";
 import product_rules from "./rules/product_rules";
 import csaf from "./vex/csaf";
@@ -50,8 +51,9 @@ const App = () => {
                 layout={Layout}
                 i18nProvider={i18nProvider}
                 disableTelemetry
-                theme={lightTheme}
+                lightTheme={lightTheme}
                 darkTheme={darkTheme}
+                defaultTheme={getTheme()}
             >
                 <CustomRoutes>
                     <Route path="/access_control/users" element={<AccessControlAdministration />} />
