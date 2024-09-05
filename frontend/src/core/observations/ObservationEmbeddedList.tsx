@@ -207,7 +207,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                     <SeverityField label="Severity" source="current_severity" />
                     <ChipField source="current_status" label="Status" />
                     {product && product.has_component && <NumberField source="epss_score" label="EPSS" />}
-                    {product && product.has_services && <TextField source="origin_service_name" label="Service" />}
+                    {/* {product && product.has_services && <TextField source="origin_service_name" label="Service" />} */}
                     {product && product.has_component && (
                         <TextField
                             source="origin_component_name_version"
@@ -222,7 +222,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                             sx={{ wordBreak: "break-word" }}
                         />
                     )}
-                    {product && product.has_endpoint && (
+                    {/* {product && product.has_endpoint && (
                         <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />
                     )}
                     {product && product.has_source && (
@@ -241,7 +241,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                             label="Kubernetes resource"
                             sx={{ wordBreak: "break-word" }}
                         />
-                    )}
+                    )} */}
                     <TextField
                         source="origin_component_location"
                         label="Component location"
