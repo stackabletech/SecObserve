@@ -32,10 +32,10 @@
         "react-dom": "18.3.1",
         "react-hook-form": "7.53.0",
         "react-oidc-context": "3.1.0",
-        "react-router": "6.24.1",
-        "react-router-dom": "6.24.1",
-        "runtime-env-cra": "0.2.4",
-        "tss-react": "4.9.10"
+        "react-router": "6.26.1",
+        "react-router-dom": "6.26.1",
+        "runtime-env-cra": "file:lib/runtime-env-cra",
+        "tss-react": "4.9.13"
     },
     "scripts": {
         "start": "NODE_ENV=development ./node_modules/runtime-env-cra/lib/index.js --config-name=./public/runtime-env.js && vite",
@@ -54,7 +54,7 @@
         "@microsoft/eslint-formatter-sarif": "3.1.0",
         "@trivago/prettier-plugin-sort-imports": "4.3.0",
         "@types/jest": "29.5.12",
-        "@types/node": "20.16.3",
+        "@types/node": "20.16.5",
         "@types/prop-types": "15.7.12",
         "@types/react": "18.3.5",
         "@types/react-dom": "18.3.0",
@@ -62,12 +62,12 @@
         "@typescript-eslint/parser": "8.4.0",
         "@vitejs/plugin-react": "4.3.1",
         "eslint": "8.57.0",
-        "eslint-plugin-react": "7.34.3",
+        "eslint-plugin-react": "7.35.2",
         "eslint-plugin-react-hooks": "4.6.2",
         "eslint-plugin-security": "3.0.1",
         "prettier": "3.3.2",
         "rewire": "7.0.0",
         "typescript": "5.5.4",
-        "vite": "5.4.2"
+        "vite": "5.4.3"
     }
 }

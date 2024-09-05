@@ -12,7 +12,7 @@ python = ">= 3.10, < 3.13"
 # Django
 # ------------------------------------------------------------------------------
 gunicorn = "23.0.0"  # https://github.com/benoitc/gunicorn
-django = "5.0.8"  # https://www.djangoproject.com/
+django = "5.0.9"  # https://www.djangoproject.com/
 django-environ = "0.11.2"  # https://github.com/joke2k/django-environ
 django-filter = "24.3"  # https://github.com/carltongibson/django-filter
 django-csp = "3.8"  # https://github.com/mozilla/django-csp
@@ -54,7 +54,7 @@ jira = "3.8.0"  # https://github.com/pycontribs/jira
 # Others
 # ------------------------------------------------------------------------------
 inflect = "7.3.1"  # https://github.com/jaraco/inflect
-validators = "0.33.0"  # https://github.com/python-validators/validators
+validators = "0.34.0"  # https://github.com/python-validators/validators
 cvss = "3.1"  # https://github.com/RedHatProductSecurity/cvss
 trycast = "^1.1.0"
 jsonpickle = "3.3.0"  # https://github.com/jsonpickle/jsonpickle
