@@ -109,9 +109,11 @@ def _get_dependencies(
     roots = _get_roots(component_dependencies)
 
     dependencies: list[str] = []
+    cache: dict[(str, str), list[str]] = {}
     try:
         for root in roots:
             sub_dependencies = _get_dependencies_recursive(
+                cache,
                 root,
                 _translate_component(root, components),
                 root,
@@ -144,6 +146,7 @@ def _get_dependencies(
 
 
 def _get_dependencies_recursive(
+    cache: dict[(str, str), list[str]],
     root: str,
     translated_initial_dependency: str,
     initial_dependency: str,
@@ -151,6 +154,8 @@ def _get_dependencies_recursive(
     component_dependencies: list[dict],
     components: dict[str, Component],
 ) -> list[str]:
+    if (root, component_bom_ref) in cache:
+        return cache[(root, component_bom_ref)]
 
     dependencies = []
     for dependency in component_dependencies:
@@ -169,6 +174,7 @@ def _get_dependencies_recursive(
                     dependencies.append(new_translated_dependency)
                 else:
                     new_dependencies = _get_dependencies_recursive(
+                        cache,
                         dependant,
                         new_translated_dependency,
                         new_dependency,
@@ -179,6 +185,7 @@ def _get_dependencies_recursive(
                     if new_dependencies not in dependencies:
                         dependencies += new_dependencies
 
+    cache[(root, component_bom_ref)] = dependencies
     return dependencies
 
 

@@ -92,6 +92,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         branch: Optional[Branch],
     ) -> list[Observation]:
         observations = []
+        component_dependencies_cache: dict[str, tuple[str, list[dict]]] = {}
 
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
@@ -112,12 +113,21 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     if component:
                         title = vulnerability_id
 
-                        (
-                            observation_component_dependencies,
-                            translated_component_dependencies,
-                        ) = get_component_dependencies(
-                            data, components, component, metadata
-                        )
+                        if component.bom_ref in component_dependencies_cache:
+                            (
+                                observation_component_dependencies,
+                                translated_component_dependencies,
+                            ) = component_dependencies_cache[component.bom_ref]
+                        else:
+                            (
+                                observation_component_dependencies,
+                                translated_component_dependencies,
+                            ) = get_component_dependencies(
+                                data, components, component, metadata
+                            )
+                            component_dependencies_cache[
+                                component.bom_ref
+                            ] = observation_component_dependencies, translated_component_dependencies
 
                         component_location = self._get_component_location(
                             component.json
