@@ -260,19 +260,6 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
                                 </Stack>
                             </Fragment>
                         )}
-                        {observation.origin_component_dependencies != "" && (
-                            <Labeled sx={{ width: "100%", marginTop: 2 }}>
-                                <WrapperField label="Component dependency graph">
-                                    <pre
-                                        className="mermaid"
-                                        onClick={openMermaidSvgInNewTab}
-                                        style={{ cursor: "pointer" }}
-                                    >
-                                        {createMermaidGraph(observation.origin_component_dependencies)}
-                                    </pre>
-                                </WrapperField>
-                            </Labeled>
-                        )}
                     </Paper>
                 )}
         </Fragment>
