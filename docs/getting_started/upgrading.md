@@ -15,6 +15,7 @@
 **Breaking changes**
 
 * The `Prowler` parser has been renamed to `Prowler 3`, because it supports only Prowler up to version 3. For Prowler version 4 and above use the `OCSF (Open Cybersecurity Schema Framework)` parser.
+* Component dependencies are now shown as a diagram. To do this, the format of the dependencies in the database had to be changed. The migration to the new format is not completely lossless and might loose some information. With the next import of observations, the dependencies will be complete again.
 
 ## Release 1.5.0
 

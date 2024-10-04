@@ -6,6 +6,7 @@ import { Labeled, TextField, WrapperField, useRecordContext } from "react-admin"
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { get_component_purl_url } from "../../commons/functions";
 import { getElevation } from "../../metrics/functions";
+import MermaidDependencies from "./Mermaid_Dependencies";
 
 mermaid.initialize({});
 
@@ -27,7 +28,6 @@ type ObservationShowOriginsProps = {
 const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
     const observation = useRecordContext();
 
-    mermaid.contentLoaded();
     return (
         <Fragment>
             {observation &&
@@ -106,6 +106,7 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
                                         </Labeled>
                                     )}
                                 </Stack>
+                                {observation.origin_component_dependencies != "" && elevated && <MermaidDependencies />}
                             </Fragment>
                         )}
                         {observation.origin_docker_image_name != "" && (

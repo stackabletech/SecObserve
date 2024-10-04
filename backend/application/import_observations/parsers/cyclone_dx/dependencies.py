@@ -25,7 +25,7 @@ def get_component_dependencies(
             component_dependencies, components
         )
 
-        observation_component_dependencies = generate_dependency_list_as_text(
+        observation_component_dependencies = _generate_dependency_list_as_text(
             _get_dependencies(
                 component.bom_ref,
                 component_dependencies,
@@ -112,17 +112,16 @@ def _get_dependencies(
     cache: dict[(str, str), list[str]] = {}
     try:
         for root in roots:
-            sub_dependencies = _get_dependencies_recursive(
-                cache,
-                root,
-                _translate_component(root, components),
-                root,
-                component_bom_ref,
-                component_dependencies,
-                components,
+            recursive_dependencies = _get_dependencies_recursive(
+                root=root,
+                translated_initial_dependency=_translate_component(root, components),
+                initial_dependency=root,
+                component_bom_ref=component_bom_ref,
+                component_dependencies=component_dependencies,
+                components=components,
             )
-            dependencies += sub_dependencies
-
+            if recursive_dependencies not in dependencies:
+                dependencies += recursive_dependencies
     except RecursionError as e:
         logger.warning(
             "%s:%s -> %s", metadata.container_name, metadata.container_tag, str(e)
@@ -138,15 +137,13 @@ def _get_dependencies(
         ):
             return_dependencies.append(dependency)
 
-    edges = parse_mermaid_graph_content(sorted(return_dependencies))
-    graph = build_graph(edges)
-    reduced_graph = remove_redundant_paths(graph)
+    graph = _parse_mermaid_graph_content(sorted(return_dependencies))
 
-    return reduced_graph
+    return graph
 
 
 def _get_dependencies_recursive(
-    cache: dict[(str, str), list[str]],
+    *,
     root: str,
     translated_initial_dependency: str,
     initial_dependency: str,
@@ -174,13 +171,12 @@ def _get_dependencies_recursive(
                     dependencies.append(new_translated_dependency)
                 else:
                     new_dependencies = _get_dependencies_recursive(
-                        cache,
-                        dependant,
-                        new_translated_dependency,
-                        new_dependency,
-                        component_bom_ref,
-                        component_dependencies,
-                        components,
+                        root=dependant,
+                        translated_initial_dependency=new_translated_dependency,
+                        initial_dependency=new_dependency,
+                        component_bom_ref=component_bom_ref,
+                        component_dependencies=component_dependencies,
+                        components=components,
                     )
                     if new_dependencies not in dependencies:
                         dependencies += new_dependencies
@@ -205,57 +201,23 @@ def _get_roots(
     return roots
 
 
-def parse_mermaid_graph_content(
+def _parse_mermaid_graph_content(
     mermaid_graph_content: list[str],
-) -> list[tuple[str, str]]:
-    edges = []
+) -> dict[str, set[str]]:
+    graph = defaultdict(set)
+
     for line in mermaid_graph_content:
         parts = line.strip().split("-->")
         parts = [part.strip() for part in parts]
         for i in range(len(parts) - 1):
-            edges.append((parts[i], parts[i + 1]))
-    return edges
+            graph[parts[i]].add(parts[i + 1])
 
-
-def build_graph(edges: list[tuple[str, str]]) -> dict[str, set[str]]:
-    graph = defaultdict(set)
-    for src, dest in edges:
-        graph[src].add(dest)
     return graph
 
 
-def remove_redundant_paths(graph: dict[str, set[str]]) -> dict[str, set[str]]:
-    # Perform a DFS to remove redundant paths
-    def dfs(
-        node: str,
-        visited: dict[str, set[str]],
-    ) -> set[str]:
-        if node in visited:
-            return visited[node]
-        visited[node] = set()
-        for neighbor in graph[node]:
-            visited[node].add(neighbor)
-            visited[node].update(dfs(neighbor, visited))
-        return visited[node]
-
-    visited: dict[str, set[str]] = {}
-    for node in list(graph.keys()):
-        if node not in visited:
-            dfs(node, visited)
-
-    reduced_graph = defaultdict(set)
-    for node, neighbors in graph.items():
-        for neighbor in neighbors:
-            if not any(
-                neighbor in visited[other] for other in neighbors if other != neighbor
-            ):
-                reduced_graph[node].add(neighbor)
-    return reduced_graph
-
-
-def generate_dependency_list_as_text(graph: dict[str, set[str]]) -> str:
+def _generate_dependency_list_as_text(graph: dict[str, set[str]]) -> str:
     lines = []
     for src, dests in graph.items():
-        for dest in dests:
+        for dest in sorted(dests):
             lines.append(f"{src} --> {dest}")
     return "\n".join(lines)

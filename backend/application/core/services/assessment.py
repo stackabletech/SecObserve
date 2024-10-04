@@ -24,6 +24,7 @@ from application.issue_tracker.services.issue_tracker import (
 
 
 def save_assessment(
+    *,
     observation: Observation,
     new_severity: Optional[str],
     new_status: Optional[str],
@@ -93,28 +94,28 @@ def save_assessment(
         )
 
         create_observation_log(
-            observation,
-            log_severity,
-            log_status,
-            comment,
-            log_vex_justification,
-            log_vex_remediations,
-            assessment_status,
-            log_risk_acceptance_expiry_date,
+            observation=observation,
+            severity=log_severity,
+            status=log_status,
+            comment=comment,
+            vex_justification=log_vex_justification,
+            vex_remediations=log_vex_remediations,
+            assessment_status=assessment_status,
+            risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)
         push_observation_to_issue_tracker(observation, get_current_user())
     else:
         create_observation_log(
-            observation,
-            log_severity,
-            log_status,
-            comment,
-            log_vex_justification,
-            log_vex_remediations,
-            assessment_status,
-            log_risk_acceptance_expiry_date,
+            observation=observation,
+            severity=log_severity,
+            status=log_status,
+            comment=comment,
+            vex_justification=log_vex_justification,
+            vex_remediations=log_vex_remediations,
+            assessment_status=assessment_status,
+            risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
         )
 
 
@@ -205,14 +206,14 @@ def remove_assessment(observation: Observation, comment: str) -> bool:
         observation.risk_acceptance_expiry_date = risk_acceptance_expiry_date
 
         create_observation_log(
-            observation,
-            "",
-            "",
-            comment,
-            "",
-            "",
-            Assessment_Status.ASSESSMENT_STATUS_REMOVED,
-            risk_acceptance_expiry_date,
+            observation=observation,
+            severity="",
+            status="",
+            comment=comment,
+            vex_justification="",
+            vex_remediations="",
+            assessment_status=Assessment_Status.ASSESSMENT_STATUS_REMOVED,
+            risk_acceptance_expiry_date=risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)

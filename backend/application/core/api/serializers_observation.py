@@ -329,14 +329,14 @@ class ObservationUpdateSerializer(ModelSerializer):
 
         if actual_severity or actual_status:
             create_observation_log(
-                observation,
-                actual_severity,
-                actual_status,
-                "Observation changed manually",
-                actual_vex_justification,
-                actual_vex_remediations,
-                Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
-                observation.risk_acceptance_expiry_date,
+                observation=observation,
+                severity=actual_severity,
+                status=actual_status,
+                comment="Observation changed manually",
+                vex_justification=actual_vex_justification,
+                vex_remediations=actual_vex_remediations,
+                assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+                risk_acceptance_expiry_date=observation.risk_acceptance_expiry_date,
             )
 
         check_security_gate(observation.product)
@@ -423,14 +423,14 @@ class ObservationCreateSerializer(ModelSerializer):
         observation: Observation = super().create(validated_data)
 
         create_observation_log(
-            observation,
-            observation.current_severity,
-            observation.current_status,
-            "Observation created manually",
-            observation.current_vex_justification,
-            observation.current_vex_remediations,
-            Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
-            observation.risk_acceptance_expiry_date,
+            observation=observation,
+            severity=observation.current_severity,
+            status=observation.current_status,
+            comment="Observation created manually",
+            vex_justification=observation.current_vex_justification,
+            vex_remediations=observation.current_vex_remediations,
+            assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+            risk_acceptance_expiry_date=observation.risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)
