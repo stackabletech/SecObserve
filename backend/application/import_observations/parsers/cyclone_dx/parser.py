@@ -45,9 +45,39 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     def get_observations(
         self, data: dict, branch: Optional[Branch]
     ) -> list[Observation]:
-        components = self._get_components(data)
         metadata = self._get_metadata(data)
-        observations = self._create_observations(data, components, metadata, branch)
+        sbom_data = None
+        image_location = (
+            "oci.stackable.tech/"
+            + metadata.container_name
+            + ":"
+            + metadata.container_tag
+        )
+        extract_sbom_cmd = [
+            "cosign",
+            "verify-attestation",
+            "--type",
+            "cyclonedx",
+            "--certificate-identity-regexp",
+            "^https://github.com/stackabletech/.+/.github/workflows/.+@.+",
+            "--certificate-oidc-issuer",
+            "https://token.actions.githubusercontent.com",
+            image_location,
+        ]
+
+        result = subprocess.run(
+            extract_sbom_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if result.returncode == 0:
+            cosign_output = json.loads(result.stdout.decode("utf-8"))
+            payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
+            sbom_data = json.loads(payload)["predicate"]
+
+        components = self._get_components(sbom_data)
+        observations = self._create_observations(sbom_data, data, components, metadata, branch)
 
         return observations
 
@@ -89,43 +119,14 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
     def _create_observations(  # pylint: disable=too-many-locals
         self,
+        sbom_data: Optional[dict],
         data: dict,
         components: dict[str, Component],
         metadata: Metadata,
         branch: Optional[Branch],
     ) -> list[Observation]:
         observations = []
-
-        sbom_data = None
-        image_location = (
-            "oci.stackable.tech/"
-            + metadata.container_name
-            + ":"
-            + metadata.container_tag
-        )
-        extract_sbom_cmd = [
-            "cosign",
-            "verify-attestation",
-            "--type",
-            "cyclonedx",
-            "--certificate-identity-regexp",
-            "^https://github.com/stackabletech/.+/.github/workflows/.+@.+",
-            "--certificate-oidc-issuer",
-            "https://token.actions.githubusercontent.com",
-            image_location,
-        ]
-        print(" ".join(extract_sbom_cmd))
-
-        result = subprocess.run(
-            extract_sbom_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-        )
-        if result.returncode == 0:
-            cosign_output = json.loads(result.stdout.decode("utf-8"))
-            payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
-            sbom_data = json.loads(payload)["predicate"]
+        component_dependencies_cache: dict[str, tuple[str, list[dict]]] = {}
 
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
@@ -146,12 +147,21 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     if component:
                         title = vulnerability_id
 
-                        (
-                            observation_component_dependencies,
-                            translated_component_dependencies,
-                        ) = get_component_dependencies(
-                            data, components, component, metadata, sbom_data
-                        )
+                        if component.bom_ref in component_dependencies_cache:
+                            (
+                                observation_component_dependencies,
+                                translated_component_dependencies,
+                            ) = component_dependencies_cache[component.bom_ref]
+                        else:
+                            (
+                                observation_component_dependencies,
+                                translated_component_dependencies,
+                            ) = get_component_dependencies(
+                                data, components, component, metadata, sbom_data
+                            )
+                            component_dependencies_cache[
+                                component.bom_ref
+                            ] = observation_component_dependencies, translated_component_dependencies
 
                         component_location = self._get_component_location(
                             component.json

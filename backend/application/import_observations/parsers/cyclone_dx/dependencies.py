@@ -115,6 +115,8 @@ def _get_dependencies(
     roots = _get_roots(component_dependencies)
 
     dependencies: list[str] = []
+    cache: dict[(str, str), list[str]] = {}
+
     try:
         for root in roots:
             recursive_dependencies = _get_dependencies_recursive(
@@ -124,6 +126,7 @@ def _get_dependencies(
                 component_bom_ref=component_bom_ref,
                 component_dependencies=component_dependencies,
                 components=components,
+                cache=cache,
             )
             if recursive_dependencies not in dependencies:
                 dependencies += recursive_dependencies
@@ -155,7 +158,11 @@ def _get_dependencies_recursive(
     component_bom_ref: str,
     component_dependencies: list[dict],
     components: dict[str, Component],
+    cache: dict[(str, str), list[str]] = {},
 ) -> list[str]:
+    if (root, initial_dependency) in cache:
+        return cache[(root, initial_dependency)]
+
     dependencies: list[str] = []
     for dependency in component_dependencies:
         if dependency.get("ref") == root:
@@ -178,11 +185,13 @@ def _get_dependencies_recursive(
                         component_bom_ref=component_bom_ref,
                         component_dependencies=component_dependencies,
                         components=components,
+                        cache=cache,
                     )
                     for new_dependency in new_dependencies:
                         if new_dependency not in dependencies:
                             dependencies.append(new_dependency)
 
+    cache[(root, initial_dependency)] = dependencies
     return dependencies
 
 
