@@ -6,9 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commons', '0008_merge_20240710_1516'),
-        ('commons', '0008_remove_settings_background_epss_import_crontab_hours_and_more'),
+        ("commons", "0008_merge_20240710_1516"),
+        (
+            "commons",
+            "0008_remove_settings_background_epss_import_crontab_hours_and_more",
+        ),
     ]
 
-    operations = [
-    ]
+    operations = []

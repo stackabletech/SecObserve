@@ -239,7 +239,9 @@ class ProductViewSet(ModelViewSet):
             new_vex_justification=request_serializer.validated_data.get(
                 "vex_justification"
             ),
-            new_vex_remediations=request_serializer.validated_data.get("vex_remediations"),
+            new_vex_remediations=request_serializer.validated_data.get(
+                "vex_remediations"
+            ),
             new_risk_acceptance_expiry_date=request_serializer.validated_data.get(
                 "risk_acceptance_expiry_date"
             ),
@@ -523,7 +525,9 @@ class ObservationViewSet(ModelViewSet):
             new_vex_justification=request_serializer.validated_data.get(
                 "vex_justification"
             ),
-            new_vex_remediations=request_serializer.validated_data.get("vex_remediations"),
+            new_vex_remediations=request_serializer.validated_data.get(
+                "vex_remediations"
+            ),
             new_risk_acceptance_expiry_date=request_serializer.validated_data.get(
                 "risk_acceptance_expiry_date"
             ),

@@ -164,7 +164,9 @@ def api_import_observations(
             "Connection couldn't be established: " + " / ".join(errors)
         )
 
-    imported_observations = parser_instance.get_observations(data, branch)
+    imported_observations = parser_instance.get_observations(
+        data, api_import_parameters.branch
+    )
 
     import_parameters = ImportParameters(
         product=api_import_parameters.api_configuration.product,

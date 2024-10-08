@@ -56,7 +56,7 @@ const listFilters = () => [
     // </ReferenceInput>,
     <TextInput source="origin_component_name_version" label="Component" />,
     <TextInput source="origin_docker_image_name_tag_short" label="Container" />,
-    <TextInput source="origin_component_location" label="Component location" />,
+    // <TextInput source="origin_component_location" label="Component location" />,
     // <TextInput source="origin_endpoint_hostname" label="Host" />,
     // <TextInput source="origin_source_file" label="Source" />,
     // <TextInput source="origin_cloud_qualified_resource" label="Resource" />,
@@ -140,12 +140,12 @@ const ObservationList = () => {
                             label="Container"
                             sx={{ wordBreak: "break-word" }}
                         />
+                        {/*
                         <TextField
                             source="origin_component_location"
                             label="Component location"
                             sx={{ wordBreak: "break-word" }}
                         />
-                        {/*
                         <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />
                         <TextField source="origin_source_file" label="Source" sx={{ wordBreak: "break-word" }} />
                         <TextField

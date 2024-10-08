@@ -114,7 +114,7 @@ function listFilters(product: Product) {
     if (product && product.observation_log_approvals > 0) {
         filters.push(<NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />);
     }
-    filters.push(<TextInput source="origin_component_location" label="Component location" />);
+    // filters.push(<TextInput source="origin_component_location" label="Component location" />);
     filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
     filters.push(<NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />);
     filters.push(<NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />);
@@ -242,11 +242,11 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                             sx={{ wordBreak: "break-word" }}
                         />
                     )} */}
-                    <TextField
+                    {/* <TextField
                         source="origin_component_location"
                         label="Component location"
                         sx={{ wordBreak: "break-word" }}
-                    />
+                    /> */}
                     <TextField source="scanner_name" label="Scanner" />
                     <FunctionField<Observation>
                         label="Age"

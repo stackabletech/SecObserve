@@ -1,5 +1,6 @@
 import logging
 from collections import defaultdict
+from typing import Optional
 
 from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
 
@@ -11,11 +12,16 @@ def get_component_dependencies(
     components: dict[str, Component],
     component: Component,
     metadata: Metadata,
+    sbom_data: Optional[dict],
 ) -> tuple[str, list[dict]]:
     component_dependencies: list[dict[str, str | list[str]]] = []
+
+    if not sbom_data:
+        sbom_data = data
+
     _filter_component_dependencies(
         component.bom_ref,
-        data.get("dependencies", []),
+        sbom_data.get("dependencies", []),
         component_dependencies,
     )
     observation_component_dependencies = ""
@@ -109,7 +115,6 @@ def _get_dependencies(
     roots = _get_roots(component_dependencies)
 
     dependencies: list[str] = []
-    cache: dict[(str, str, str), list[str]] = {}
     try:
         for root in roots:
             recursive_dependencies = _get_dependencies_recursive(
@@ -119,7 +124,6 @@ def _get_dependencies(
                 component_bom_ref=component_bom_ref,
                 component_dependencies=component_dependencies,
                 components=components,
-                cache=cache,
             )
             if recursive_dependencies not in dependencies:
                 dependencies += recursive_dependencies
@@ -151,18 +155,14 @@ def _get_dependencies_recursive(
     component_bom_ref: str,
     component_dependencies: list[dict],
     components: dict[str, Component],
-    cache: dict[(str, str, str), list[str]] = {},
 ) -> list[str]:
-    if (root, initial_dependency, component_bom_ref) in cache:
-        return cache[(root, initial_dependency, component_bom_ref)]
-
-    dependencies = []
+    dependencies: list[str] = []
     for dependency in component_dependencies:
         if dependency.get("ref") == root:
             for dependant in dependency.get("dependsOn", []):
                 translated_dependant = _translate_component(dependant, components)
                 if dependant in initial_dependency:
-                    return [f"Circular dependency for {translated_dependant}"]
+                    return dependencies
 
                 new_translated_dependency = (
                     f"{translated_initial_dependency} --> {translated_dependant}"
@@ -178,13 +178,11 @@ def _get_dependencies_recursive(
                         component_bom_ref=component_bom_ref,
                         component_dependencies=component_dependencies,
                         components=components,
-                        cache=cache,
                     )
                     for new_dependency in new_dependencies:
                         if new_dependency not in dependencies:
                             dependencies.append(new_dependency)
 
-    cache[(root, initial_dependency, component_bom_ref)] = dependencies
     return dependencies
 
 
