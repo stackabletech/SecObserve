@@ -76,8 +76,13 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
             sbom_data = json.loads(payload)["predicate"]
 
+        with open("/sbom.json", "r") as f:
+            sbom_data = json.load(f)
+
         components = self._get_components(sbom_data)
-        observations = self._create_observations(sbom_data, data, components, metadata, branch)
+        observations = self._create_observations(
+            sbom_data, data, components, metadata, branch
+        )
 
         return observations
 
@@ -159,9 +164,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             ) = get_component_dependencies(
                                 data, components, component, metadata, sbom_data
                             )
-                            component_dependencies_cache[
-                                component.bom_ref
-                            ] = observation_component_dependencies, translated_component_dependencies
+                            component_dependencies_cache[component.bom_ref] = (
+                                observation_component_dependencies,
+                                translated_component_dependencies,
+                            )
 
                         component_location = self._get_component_location(
                             component.json

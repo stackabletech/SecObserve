@@ -1,3 +1,6 @@
+import subprocess
+import urllib
+
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
@@ -148,6 +151,16 @@ class ApiImportObservationsByName(APIView):
             branch = get_branch_by_name(product, branch_name)
             if not branch:
                 branch = Branch.objects.create(product=product, name=branch_name)
+                digest = subprocess.check_output(
+                    "crane digest docker.stackable.tech/stackable/"
+                    + branch.product.name
+                    + ":"
+                    + branch.name,
+                    shell=True,
+                ).rstrip()
+                arch = branch.name.split("-")[-1]
+                branch.purl = f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                branch.save()
 
         api_configuration_name = request_serializer.validated_data.get(
             "api_configuration_name"
@@ -284,6 +297,16 @@ class FileUploadObservationsByName(APIView):
             branch = get_branch_by_name(product, branch_name)
             if not branch:
                 branch = Branch.objects.create(product=product, name=branch_name)
+                digest = subprocess.check_output(
+                    "crane digest docker.stackable.tech/stackable/"
+                    + branch.product.name
+                    + ":"
+                    + branch.name,
+                    shell=True,
+                ).rstrip()
+                arch = branch.name.split("-")[-1]
+                branch.purl = f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                branch.save()
 
         parser_name = request_serializer.validated_data.get("parser_name")
         parser = get_parser_by_name(parser_name)

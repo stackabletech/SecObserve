@@ -46,7 +46,7 @@ ARG group=django
 # Install binaries and libs for PostgreSQL
 # kics-scan ignore-block
 # versions of dependencies from distribution are ok
-RUN apk add --no-cache --virtual postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign
+RUN apk add --no-cache --virtual postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign crane
 
 # copy dependencies from build stage
 ENV VIRTUAL_ENV=/.venv \

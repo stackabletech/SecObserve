@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Tuple
 
 from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
 
@@ -115,7 +115,7 @@ def _get_dependencies(
     roots = _get_roots(component_dependencies)
 
     dependencies: list[str] = []
-    cache: dict[(str, str), list[str]] = {}
+    cache: dict[Tuple[str, str], list[str]] = {}
 
     try:
         for root in roots:
@@ -158,7 +158,7 @@ def _get_dependencies_recursive(
     component_bom_ref: str,
     component_dependencies: list[dict],
     components: dict[str, Component],
-    cache: dict[(str, str), list[str]] = {},
+    cache: dict[Tuple[str, str], list[str]] = {},
 ) -> list[str]:
     if (root, initial_dependency) in cache:
         return cache[(root, initial_dependency)]
