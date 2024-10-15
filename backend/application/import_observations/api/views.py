@@ -159,7 +159,10 @@ class ApiImportObservationsByName(APIView):
                     shell=True,
                 ).rstrip()
                 arch = branch.name.split("-")[-1]
-                branch.purl = f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                branch.purl = (
+                    f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
+                    f"?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                )
                 branch.save()
 
         api_configuration_name = request_serializer.validated_data.get(
@@ -305,7 +308,10 @@ class FileUploadObservationsByName(APIView):
                     shell=True,
                 ).rstrip()
                 arch = branch.name.split("-")[-1]
-                branch.purl = f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                branch.purl = (
+                    f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
+                    f"?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                )
                 branch.save()
 
         parser_name = request_serializer.validated_data.get("parser_name")

@@ -48,7 +48,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         metadata = self._get_metadata(data)
         sbom_data = None
         image_location = (
-            "oci.stackable.tech/"
+            "oci.stackable.tech/sdp/"
             + metadata.container_name
             + ":"
             + metadata.container_tag
@@ -64,6 +64,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             "https://token.actions.githubusercontent.com",
             image_location,
         ]
+        print(" ".join(extract_sbom_cmd))
 
         result = subprocess.run(
             extract_sbom_cmd,
@@ -75,9 +76,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             cosign_output = json.loads(result.stdout.decode("utf-8"))
             payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
             sbom_data = json.loads(payload)["predicate"]
-
-        with open("/sbom.json", "r") as f:
-            sbom_data = json.load(f)
 
         components = self._get_components(sbom_data)
         observations = self._create_observations(

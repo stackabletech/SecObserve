@@ -266,13 +266,4 @@ const ObservationShowOrigins = ({ elevated }: ObservationShowOriginsProps) => {
     );
 };
 
-const createMermaidGraph = (dependencies_str: string) => {
-    const dependencies = dependencies_str.split("\n");
-    let mermaid_content = "graph LR\n";
-    for (let i = 0; i < dependencies.length; i++) {
-        mermaid_content += "    " + dependencies[i] + "\n";
-    }
-    return mermaid_content;
-};
-
 export default ObservationShowOrigins;
