@@ -47,8 +47,12 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     ) -> list[Observation]:
         metadata = self._get_metadata(data)
         sbom_data = None
+        if "amd64" not in metadata.container_tag and "arm64" not in metadata.container_tag and branch:
+            metadata.container_tag += "-"+branch.name.split("-")[-1]
+
         image_location = (
-            "oci.stackable.tech/sdp/"
+            "oci.stackable.tech/"
+            + ("sdp/" if not "sdp/" in metadata.container_name else "")
             + metadata.container_name
             + ":"
             + metadata.container_tag
