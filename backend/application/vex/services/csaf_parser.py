@@ -29,6 +29,7 @@ def parse_csaf_data(data: dict) -> None:
     _find_products_in_full_product_names(
         product_tree.get("full_product_names", []), products
     )
+    _find_products_in_relationships(product_tree.get("relationships", []), products)
 
     relationships: dict[str, Relationship] = _process_relationships(product_tree)
 
@@ -99,6 +100,11 @@ def _find_products_in_full_product_names(
     for product in full_product_names:
         _process_product(product, products)
 
+def _find_products_in_relationships(relationships: list, products: dict[str, str]) -> None:
+    for relationship in relationships:
+        full_product_name = relationship.get("full_product_name")
+        if full_product_name:
+            _process_product(full_product_name, products)
 
 def _process_product(product: dict, products: dict[str, str]) -> None:
     product_id = product.get("product_id")
