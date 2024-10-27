@@ -212,7 +212,8 @@ class FileUploadObservationsById(APIView):
         request=FileUploadObservationsByIdRequestSerializer,
         responses={status.HTTP_200_OK: ImportObservationsResponseSerializer},
     )
-    def post(self, request):
+    def post(self, request):  # pylint: disable=too-many-locals
+        # not too much we can do about this
         request_serializer = FileUploadObservationsByIdRequestSerializer(
             data=request.data
         )
@@ -263,12 +264,18 @@ class FileUploadObservationsById(APIView):
             observations_new,
             observations_updated,
             observations_resolved,
+            license_components_new,
+            license_components_updated,
+            license_components_deleted,
         ) = file_upload_observations(file_upload_parameters)
 
         response_data = {
             "observations_new": observations_new,
             "observations_updated": observations_updated,
             "observations_resolved": observations_resolved,
+            "license_components_new": license_components_new,
+            "license_components_updated": license_components_updated,
+            "license_components_deleted": license_components_deleted,
         }
         return Response(response_data)
 
@@ -280,7 +287,8 @@ class FileUploadObservationsByName(APIView):
         request=FileUploadObservationsByNameRequestSerializer,
         responses={status.HTTP_200_OK: ImportObservationsResponseSerializer},
     )
-    def post(self, request):
+    def post(self, request):  # pylint: disable=too-many-locals
+        # not too much we can do about this
         request_serializer = FileUploadObservationsByNameRequestSerializer(
             data=request.data
         )
@@ -342,12 +350,18 @@ class FileUploadObservationsByName(APIView):
             observations_new,
             observations_updated,
             observations_resolved,
+            license_components_new,
+            license_components_updated,
+            license_components_deleted,
         ) = file_upload_observations(file_upload_parameters)
 
         response_data = {
             "observations_new": observations_new,
             "observations_updated": observations_updated,
             "observations_resolved": observations_resolved,
+            "license_components_new": license_components_new,
+            "license_components_updated": license_components_updated,
+            "license_components_deleted": license_components_deleted,
         }
         return Response(response_data)
 
