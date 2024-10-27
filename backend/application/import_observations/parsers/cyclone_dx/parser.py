@@ -52,12 +52,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     ) -> list[Observation]:
         self.metadata = self._get_metadata(data)
         sbom_data = None
-        if "amd64" not in self.metadata.container_tag and "arm64" not in self.metadata.container_tag and branch:
-            self.metadata.container_tag += "-"+branch.name.split("-")[-1]
 
         image_location = (
             "oci.stackable.tech/"
-            + ("sdp/" if not "sdp/" in self.metadata.container_name else "")
             + self.metadata.container_name
             + ":"
             + self.metadata.container_tag
@@ -86,10 +83,8 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
             sbom_data = json.loads(payload)["predicate"]
 
-        components = self._get_components(sbom_data)
-        observations = self._create_observations(
-            sbom_data, data, branch
-        )
+        self.components = self._get_components(sbom_data or data)
+        observations = self._create_observations(sbom_data, data, branch)
 
         return observations
 
@@ -107,7 +102,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                 licenses_exist = True
 
             observation_component_dependencies, _ = get_component_dependencies(
-                data, self.components, component, self.metadata
+                data, self.components, component, self.metadata, None
             )
             model_component = License_Component(
                 name=component.name,
@@ -228,7 +223,11 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                                 observation_component_dependencies,
                                 translated_component_dependencies,
                             ) = get_component_dependencies(
-                                data, self.components, component, self.metadata, sbom_data
+                                data,
+                                self.components,
+                                component,
+                                self.metadata,
+                                sbom_data,
                             )
                             component_dependencies_cache[component.bom_ref] = (
                                 observation_component_dependencies,
