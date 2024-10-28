@@ -13,6 +13,7 @@ from rest_framework.serializers import (
 
 from application.access_control.api.serializers import UserListSerializer
 from application.commons.services.global_request import get_current_user
+from application.core.types import PURL_Type
 from application.licenses.models import (
     License,
     License_Component,
@@ -24,10 +25,12 @@ from application.licenses.models import (
 )
 from application.licenses.queries.license_group_member import get_license_group_member
 from application.licenses.queries.license_policy_member import get_license_policy_member
+from application.licenses.services.license_policy import get_ignore_component_type_list
 
 
 class LicenseSerializer(ModelSerializer):
     is_in_license_group = SerializerMethodField()
+    is_in_license_policy = SerializerMethodField()
 
     class Meta:
         model = License
@@ -35,6 +38,9 @@ class LicenseSerializer(ModelSerializer):
 
     def get_is_in_license_group(self, obj: License) -> bool:
         return License_Group.objects.filter(licenses=obj).exists()
+
+    def get_is_in_license_policy(self, obj: License) -> bool:
+        return License_Policy_Item.objects.filter(license=obj).exists()
 
 
 class LicenseComponentSerializer(ModelSerializer):
@@ -91,6 +97,7 @@ class LicenseComponentBulkDeleteSerializer(Serializer):
 
 class LicenseGroupSerializer(ModelSerializer):
     is_manager = SerializerMethodField()
+    is_in_license_policy = SerializerMethodField()
 
     class Meta:
         model = License_Group
@@ -101,6 +108,9 @@ class LicenseGroupSerializer(ModelSerializer):
         return License_Group_Member.objects.filter(
             license_group=obj, user=user, is_manager=True
         ).exists()
+
+    def get_is_in_license_policy(self, obj: License_Group) -> bool:
+        return License_Policy_Item.objects.filter(license_group=obj).exists()
 
 
 class LicenseGroupLicenseAddRemoveSerializer(Serializer):
@@ -127,7 +137,7 @@ class LicenseGroupMemberSerializer(ModelSerializer):
             (data_license_group and data_license_group != self.instance.license_group)
             or (data_user and data_user != self.instance.user)
         ):
-            raise ValidationError("Authorization group and user cannot be changed")
+            raise ValidationError("License group and user cannot be changed")
 
         if self.instance is None:
             license_group_member = get_license_group_member(
@@ -147,16 +157,29 @@ class LicenseGroupCopySerializer(Serializer):
 
 class LicensePolicySerializer(ModelSerializer):
     is_manager = SerializerMethodField()
+    has_products = SerializerMethodField()
 
     class Meta:
         model = License_Policy
         fields = "__all__"
+
+    def validate_ignore_component_types(self, value: str) -> str:
+        ignore_component_types = get_ignore_component_type_list(value)
+        for component_type in ignore_component_types:
+            for component_type in ignore_component_types:
+                if not PURL_Type.PURL_TYPE_CHOICES.get(component_type):
+                    raise ValidationError(f"Invalid component type {component_type}")
+
+        return value
 
     def get_is_manager(self, obj: License_Policy) -> bool:
         user = get_current_user()
         return License_Policy_Member.objects.filter(
             license_policy=obj, user=user, is_manager=True
         ).exists()
+
+    def get_has_products(self, obj: License_Policy) -> bool:
+        return obj.product.exists()
 
 
 class LicensePolicyItemSerializer(ModelSerializer):
@@ -260,7 +283,7 @@ class LicensePolicyMemberSerializer(ModelSerializer):
             )
             or (data_user and data_user != self.instance.user)
         ):
-            raise ValidationError("Authorization group and user cannot be changed")
+            raise ValidationError("License policy and user cannot be changed")
 
         if self.instance is None:
             license_group_member = get_license_policy_member(

@@ -7,6 +7,7 @@ import {
     ListContextProvider,
     ReferenceField,
     ReferenceInput,
+    ResourceContextProvider,
     TextField,
     TextInput,
     useListController,
@@ -98,7 +99,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
     }
 
     return (
-        <Fragment>
+        <ResourceContextProvider value="observation_logs">
             <ListHeader icon={ChecklistIcon} title="Reviews" />
             <ListContextProvider value={listContext}>
                 <div style={{ width: "100%" }}>
@@ -108,15 +109,21 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         sx={{ width: "100%" }}
                         bulkActionButtons={<BulkActionButtons />}
                         rowClick={ShowObservationLogs}
+                        resource="observation_logs"
                     >
                         <DateField locales="de-DE" source="created" showTime />
-                        <TextField source="user_full_name" label="User" />
-                        <ReferenceField source="observation" reference="observations" link="show">
-                            <TextField source="title" />
-                        </ReferenceField>
                         <TextField source="product_name" label="Product" />
                         <TextField source="branch_name" label="Branch / Version" />
                         <TextField source="origin_component_name_version" label="Component" />
+                        <ReferenceField
+                            source="observation"
+                            reference="observations"
+                            link="show"
+                            sx={{ "& a": { textDecoration: "none" } }}
+                        >
+                            <TextField source="title" />
+                        </ReferenceField>
+                        <TextField source="user_full_name" label="User" />
                         <TextField source="severity" emptyText="---" />
                         <TextField source="status" emptyText="---" />
                         {feature_vex_enabled() && (
@@ -137,7 +144,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                     <CustomPagination />
                 </div>
             </ListContextProvider>
-        </Fragment>
+        </ResourceContextProvider>
     );
 };
 

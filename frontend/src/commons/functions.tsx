@@ -5,13 +5,20 @@ import {
     OBSERVATION_SEVERITY_LOW,
     OBSERVATION_SEVERITY_MEDIUM,
     OBSERVATION_SEVERITY_NONE,
-    OBSERVATION_SEVERITY_UNKOWN,
+    OBSERVATION_SEVERITY_UNKNOWN,
     OBSERVATION_STATUS_AFFECTED,
     OBSERVATION_STATUS_FALSE_POSITIVE,
     OBSERVATION_STATUS_NOT_AFFECTED,
     OBSERVATION_STATUS_NOT_SECURITY,
     OBSERVATION_STATUS_RISK_ACCEPTED,
 } from "../core/types";
+import {
+    EVALUATION_RESULT_ALLOWED,
+    EVALUATION_RESULT_FORBIDDEN,
+    EVALUATION_RESULT_IGNORED,
+    EVALUATION_RESULT_REVIEW_REQUIRED,
+    EVALUATION_RESULT_UNKNOWN,
+} from "../licenses/types";
 import { getSettingTheme } from "./user_settings/functions";
 
 export function getIconAndFontColor() {
@@ -25,7 +32,7 @@ export function getIconAndFontColor() {
 export function get_severity_color(severity: string): string {
     let backgroundColor = "transparent";
     switch (severity) {
-        case OBSERVATION_SEVERITY_UNKOWN:
+        case OBSERVATION_SEVERITY_UNKNOWN:
             backgroundColor = "#00B4F0";
             break;
         case OBSERVATION_SEVERITY_NONE:
@@ -42,6 +49,36 @@ export function get_severity_color(severity: string): string {
             break;
         case OBSERVATION_SEVERITY_CRITICAL:
             backgroundColor = "#cc0500";
+            break;
+    }
+    return backgroundColor;
+}
+
+export function get_evaluation_result_color(record: any | null, evaluation_result: string | null): string {
+    if (!evaluation_result) {
+        if (record && record.component_license_data) {
+            evaluation_result = record.component_license_data.evaluation_result;
+        } else {
+            evaluation_result = record.evaluation_result;
+        }
+    }
+
+    let backgroundColor = "transparent";
+    switch (evaluation_result) {
+        case EVALUATION_RESULT_ALLOWED:
+            backgroundColor = "#53aa33";
+            break;
+        case EVALUATION_RESULT_FORBIDDEN:
+            backgroundColor = "#df3d03";
+            break;
+        case EVALUATION_RESULT_REVIEW_REQUIRED:
+            backgroundColor = "#f9a009";
+            break;
+        case EVALUATION_RESULT_UNKNOWN:
+            backgroundColor = "#424242";
+            break;
+        case EVALUATION_RESULT_IGNORED:
+            backgroundColor = "#424242";
             break;
     }
     return backgroundColor;
@@ -91,7 +128,7 @@ export function get_component_purl_url(
 
     let component_purl_url = "https://deps.dev/" + purl_type + "/";
     if (!component_name.includes(":") && purl_namespace !== null) {
-        component_purl_url = component_purl_url + purl_namespace + "%3A";
+        component_purl_url = component_purl_url + purl_namespace + "%2F";
     }
     component_purl_url = component_purl_url + component_name;
     if (component_version !== null) {

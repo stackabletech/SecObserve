@@ -4,6 +4,7 @@ import {
     FilterForm,
     ListContextProvider,
     NullableBooleanInput,
+    ResourceContextProvider,
     TextField,
     TextInput,
     useListController,
@@ -25,11 +26,20 @@ const listFilters = [
 
 type LicensePolicyEmbeddedListProps = {
     license: any;
+    license_group: any;
 };
 
-const LicensePolicyEmbeddedList = ({ license }: LicensePolicyEmbeddedListProps) => {
-    const filter = license ? { licenses: Number(license.id) } : {};
-    const storeKey = license ? false : "license_policies.embedded";
+const LicensePolicyEmbeddedList = ({ license, license_group }: LicensePolicyEmbeddedListProps) => {
+    let filter = {};
+    let storeKey: any = "license_policies.embedded";
+    if (license) {
+        filter = { licenses: Number(license.id) };
+        storeKey = false;
+    }
+    if (license_group) {
+        filter = { license_groups: Number(license_group.id) };
+        storeKey = false;
+    }
 
     const listContext = useListController({
         filter: filter,
@@ -48,22 +58,24 @@ const LicensePolicyEmbeddedList = ({ license }: LicensePolicyEmbeddedListProps) 
     localStorage.removeItem("licenseotherlist");
 
     return (
-        <ListContextProvider value={listContext}>
-            <div style={{ width: "100%" }}>
-                {!is_external() && !license && <LicensePolicyCreateButton />}
-                <FilterForm filters={listFilters} />
-                <Datagrid
-                    size={getSettingListSize()}
-                    rowClick={showLicensePolicy}
-                    bulkActionButtons={false}
-                    resource="license_policies"
-                >
-                    <TextField source="name" label="Name" />
-                    <BooleanField source="is_public" label="Public" />
-                </Datagrid>
-                <CustomPagination />
-            </div>
-        </ListContextProvider>
+        <ResourceContextProvider value="license_policies">
+            <ListContextProvider value={listContext}>
+                <div style={{ width: "100%" }}>
+                    {!is_external() && !license && !license_group && <LicensePolicyCreateButton />}
+                    <FilterForm filters={listFilters} />
+                    <Datagrid
+                        size={getSettingListSize()}
+                        rowClick={showLicensePolicy}
+                        bulkActionButtons={false}
+                        resource="license_policies"
+                    >
+                        <TextField source="name" label="Name" />
+                        <BooleanField source="is_public" label="Public" />
+                    </Datagrid>
+                    <CustomPagination />
+                </div>
+            </ListContextProvider>
+        </ResourceContextProvider>
     );
 };
 

@@ -52,7 +52,12 @@ class ProductCoreSerializer(ModelSerializer):
     open_medium_observation_count = SerializerMethodField()
     open_low_observation_count = SerializerMethodField()
     open_none_observation_count = SerializerMethodField()
-    open_unkown_observation_count = SerializerMethodField()
+    open_unknown_observation_count = SerializerMethodField()
+    forbidden_licenses_count = SerializerMethodField()
+    review_required_licenses_count = SerializerMethodField()
+    unknown_licenses_count = SerializerMethodField()
+    allowed_licenses_count = SerializerMethodField()
+    ignored_licenses_count = SerializerMethodField()
     permissions = SerializerMethodField()
 
     class Meta:
@@ -74,11 +79,26 @@ class ProductCoreSerializer(ModelSerializer):
     def get_open_none_observation_count(self, obj: Product) -> int:
         return obj.open_none_observation_count
 
-    def get_open_unkown_observation_count(self, obj: Product) -> int:
-        return obj.open_unkown_observation_count
+    def get_open_unknown_observation_count(self, obj: Product) -> int:
+        return obj.open_unknown_observation_count
 
     def get_permissions(self, obj: Product) -> list[Permissions]:
         return get_permissions_for_role(get_highest_user_role(obj))
+
+    def get_forbidden_licenses_count(self, obj: Product) -> int:
+        return obj.forbidden_licenses_count
+
+    def get_review_required_licenses_count(self, obj: Product) -> int:
+        return obj.review_required_licenses_count
+
+    def get_unknown_licenses_count(self, obj: Product) -> int:
+        return obj.unknown_licenses_count
+
+    def get_allowed_licenses_count(self, obj: Product) -> int:
+        return obj.allowed_licenses_count
+
+    def get_ignored_licenses_count(self, obj: Product) -> int:
+        return obj.ignored_licenses_count
 
     def validate(self, attrs: dict):
         if attrs.get("repository_branch_housekeeping_active"):
@@ -99,15 +119,15 @@ class ProductCoreSerializer(ModelSerializer):
                 attrs["security_gate_threshold_low"] = 0
             if not attrs.get("security_gate_threshold_none"):
                 attrs["security_gate_threshold_none"] = 0
-            if not attrs.get("security_gate_threshold_unkown"):
-                attrs["security_gate_threshold_unkown"] = 0
+            if not attrs.get("security_gate_threshold_unknown"):
+                attrs["security_gate_threshold_unknown"] = 0
         else:
             attrs["security_gate_threshold_critical"] = None
             attrs["security_gate_threshold_high"] = None
             attrs["security_gate_threshold_medium"] = None
             attrs["security_gate_threshold_low"] = None
             attrs["security_gate_threshold_none"] = None
-            attrs["security_gate_threshold_unkown"] = None
+            attrs["security_gate_threshold_unknown"] = None
 
         return super().validate(attrs)
 
@@ -129,7 +149,7 @@ class ProductGroupSerializer(ProductCoreSerializer):
             "open_medium_observation_count",
             "open_low_observation_count",
             "open_none_observation_count",
-            "open_unkown_observation_count",
+            "open_unknown_observation_count",
             "repository_branch_housekeeping_active",
             "repository_branch_housekeeping_keep_inactive_days",
             "repository_branch_housekeeping_exempt_branches",
@@ -142,7 +162,7 @@ class ProductGroupSerializer(ProductCoreSerializer):
             "security_gate_threshold_medium",
             "security_gate_threshold_low",
             "security_gate_threshold_none",
-            "security_gate_threshold_unkown",
+            "security_gate_threshold_unknown",
             "assessments_need_approval",
             "product_rules_need_approval",
             "risk_acceptance_expiry_active",
@@ -150,6 +170,11 @@ class ProductGroupSerializer(ProductCoreSerializer):
             "new_observations_in_review",
             "product_rule_approvals",
             "license_policy",
+            "forbidden_licenses_count",
+            "review_required_licenses_count",
+            "unknown_licenses_count",
+            "allowed_licenses_count",
+            "ignored_licenses_count",
         ]
 
     def get_products_count(self, obj: Product) -> int:
@@ -528,7 +553,12 @@ class BranchSerializer(ModelSerializer):
     open_medium_observation_count = SerializerMethodField()
     open_low_observation_count = SerializerMethodField()
     open_none_observation_count = SerializerMethodField()
-    open_unkown_observation_count = SerializerMethodField()
+    open_unknown_observation_count = SerializerMethodField()
+    forbidden_licenses_count = SerializerMethodField()
+    review_required_licenses_count = SerializerMethodField()
+    unknown_licenses_count = SerializerMethodField()
+    allowed_licenses_count = SerializerMethodField()
+    ignored_licenses_count = SerializerMethodField()
 
     class Meta:
         model = Branch
@@ -561,8 +591,23 @@ class BranchSerializer(ModelSerializer):
     def get_open_none_observation_count(self, obj: Branch) -> int:
         return obj.open_none_observation_count
 
-    def get_open_unkown_observation_count(self, obj: Branch) -> int:
-        return obj.open_unkown_observation_count
+    def get_open_unknown_observation_count(self, obj: Branch) -> int:
+        return obj.open_unknown_observation_count
+
+    def get_forbidden_licenses_count(self, obj: Branch) -> int:
+        return obj.forbidden_licenses_count
+
+    def get_review_required_licenses_count(self, obj: Branch) -> int:
+        return obj.review_required_licenses_count
+
+    def get_unknown_licenses_count(self, obj: Branch) -> int:
+        return obj.unknown_licenses_count
+
+    def get_allowed_licenses_count(self, obj: Branch) -> int:
+        return obj.allowed_licenses_count
+
+    def get_ignored_licenses_count(self, obj: Branch) -> int:
+        return obj.ignored_licenses_count
 
 
 class ServiceSerializer(ModelSerializer):
@@ -572,7 +617,7 @@ class ServiceSerializer(ModelSerializer):
     open_medium_observation_count = SerializerMethodField()
     open_low_observation_count = SerializerMethodField()
     open_none_observation_count = SerializerMethodField()
-    open_unkown_observation_count = SerializerMethodField()
+    open_unknown_observation_count = SerializerMethodField()
 
     class Meta:
         model = Service
@@ -596,5 +641,5 @@ class ServiceSerializer(ModelSerializer):
     def get_open_none_observation_count(self, obj: Service) -> int:
         return obj.open_none_observation_count
 
-    def get_open_unkown_observation_count(self, obj: Service) -> int:
-        return obj.open_unkown_observation_count
+    def get_open_unknown_observation_count(self, obj: Service) -> int:
+        return obj.open_unknown_observation_count
