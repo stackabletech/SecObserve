@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0014_merge_20240903_1725'),
-        ('rules', '0015_convert_unknown_data'),
+        ("rules", "0014_merge_20240903_1725"),
+        ("rules", "0015_convert_unknown_data"),
     ]
 
-    operations = [
-    ]
+    operations = []

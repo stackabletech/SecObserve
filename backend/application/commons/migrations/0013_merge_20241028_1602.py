@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commons', '0011_merge_20241022_1454'),
-        ('commons', '0012_alter_settings_security_gate_threshold_unknown'),
+        ("commons", "0011_merge_20241022_1454"),
+        ("commons", "0012_alter_settings_security_gate_threshold_unknown"),
     ]
 
-    operations = [
-    ]
+    operations = []

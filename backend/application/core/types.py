@@ -118,6 +118,8 @@ class ExploitSource:
         (POC_IN_GITHUB, POC_IN_GITHUB),
         (VULNCHECK, VULNCHECK),
     ]
+
+
 class PURL_Type:
     PURL_TYPE_CHOICES = {
         "alpm": "alpm",

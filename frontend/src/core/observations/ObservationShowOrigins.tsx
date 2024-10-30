@@ -1,7 +1,7 @@
 import { Paper, Stack, Typography } from "@mui/material";
 import mermaid from "mermaid";
 import { Fragment } from "react";
-import { Labeled, TextField, WrapperField, useRecordContext } from "react-admin";
+import { Labeled, TextField, useRecordContext } from "react-admin";
 
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { get_component_purl_url } from "../../commons/functions";
@@ -9,17 +9,6 @@ import { getElevation } from "../../metrics/functions";
 import MermaidDependencies from "./Mermaid_Dependencies";
 
 mermaid.initialize({});
-
-const openMermaidSvgInNewTab = () => {
-    const svg = document.querySelector(".mermaid svg");
-    if (svg == null) {
-        return;
-    }
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-};
 
 type ObservationShowOriginsProps = {
     elevated: boolean;
