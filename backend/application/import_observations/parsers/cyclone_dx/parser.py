@@ -54,7 +54,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         sbom_data = None
 
         image_location = (
-            "oci.stackable.tech/"
+            "oci.stackable.tech/sdp/"
             + self.metadata.container_name
             + ":"
             + self.metadata.container_tag
