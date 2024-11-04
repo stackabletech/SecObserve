@@ -2319,6 +2319,17 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
+name = "trycast"
+version = "1.2.0"
+description = ""
+optional = false
+python-versions = ">=3.8.1"
+files = [
+    {file = "trycast-1.2.0-py3-none-any.whl", hash = "sha256:5cece718b5a34378df8577f3b3aa515479611c9a37b4685d4d5aa4e6c1b4b20f"},
+    {file = "trycast-1.2.0.tar.gz", hash = "sha256:827a84f702d8a6e7b43bb7ba5e4cccd81b3fb7e59c9b2417e718407781e317a7"},
+]
+
+[[package]]
 name = "typeguard"
 version = "4.4.1"
 description = "Run-time type checker for Python"
@@ -2506,4 +2517,4 @@ unittests = ["coverage", "django-coverage-plugin", "django-extensions"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.10, < 3.13"
-content-hash = "e7fa620c397e4b09c334238e8543f9a1eb903dd067297ec4b3351f9cc41d9226"
+content-hash = "86a07690ec1a3fdea8dd7119cb2a7d083295afd408e730af08878fc5abcba9ba"

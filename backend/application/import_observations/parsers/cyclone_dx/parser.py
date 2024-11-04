@@ -1,8 +1,8 @@
 import base64
-from collections import defaultdict
 import json
 import re
 import subprocess
+from collections import defaultdict
 from json import dumps, load
 from typing import Any, Optional
 
@@ -108,7 +108,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     licenses_exist = True
 
                 observation_component_dependencies, _ = get_component_dependencies(
-                    data, self.components, component, self.metadata, None
+                    data, self.components, component, defaultdict(list)
                 )
                 model_component = License_Component(
                     name=component.name,
@@ -197,6 +197,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         observations = []
         component_dependencies_cache: dict[str, tuple[str, list[dict]]] = {}
 
+        if not sbom_data:
+            sbom_data = data
+
         dependencies = sbom_data.get("dependencies", [])
 
         # Find the root components, meaning: Components that no other components depend on
@@ -209,7 +212,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         roots = roots - nonroots
 
         # Create a map of dependencies for each component
-        dep_map = {entry["ref"]: entry.get("dependsOn", []) for entry in sbom_data.get("dependencies", [])}
+        dep_map = {
+            entry["ref"]: entry.get("dependsOn", [])
+            for entry in sbom_data.get("dependencies", [])
+        }
 
         dependency_paths = defaultdict(list)
 
@@ -218,7 +224,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         def traverse(node, path):
             dependency_paths[node].append(path)
             for dep in dep_map.get(node, []):
-                if dep not in path: # Avoid cycles
+                if dep not in path:  # Avoid cycles
                     traverse(dep, path + [dep])
 
         for root in roots:
@@ -253,11 +259,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                                 observation_component_dependencies,
                                 translated_component_dependencies,
                             ) = get_component_dependencies(
-                                data,
+                                sbom_data,
                                 self.components,
                                 component,
-                                sbom_data,
-                                dependency_paths
+                                dependency_paths,
                             )
                             component_dependencies_cache[component.bom_ref] = (
                                 observation_component_dependencies,

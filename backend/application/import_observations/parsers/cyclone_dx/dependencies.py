@@ -1,27 +1,23 @@
-from datetime import datetime
-import logging
 from collections import defaultdict
-from typing import Optional, Tuple
+import logging
+from typing import Optional
 
-from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
+from application.import_observations.parsers.cyclone_dx.types import Component
 
 logger = logging.getLogger("secobserve.import_observations.cyclone_dx.dependencies")
+
 
 def get_component_dependencies(
     data: dict,
     components: dict[str, Component],
     component: Component,
-    sbom_data: Optional[dict],
     component_dependency_paths: dict[str, list[list[str]]],
 ) -> tuple[str, list[dict]]:
     component_dependencies: list[dict[str, str | list[str]]] = []
 
-    if not sbom_data:
-        sbom_data = data
-
     _filter_component_dependencies(
         component.bom_ref,
-        sbom_data.get("dependencies", []),
+        data.get("dependencies", []),
         component_dependencies,
     )
     translated_component_dependencies = []
@@ -111,3 +107,25 @@ def _translate_component(bom_ref: str, components: dict[str, Component]) -> str:
         component_name_version = component.name
 
     return component_name_version
+
+
+def _parse_mermaid_graph_content(
+    mermaid_graph_content: list[str],
+) -> dict[str, set[str]]:
+    graph = defaultdict(set)
+
+    for line in mermaid_graph_content:
+        parts = line.strip().split("-->")
+        parts = [part.strip() for part in parts]
+        for i in range(len(parts) - 1):
+            graph[parts[i]].add(parts[i + 1])
+
+    return graph
+
+
+def _generate_dependency_list_as_text(graph: dict[str, set[str]]) -> str:
+    lines = []
+    for src, dests in graph.items():
+        for dest in sorted(dests):
+            lines.append(f"{src} --> {dest}")
+    return "\n".join(lines)
