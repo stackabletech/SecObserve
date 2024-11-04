@@ -1,4 +1,5 @@
 import base64
+from collections import defaultdict
 import json
 import re
 import subprocess
@@ -196,6 +197,33 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         observations = []
         component_dependencies_cache: dict[str, tuple[str, list[dict]]] = {}
 
+        dependencies = sbom_data.get("dependencies", [])
+
+        # Find the root components, meaning: Components that no other components depend on
+        roots = set()
+        nonroots = set()
+        for dep in dependencies:
+            for dep_on in dep.get("dependsOn", []):
+                nonroots.add(dep_on)
+            roots.add(dep.get("ref"))
+        roots = roots - nonroots
+
+        # Create a map of dependencies for each component
+        dep_map = {entry["ref"]: entry.get("dependsOn", []) for entry in sbom_data.get("dependencies", [])}
+
+        dependency_paths = defaultdict(list)
+
+        # Traverse the dependency tree from each root component
+        # While doing that, accumulate all paths from each root to each leaf
+        def traverse(node, path):
+            dependency_paths[node].append(path)
+            for dep in dep_map.get(node, []):
+                if dep not in path: # Avoid cycles
+                    traverse(dep, path + [dep])
+
+        for root in roots:
+            traverse(root, [root])
+
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
             cvss3_score, cvss3_vector = self._get_cvss3(vulnerability)
@@ -228,8 +256,8 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                                 data,
                                 self.components,
                                 component,
-                                self.metadata,
                                 sbom_data,
+                                dependency_paths
                             )
                             component_dependencies_cache[component.bom_ref] = (
                                 observation_component_dependencies,

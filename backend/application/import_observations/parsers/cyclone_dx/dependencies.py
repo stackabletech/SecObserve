@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from collections import defaultdict
 from typing import Optional, Tuple
@@ -6,13 +7,12 @@ from application.import_observations.parsers.cyclone_dx.types import Component, 
 
 logger = logging.getLogger("secobserve.import_observations.cyclone_dx.dependencies")
 
-
 def get_component_dependencies(
     data: dict,
     components: dict[str, Component],
     component: Component,
-    metadata: Metadata,
     sbom_data: Optional[dict],
+    component_dependency_paths: dict[str, list[list[str]]],
 ) -> tuple[str, list[dict]]:
     component_dependencies: list[dict[str, str | list[str]]] = []
 
@@ -24,21 +24,28 @@ def get_component_dependencies(
         sbom_data.get("dependencies", []),
         component_dependencies,
     )
-    observation_component_dependencies = ""
     translated_component_dependencies = []
     if component_dependencies:
         translated_component_dependencies = _translate_component_dependencies(
             component_dependencies, components
         )
 
-        observation_component_dependencies = _generate_dependency_list_as_text(
-            _get_dependencies(
-                component.bom_ref,
-                component_dependencies,
-                components,
-                metadata,
-            )
-        )
+    observation_component_dependencies = ""
+
+    paths = component_dependency_paths.get(component.bom_ref, [])
+    seen_relations = set()
+    for path in paths:
+        for i, node in enumerate(path):
+            if i == 0:
+                parent = node
+                continue
+
+            relation = f"{_translate_component(parent, components)} --> {_translate_component(node, components)}\n"
+
+            parent = node
+            if relation not in seen_relations:
+                observation_component_dependencies += relation
+                seen_relations.add(relation)
 
     if len(observation_component_dependencies) > 32768:
         observation_component_dependencies = (
@@ -104,130 +111,3 @@ def _translate_component(bom_ref: str, components: dict[str, Component]) -> str:
         component_name_version = component.name
 
     return component_name_version
-
-
-def _get_dependencies(
-    component_bom_ref: str,
-    component_dependencies: list[dict],
-    components: dict[str, Component],
-    metadata: Metadata,
-) -> dict[str, set[str]]:
-    roots = _get_roots(component_dependencies)
-
-    dependencies: list[str] = []
-    cache: dict[Tuple[str, str], list[str]] = {}
-
-    try:
-        for root in roots:
-            recursive_dependencies = _get_dependencies_recursive(
-                root=root,
-                translated_initial_dependency=_translate_component(root, components),
-                initial_dependency=root,
-                component_bom_ref=component_bom_ref,
-                component_dependencies=component_dependencies,
-                components=components,
-                cache=cache,
-            )
-            if recursive_dependencies not in dependencies:
-                dependencies += recursive_dependencies
-    except RecursionError as e:
-        logger.warning(
-            "%s:%s -> %s", metadata.container_name, metadata.container_tag, str(e)
-        )
-        return {}
-
-    return_dependencies = []
-    for dependency in dependencies:
-        if (
-            dependency
-            and dependency.endswith(_translate_component(component_bom_ref, components))
-            or dependency.startswith("Circular dependency for")
-        ):
-            return_dependencies.append(dependency)
-
-    graph = _parse_mermaid_graph_content(sorted(return_dependencies))
-
-    return graph
-
-
-def _get_dependencies_recursive(
-    *,
-    root: str,
-    translated_initial_dependency: str,
-    initial_dependency: str,
-    component_bom_ref: str,
-    component_dependencies: list[dict],
-    components: dict[str, Component],
-    cache: dict[Tuple[str, str], list[str]] = {},
-) -> list[str]:
-    if (root, initial_dependency) in cache:
-        return cache[(root, initial_dependency)]
-
-    dependencies: list[str] = []
-    for dependency in component_dependencies:
-        if dependency.get("ref") == root:
-            for dependant in dependency.get("dependsOn", []):
-                translated_dependant = _translate_component(dependant, components)
-                if dependant in initial_dependency:
-                    return dependencies
-
-                new_translated_dependency = (
-                    f"{translated_initial_dependency} --> {translated_dependant}"
-                )
-                new_dependency = f"{initial_dependency} --> {dependant}"
-                if dependant == component_bom_ref:
-                    dependencies.append(new_translated_dependency)
-                else:
-                    new_dependencies = _get_dependencies_recursive(
-                        root=dependant,
-                        translated_initial_dependency=new_translated_dependency,
-                        initial_dependency=new_dependency,
-                        component_bom_ref=component_bom_ref,
-                        component_dependencies=component_dependencies,
-                        components=components,
-                        cache=cache,
-                    )
-                    for new_dependency in new_dependencies:
-                        if new_dependency not in dependencies:
-                            dependencies.append(new_dependency)
-
-    cache[(root, initial_dependency)] = dependencies
-    return dependencies
-
-
-def _get_roots(
-    translated_component_dependencies: list[dict],
-) -> list[str]:
-    roots = []
-    for dependency in translated_component_dependencies:
-        ref = dependency.get("ref")
-        if not ref:
-            continue
-        if not any(
-            ref in d.get("dependsOn", []) for d in translated_component_dependencies
-        ):
-            roots.append(ref)
-
-    return roots
-
-
-def _parse_mermaid_graph_content(
-    mermaid_graph_content: list[str],
-) -> dict[str, set[str]]:
-    graph = defaultdict(set)
-
-    for line in mermaid_graph_content:
-        parts = line.strip().split("-->")
-        parts = [part.strip() for part in parts]
-        for i in range(len(parts) - 1):
-            graph[parts[i]].add(parts[i + 1])
-
-    return graph
-
-
-def _generate_dependency_list_as_text(graph: dict[str, set[str]]) -> str:
-    lines = []
-    for src, dests in graph.items():
-        for dest in sorted(dests):
-            lines.append(f"{src} --> {dest}")
-    return "\n".join(lines)
