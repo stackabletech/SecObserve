@@ -536,13 +536,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "cvss"
-version = "3.2"
+version = "3.3"
 description = "CVSS2/3/4 library with interactive calculator for Python 2 and Python 3"
 optional = false
 python-versions = "*"
 files = [
-    {file = "cvss-3.2-py2.py3-none-any.whl", hash = "sha256:e2c2fbc8943c6df83d23c7ad74bb9c5e584c666a9455b013b598e292e5018469"},
-    {file = "cvss-3.2.tar.gz", hash = "sha256:5e8e0f95e9e6c9dec0c2ef38f14153b2c019cfcd2fd6e75b5ad7da80a110fa8b"},
+    {file = "cvss-3.3-py2.py3-none-any.whl", hash = "sha256:cc7326afc7585cc63d0a6ca74dab27d74aa2bc99f5f3d5d4bc4d94a3c22bc0a1"},
+    {file = "cvss-3.3.tar.gz", hash = "sha256:ae097183ee58b02262ab2291d27857ca3d0a7c4242b9b076c6bf537e6239fbc0"},
 ]
 
 [[package]]
@@ -868,13 +868,13 @@ sidecar = ["drf-spectacular-sidecar"]
 
 [[package]]
 name = "drf-spectacular-sidecar"
-version = "2024.7.1"
+version = "2024.11.1"
 description = "Serve self-contained distribution builds of Swagger UI and Redoc with Django"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "drf_spectacular_sidecar-2024.7.1-py3-none-any.whl", hash = "sha256:5dc8b38ad153e90b328152674c7959bf114bf86360a617a5a4516e135cb832bc"},
-    {file = "drf_spectacular_sidecar-2024.7.1.tar.gz", hash = "sha256:beb992d6ece806a2d422ad626983e2472c0a5550de9647a7ed6764716a5abdfe"},
+    {file = "drf_spectacular_sidecar-2024.11.1-py3-none-any.whl", hash = "sha256:e2efd49c5bd1a607fd5d120d9da58d78e587852db8220b8880282a849296ff83"},
+    {file = "drf_spectacular_sidecar-2024.11.1.tar.gz", hash = "sha256:fcfccc72cbdbe41e93f8416fa0c712d14126b8d1629e65c09c07c8edea24aad0"},
 ]
 
 [package.dependencies]
@@ -2319,25 +2319,14 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
-name = "trycast"
-version = "1.2.0"
-description = ""
-optional = false
-python-versions = ">=3.8.1"
-files = [
-    {file = "trycast-1.2.0-py3-none-any.whl", hash = "sha256:5cece718b5a34378df8577f3b3aa515479611c9a37b4685d4d5aa4e6c1b4b20f"},
-    {file = "trycast-1.2.0.tar.gz", hash = "sha256:827a84f702d8a6e7b43bb7ba5e4cccd81b3fb7e59c9b2417e718407781e317a7"},
-]
-
-[[package]]
 name = "typeguard"
-version = "4.4.0"
+version = "4.4.1"
 description = "Run-time type checker for Python"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "typeguard-4.4.0-py3-none-any.whl", hash = "sha256:8ca34c14043f53b2caae7040549ba431770869bcd6287cfa8239db7ecb882b4a"},
-    {file = "typeguard-4.4.0.tar.gz", hash = "sha256:463bd8697a65a4aa576a63767c369b1ecfba8a5ba735edfe3223127b6ecfa28c"},
+    {file = "typeguard-4.4.1-py3-none-any.whl", hash = "sha256:9324ec07a27ec67fc54a9c063020ca4c0ae6abad5e9f0f9804ca59aee68c6e21"},
+    {file = "typeguard-4.4.1.tar.gz", hash = "sha256:0d22a89d00b453b47c49875f42b6601b961757541a2e1e0ef517b6e24213c21b"},
 ]
 
 [package.dependencies]
@@ -2349,13 +2338,13 @@ test = ["coverage[toml] (>=7)", "mypy (>=1.2.0)", "pytest (>=7)"]
 
 [[package]]
 name = "types-pymysql"
-version = "1.1.0.20240524"
+version = "1.1.0.20241103"
 description = "Typing stubs for PyMySQL"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "types-PyMySQL-1.1.0.20240524.tar.gz", hash = "sha256:93058fef2077c407e29bdcd1a7dfbbf06a59324a5440df30dd002f572199ac17"},
-    {file = "types_PyMySQL-1.1.0.20240524-py3-none-any.whl", hash = "sha256:8be5be228bf6376f9055ec03bec0dfa6f1a84163f9a89305db446f0b31f87be3"},
+    {file = "types-PyMySQL-1.1.0.20241103.tar.gz", hash = "sha256:a7628542919a0ba87625fb79eefb2a2de45fb4ad32afe6e561e8f2f27fb58b8c"},
+    {file = "types_PyMySQL-1.1.0.20241103-py3-none-any.whl", hash = "sha256:1a32efd8a74b5bf74c4de92a86c1cc6edaf3802dcfd5546635ab501eb5e3c096"},
 ]
 
 [[package]]
@@ -2480,13 +2469,13 @@ files = [
 
 [[package]]
 name = "werkzeug"
-version = "3.1.0"
+version = "3.1.1"
 description = "The comprehensive WSGI web application library."
 optional = true
 python-versions = ">=3.9"
 files = [
-    {file = "werkzeug-3.1.0-py3-none-any.whl", hash = "sha256:208a2e31a4a54c8b3d2244f2079ca1d3851629a7a7d546646059c64fb746023a"},
-    {file = "werkzeug-3.1.0.tar.gz", hash = "sha256:6f2a0d38f25ba5a75c36c45b4ae350c7a23b57e3b974e9eb2d6851f2c648c00d"},
+    {file = "werkzeug-3.1.1-py3-none-any.whl", hash = "sha256:a71124d1ef06008baafa3d266c02f56e1836a5984afd6dd6c9230669d60d9fb5"},
+    {file = "werkzeug-3.1.1.tar.gz", hash = "sha256:8cd39dfbdfc1e051965f156163e2974e52c210f130810e9ad36858f0fd3edad4"},
 ]
 
 [package.dependencies]
@@ -2517,4 +2506,4 @@ unittests = ["coverage", "django-coverage-plugin", "django-extensions"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.10, < 3.13"
-content-hash = "5e59126b7ebceabae0a78d7565d19b8d57cdddca8497de625c215d0aba309557"
+content-hash = "e7fa620c397e4b09c334238e8543f9a1eb903dd067297ec4b3351f9cc41d9226"
