@@ -89,6 +89,7 @@ const ObservationList = () => {
         sort: { field: "current_severity", order: "ASC" },
         storeKey: "observations.list",
         disableSyncWithLocation: false,
+        debounce: 700,
     });
 
     if (listContext.isLoading) {
