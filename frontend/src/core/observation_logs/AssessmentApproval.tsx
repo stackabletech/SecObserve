@@ -4,7 +4,7 @@ import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
 import { SaveButton, SimpleForm, Toolbar, useNotify, useRefresh } from "react-admin";
 
-import { validate_required, validate_required_255 } from "../../commons/custom_validators";
+import { validate_255, validate_required } from "../../commons/custom_validators";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { ASSESSMENT_STATUS_CHOICES } from "../types";
@@ -101,7 +101,7 @@ const AssessmentApproval = (props: AssessmentApprovalProps) => {
                             validate={validate_required}
                             label="Decision"
                         />
-                        <TextInputWide source="approval_remark" validate={validate_required_255} label="Remark" />
+                        <TextInputWide source="approval_remark" validate={validate_255} label="Remark" />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

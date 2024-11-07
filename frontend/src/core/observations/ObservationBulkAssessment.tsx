@@ -16,7 +16,7 @@ import {
     useUnselectAll,
 } from "react-admin";
 
-import { validate_after_today, validate_required_4096 } from "../../commons/custom_validators";
+import { validate_after_today } from "../../commons/custom_validators";
 import {
     justificationIsEnabledForStatus,
     remediationsAreEnabledForStatus,
@@ -136,7 +136,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
             >
                 Assessment
             </Button>
-            <Dialog open={open && !loading} onClose={handleClose}>
+            <Dialog open={open && !loading} onClose={handleClose} maxWidth="xl">
                 <DialogTitle>Bulk Observation Assessment</DialogTitle>
                 <DialogContent>
                     <SimpleForm onSubmit={observationUpdate} toolbar={<CustomToolbar />}>
@@ -155,6 +155,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                             <AutocompleteInputMedium
                                 source="current_vex_justification"
                                 label="VEX justification"
+                                sx={{ minWidth: "450px" }}
                                 choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                             />
                         )}
@@ -166,7 +167,7 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                                         label=""
                                         choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
                                     />
-                                    <TextInputWide source="text" />
+                                    <TextInputWide source="text" multiline={true} minRows={3} />
                                 </SimpleFormIterator>
                             </ArrayInput>
                         )}
@@ -189,12 +190,6 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
                                 )
                             }
                         </FormDataConsumer>
-                        <TextInputWide
-                            source="comment"
-                            validate={validate_required_4096}
-                            multiline={true}
-                            minRows={3}
-                        />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

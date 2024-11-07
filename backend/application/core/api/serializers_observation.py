@@ -493,7 +493,7 @@ class ObservationAssessmentSerializer(Serializer):
     )
     vex_remediations = JSONField(required=False)
     risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
-    comment = CharField(max_length=4096, required=True)
+    comment = CharField(max_length=4096, required=False)
 
 
 class ObservationRemoveAssessmentSerializer(Serializer):

@@ -15,7 +15,7 @@ import {
     useRefresh,
 } from "react-admin";
 
-import { validate_after_today, validate_required, validate_required_4096 } from "../../commons/custom_validators";
+import { validate_after_today, validate_required } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
@@ -106,7 +106,7 @@ const ObservationAssessment = () => {
             >
                 Assessment
             </Button>
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} maxWidth="xl">
                 <DialogTitle>Observation Assessment</DialogTitle>
                 <DialogContent>
                     <SimpleForm onSubmit={observationUpdate} toolbar={<CustomToolbar />}>
@@ -127,6 +127,7 @@ const ObservationAssessment = () => {
                             <AutocompleteInputMedium
                                 source="current_vex_justification"
                                 label="VEX justification"
+                                sx={{ minWidth: "450px" }}
                                 choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                             />
                         )}
@@ -138,7 +139,7 @@ const ObservationAssessment = () => {
                                         label=""
                                         choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
                                     />
-                                    <TextInputWide source="text" />
+                                    <TextInputWide source="text" multiline={true} minRows={3} />
                                 </SimpleFormIterator>
                             </ArrayInput>
                         )}
@@ -156,12 +157,6 @@ const ObservationAssessment = () => {
                                 )
                             }
                         </FormDataConsumer>
-                        <TextInputWide
-                            multiline={true}
-                            source="comment"
-                            validate={validate_required_4096}
-                            minRows={3}
-                        />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

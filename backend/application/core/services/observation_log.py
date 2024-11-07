@@ -11,7 +11,7 @@ def create_observation_log(
     observation: Observation,
     severity: str,
     status: str,
-    comment: str,
+    comment: Optional[str],
     vex_justification: str,
     vex_remediations: str,
     assessment_status: str,

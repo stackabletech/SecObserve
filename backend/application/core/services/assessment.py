@@ -28,7 +28,7 @@ def save_assessment(
     observation: Observation,
     new_severity: Optional[str],
     new_status: Optional[str],
-    comment: str,
+    comment: Optional[str],
     new_vex_justification: Optional[str],
     new_vex_remediations: Optional[str],
     new_risk_acceptance_expiry_date: Optional[date],

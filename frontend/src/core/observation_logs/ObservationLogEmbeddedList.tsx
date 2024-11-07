@@ -29,16 +29,6 @@ const ObservationLogEmbeddedList = ({ observation }: ObservationLogEmbeddedListP
         return <div>Loading...</div>;
     }
 
-    if (listContext.data) {
-        listContext.data.forEach((element: any) => {
-            if (element.comment.length > 255) {
-                element.comment_shortened = element.comment.substring(0, 255) + "...";
-            } else {
-                element.comment_shortened = element.comment;
-            }
-        });
-    }
-
     const ShowObservationLogs = (id: any) => {
         return "../../../../observation_logs/" + id + "/show";
     };
@@ -64,12 +54,6 @@ const ObservationLogEmbeddedList = ({ observation }: ObservationLogEmbeddedListP
                         <TextField source="user_full_name" label="User" sortable={false} />
                         <TextField source="severity" emptyText="---" sortable={false} />
                         <TextField source="status" emptyText="---" sortable={false} />
-                        <TextField
-                            source="comment_shortened"
-                            sortable={false}
-                            label="Comment"
-                            sx={{ wordBreak: "break-word" }}
-                        />
                         <DateField locales="de-DE" source="created" showTime sortable={false} />
                         {(observation.product_data.assessments_need_approval ||
                             observation.product_data.product_group_assessments_need_approval) && (
