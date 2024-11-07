@@ -68,6 +68,7 @@ const listFilters = () => [
     <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <NullableBooleanInputWide source="has_pending_assessment" label="Pending assessment" alwaysOn />,
+    <NullableBooleanInputWide source="has_completed_assessment" label="Completed assessment" alwaysOn />,
     <AutocompleteInput
         source="origin_component_purl_type"
         label="Component type"

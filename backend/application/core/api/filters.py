@@ -182,7 +182,34 @@ class ObservationFilter(FilterSet):
         ],
     )
 
+    has_completed_assessment = ChoiceFilter(
+        field_name="has_completed_assessment",
+        method="get_has_completed_assessment",
+        choices=[
+            ("true", "true"),
+            ("false", "false"),
+        ],
+    )
+
     def get_has_pending_assessment(
+        self, queryset, field_name, value
+    ):  # pylint: disable=unused-argument
+        # field_name is used as a positional argument
+
+        if value == "true":
+            return queryset.filter(
+                id__in=Observation_Log.objects.filter(
+                    assessment_status="Needs approval"
+                ).values("observation_id")
+            )
+
+        return queryset.exclude(
+            id__in=Observation_Log.objects.filter(
+                assessment_status="Needs approval"
+            ).values("observation_id")
+        )
+
+    def get_has_completed_assessment(
         self, queryset, field_name, value
     ):  # pylint: disable=unused-argument
         # field_name is used as a positional argument

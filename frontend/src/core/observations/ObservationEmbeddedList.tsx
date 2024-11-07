@@ -114,6 +114,7 @@ function listFilters(product: Product) {
     }
     if (product && product.observation_log_approvals > 0) {
         filters.push(<NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />);
+        filters.push(<NullableBooleanInput source="has_completed_assessment" label="Completed assessment" alwaysOn />);
     }
     // filters.push(<TextInput source="origin_component_location" label="Component location" />);
     filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
