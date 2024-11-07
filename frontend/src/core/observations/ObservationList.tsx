@@ -44,10 +44,7 @@ const listFilters = () => [
     <ReferenceInput source="product_group" reference="product_groups" sort={{ field: "name", order: "ASC" }} alwaysOn>
         <AutocompleteInput optionText="name" />
     </ReferenceInput>,
-    <ReferenceInput source="branch" reference="branches" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInputMedium optionText="name_with_product" label="Branch / Version" />
-    </ReferenceInput>,
-    <TextInput source="branch_name" label="Branch / Version name" />,
+    <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
     <TextInput source="title" alwaysOn />,
     <AutocompleteInput source="current_severity" label="Severity" choices={OBSERVATION_SEVERITY_CHOICES} alwaysOn />,
     <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
