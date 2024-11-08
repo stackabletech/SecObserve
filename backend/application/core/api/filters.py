@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.db.models import Q
 from django.utils import timezone
 from django_filters import (
     BooleanFilter,
@@ -109,6 +110,10 @@ class ProductAuthorizationGroupMemberFilter(FilterSet):
 
 
 class BranchFilter(FilterSet):
+    search = CharFilter(
+        field_name="search",
+        method="filter_branch_name_with_product",
+    )
     product = NumberFilter(field_name="product")
 
     ordering = OrderingFilter(
@@ -121,9 +126,24 @@ class BranchFilter(FilterSet):
         ),
     )
 
+    def filter_branch_name_with_product(
+        self, queryset, field_name, value
+    ):  # pylint: disable=unused-argument
+        # field_name is used as a positional argument
+
+        # check if branch or product name matches the search value
+        return queryset.filter(
+            Q(name__icontains=value)
+            | Q(
+                product_id__in=Product.objects.filter(name__icontains=value).values(
+                    "id"
+                )
+            )
+        )
+
     class Meta:
         model = Branch
-        fields = ["product", "name"]
+        fields = ["product", "name", "product_id"]
 
 
 class ServiceFilter(FilterSet):
@@ -215,16 +235,12 @@ class ObservationFilter(FilterSet):
         # field_name is used as a positional argument
 
         if value == "true":
-            return queryset.filter(
-                id__in=Observation_Log.objects.filter(
-                    assessment_status="Needs approval"
-                ).values("observation_id")
+            return queryset.exclude(
+                assessment_status="",
             )
 
-        return queryset.exclude(
-            id__in=Observation_Log.objects.filter(
-                assessment_status="Needs approval"
-            ).values("observation_id")
+        return queryset.filter(
+            assessment_status="",
         )
 
     ordering = OrderingFilter(
