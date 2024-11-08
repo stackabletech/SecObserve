@@ -289,7 +289,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             branch=branch,
                             origin_component_name=component.name,
                             origin_component_version=component.version,
-                        ).exists()
+                        ).exclude(scanner=self.metadata.scanner).exists()
 
                         if observation_found:
                             print(

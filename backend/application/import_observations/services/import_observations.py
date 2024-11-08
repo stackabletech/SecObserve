@@ -299,15 +299,17 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
                 imported_observation.identity_hash
             )
             if observation_before:
-                _process_current_observation(imported_observation, observation_before)
+                # Only update the observation if it hasn't been assessed manually or is in review
+                if observation_before.current_status != Status.STATUS_IN_REVIEW and not observation_before.assessment_status and not observation_before.assessment_severity:
+                    _process_current_observation(imported_observation, observation_before)
 
-                rule_engine.apply_rules_for_observation(observation_before)
-                vex_engine.apply_vex_statements_for_observation(observation_before)
+                    rule_engine.apply_rules_for_observation(observation_before)
+                    vex_engine.apply_vex_statements_for_observation(observation_before)
 
-                if observation_before.current_status == _get_initial_status(
-                    observation_before.product
-                ):
-                    observations_updated += 1
+                    if observation_before.current_status == _get_initial_status(
+                        observation_before.product
+                    ):
+                        observations_updated += 1
 
                 # Remove observation from list of current observations because it is still part of the check
                 observations_before.pop(observation_before.identity_hash)
