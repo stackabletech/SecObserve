@@ -51,7 +51,7 @@ class Rule(Model):
         null=True,
     )
     approval_status = CharField(max_length=16, choices=Rule_Status.RULE_STATUS_CHOICES)
-    approval_remark = TextField(max_length=255, blank=True)
+    approval_remark = TextField(max_length=255, null=True)
     approval_date = DateTimeField(null=True)
     approval_user = ForeignKey(
         User,

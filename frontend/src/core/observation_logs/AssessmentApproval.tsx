@@ -4,8 +4,8 @@ import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
 import { SaveButton, SimpleForm, Toolbar, useNotify, useRefresh } from "react-admin";
 
-import { validate_255, validate_required } from "../../commons/custom_validators";
-import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
+import { validate_required } from "../../commons/custom_validators";
+import { AutocompleteInputMedium } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { ASSESSMENT_STATUS_CHOICES } from "../types";
 
@@ -21,7 +21,6 @@ const AssessmentApproval = (props: AssessmentApprovalProps) => {
     const saveApproval = async (data: any) => {
         const patch = {
             assessment_status: data.assessment_status,
-            approval_remark: data.approval_remark,
         };
 
         httpClient(
@@ -101,7 +100,6 @@ const AssessmentApproval = (props: AssessmentApprovalProps) => {
                             validate={validate_required}
                             label="Decision"
                         />
-                        <TextInputWide source="approval_remark" validate={validate_255} label="Remark" />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

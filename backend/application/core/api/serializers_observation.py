@@ -607,14 +607,14 @@ class ObservationLogApprovalSerializer(Serializer):
     assessment_status = ChoiceField(
         choices=Assessment_Status.ASSESSMENT_STATUS_CHOICES_APPROVAL, required=False
     )
-    approval_remark = CharField(max_length=255, required=True)
+    approval_remark = CharField(max_length=255, required=False)
 
 
 class ObservationLogBulkApprovalSerializer(Serializer):
     assessment_status = ChoiceField(
         choices=Assessment_Status.ASSESSMENT_STATUS_CHOICES_APPROVAL, required=False
     )
-    approval_remark = CharField(max_length=255, required=True)
+    approval_remark = CharField(max_length=255, required=False)
     observation_logs = ListField(
         child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
     )

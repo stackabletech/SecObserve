@@ -4,8 +4,8 @@ import { Backdrop, Button, CircularProgress, Dialog, DialogContent, DialogTitle 
 import { Fragment, useState } from "react";
 import { SaveButton, SimpleForm, Toolbar, useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
 
-import { validate_required, validate_required_255 } from "../../commons/custom_validators";
-import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
+import { validate_required } from "../../commons/custom_validators";
+import { AutocompleteInputMedium } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { ASSESSMENT_STATUS_CHOICES } from "../types";
 
@@ -21,7 +21,6 @@ const AssessmentBulkApproval = () => {
         setLoading(true);
         const patch = {
             assessment_status: data.assessment_status,
-            approval_remark: data.approval_remark,
             observation_logs: selectedIds,
         };
 
@@ -104,7 +103,6 @@ const AssessmentBulkApproval = () => {
                             validate={validate_required}
                             label="Decision"
                         />
-                        <TextInputWide source="approval_remark" validate={validate_required_255} label="Remark" />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

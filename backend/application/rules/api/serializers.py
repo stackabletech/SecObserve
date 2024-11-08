@@ -99,4 +99,4 @@ class RuleApprovalSerializer(Serializer):
     approval_status = ChoiceField(
         choices=Rule_Status.RULE_STATUS_CHOICES_APPROVAL, required=True
     )
-    approval_remark = CharField(max_length=255, required=True)
+    approval_remark = CharField(max_length=255, required=False)
