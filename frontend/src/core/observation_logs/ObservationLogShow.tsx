@@ -1,7 +1,9 @@
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    ArrayField,
     ChipField,
+    Datagrid,
     DateField,
     Labeled,
     PrevNextButtons,
@@ -15,11 +17,11 @@ import {
 } from "react-admin";
 
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
-import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { is_superuser } from "../../commons/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import AssessmentApproval from "./AssessmentApproval";
+import MarkdownField from "../../commons/custom_fields/MarkdownField";
 
 const ShowActions = () => {
     const observation_log = useRecordContext();
@@ -58,6 +60,14 @@ const ShowActions = () => {
     );
 };
 
+const VEXRemediationHeader = () => (
+    <TableHead>
+        <TableRow>
+            <TableCell>Category</TableCell>
+            <TableCell>Text</TableCell>
+        </TableRow>
+    </TableHead>
+);
 const ObservationLogComponent = () => {
     return (
         <WithRecord
@@ -75,6 +85,12 @@ const ObservationLogComponent = () => {
                                 >
                                     <TextField source="name" />
                                 </ReferenceField>
+                            </Labeled>
+                            <Labeled label="Branch / Version">
+                                <TextField source="observation_data.branch_name" />
+                            </Labeled>
+                            <Labeled label="Component">
+                                <TextField source="observation_data.origin_component_name_version" />
                             </Labeled>
                             <Labeled label="Observation">
                                 <ReferenceField
@@ -112,6 +128,20 @@ const ObservationLogComponent = () => {
                             {observation_log.vex_justification && (
                                 <Labeled label="VEX justification">
                                     <TextField source="vex_justification" />
+                                </Labeled>
+                            )}
+                            {observation_log.vex_remediations && (
+                                <Labeled label="VEX remediations">
+                                    <ArrayField source="vex_remediations" label="VEX remediations">
+                                        <Datagrid
+                                            bulkActionButtons={false}
+                                            header={VEXRemediationHeader}
+                                            sx={{ paddingBottom: 2 }}
+                                        >
+                                            <TextField source="category" />
+                                            <TextField source="text" />
+                                        </Datagrid>
+                                    </ArrayField>
                                 </Labeled>
                             )}
                             {observation_log.general_rule != null && (
@@ -153,7 +183,7 @@ const ObservationLogComponent = () => {
                             </Labeled>
                             )}
                             <Labeled label="Created">
-                                <DateField source="created" showTime />
+                                <DateField locales="de-DE" source="created" showTime />
                             </Labeled>
                         </Stack>
                     </Paper>
@@ -185,7 +215,7 @@ const ObservationLogComponent = () => {
                                     )}
                                     {observation_log.approval_date && (
                                         <Labeled label="Approval/rejection date">
-                                            <DateField source="approval_date" showTime />
+                                            <DateField locales="de-DE" source="approval_date" showTime />
                                         </Labeled>
                                     )}
                                 </Stack>
