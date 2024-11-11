@@ -147,9 +147,11 @@ const ObservationLogComponent = () => {
                                     />
                                 </Labeled>
                             )}
+                            {observation_log.comment && (
                             <Labeled>
                                 <MarkdownField content={observation_log.comment} label="Comment" />
                             </Labeled>
+                            )}
                             <Labeled label="Created">
                                 <DateField source="created" showTime />
                             </Labeled>

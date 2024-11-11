@@ -31,7 +31,7 @@ const ObservationLogEmbeddedList = ({ observation }: ObservationLogEmbeddedListP
 
     if (listContext.data) {
         listContext.data.forEach((element: any) => {
-            if (element.comment.length > 255) {
+            if (element.comment && element.comment.length > 255) {
                 element.comment_shortened = element.comment.substring(0, 255) + "...";
             } else {
                 element.comment_shortened = element.comment;
