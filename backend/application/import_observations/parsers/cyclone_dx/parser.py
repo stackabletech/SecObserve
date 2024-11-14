@@ -91,7 +91,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
     def get_license_components(self, data) -> list[License_Component]:
         if not self.components:
-            self.components = self._get_components(data)
+            self.components = self._get_components(data, None)
         if not self.metadata:
             self.metadata = self._get_metadata(data)
 
@@ -122,7 +122,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         return components
 
-    def _get_components(self, data: dict, sbom_data: Optional[dict]) -> dict[str, Component]:
+    def _get_components(
+        self, data: dict, sbom_data: Optional[dict]
+    ) -> dict[str, Component]:
         components_dict = {}
         components_list: list[Component] = []
 
@@ -293,12 +295,16 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component, recommendation
                         )
 
-                        observation_found = Observation.objects.filter(
-                            title=title,
-                            branch=branch,
-                            origin_component_name=component.name,
-                            origin_component_version=component.version,
-                        ).exclude(scanner=self.metadata.scanner).exists()
+                        observation_found = (
+                            Observation.objects.filter(
+                                title=title,
+                                branch=branch,
+                                origin_component_name=component.name,
+                                origin_component_version=component.version,
+                            )
+                            .exclude(scanner=self.metadata.scanner)
+                            .exists()
+                        )
 
                         if observation_found:
                             print(

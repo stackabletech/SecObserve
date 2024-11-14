@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rules', '0016_merge_20241028_1602'),
+        ("rules", "0016_merge_20241028_1602"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rule',
-            name='approval_remark',
+            model_name="rule",
+            name="approval_remark",
             field=models.TextField(max_length=255, null=True),
         ),
     ]

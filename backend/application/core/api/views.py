@@ -54,14 +54,17 @@ from application.core.api.serializers_observation import (
     ObservationLogSerializer,
     ObservationRemoveAssessmentSerializer,
     ObservationSerializer,
+    ObservationTitleSerializer,
     ObservationUpdateSerializer,
     PotentialDuplicateSerializer,
 )
 from application.core.api.serializers_product import (
+    BranchNameSerializer,
     BranchSerializer,
     ProductAuthorizationGroupMemberSerializer,
     ProductGroupSerializer,
     ProductMemberSerializer,
+    ProductNameSerializer,
     ProductSerializer,
     ServiceSerializer,
 )
@@ -129,6 +132,18 @@ from application.rules.services.rule_engine import Rule_Engine
 
 class ProductGroupViewSet(ModelViewSet):
     serializer_class = ProductGroupSerializer
+    filterset_class = ProductGroupFilter
+    permission_classes = (IsAuthenticated, UserHasProductGroupPermission)
+    queryset = Product.objects.none()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+
+    def get_queryset(self):
+        return get_products(is_product_group=True)
+
+
+class ProductGroupNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = ProductNameSerializer
     filterset_class = ProductGroupFilter
     permission_classes = (IsAuthenticated, UserHasProductGroupPermission)
     queryset = Product.objects.none()
@@ -382,6 +397,18 @@ class ProductViewSet(ModelViewSet):
         return product
 
 
+class ProductNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = ProductNameSerializer
+    filterset_class = ProductFilter
+    permission_classes = (IsAuthenticated, UserHasProductPermission)
+    queryset = Product.objects.none()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+
+    def get_queryset(self):
+        return get_products(is_product_group=False)
+
+
 class ProductMemberViewSet(ModelViewSet):
     serializer_class = ProductMemberSerializer
     filterset_class = ProductMemberFilter
@@ -390,7 +417,7 @@ class ProductMemberViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return get_product_members().select_related("user")
+        return get_product_members().select_related("product").select_related("user")
 
 
 class ProductAuthorizationGroupMemberViewSet(ModelViewSet):
@@ -404,7 +431,11 @@ class ProductAuthorizationGroupMemberViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return get_product_authorization_group_members()
+        return (
+            get_product_authorization_group_members()
+            .select_related("product")
+            .select_related("authorization_group")
+        )
 
 
 class BranchViewSet(ModelViewSet):
@@ -416,7 +447,7 @@ class BranchViewSet(ModelViewSet):
     search_fields = ["name"]
 
     def get_queryset(self):
-        return get_branches()
+        return get_branches().select_related("product")
 
     def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         instance: Branch = self.get_object()
@@ -424,6 +455,18 @@ class BranchViewSet(ModelViewSet):
             raise ValidationError("You cannot delete the default branch of a product.")
 
         return super().destroy(request, *args, **kwargs)
+
+
+class BranchNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = BranchNameSerializer
+    filterset_class = BranchFilter
+    permission_classes = (IsAuthenticated, UserHasBranchPermission)
+    queryset = Branch.objects.none()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+
+    def get_queryset(self):
+        return get_branches().select_related("product")
 
 
 class ServiceViewSet(
@@ -437,7 +480,7 @@ class ServiceViewSet(
     search_fields = ["name"]
 
     def get_queryset(self):
-        return get_services()
+        return get_services().select_related("product")
 
 
 class ObservationViewSet(ModelViewSet):
@@ -601,6 +644,18 @@ class ObservationViewSet(ModelViewSet):
         return Response(status=HTTP_204_NO_CONTENT)
 
 
+class ObservationTitleViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = ObservationTitleSerializer
+    filterset_class = ObservationFilter
+    permission_classes = (IsAuthenticated, UserHasObservationPermission)
+    queryset = Observation.objects.none()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["title"]
+
+    def get_queryset(self):
+        return get_observations()
+
+
 class ObservationLogViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = ObservationLogSerializer
     filterset_class = ObservationLogFilter
@@ -614,7 +669,9 @@ class ObservationLogViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        return get_observation_logs()
+        return (
+            get_observation_logs().select_related("observation").select_related("user")
+        )
 
     @extend_schema(
         methods=["PATCH"],
@@ -685,7 +742,7 @@ class EvidenceViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     queryset = Evidence.objects.none()
 
     def get_queryset(self):
-        return get_evidences()
+        return get_evidences().select_related("observation__product")
 
 
 class PotentialDuplicateViewSet(GenericViewSet, ListModelMixin):

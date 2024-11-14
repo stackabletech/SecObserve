@@ -38,11 +38,23 @@ import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 
 const listFilters = () => [
-    <ReferenceInput source="product" reference="products" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInput optionText="name" />
+    <ReferenceInput
+        source="product"
+        reference="products"
+        sort={{ field: "name", order: "ASC" }}
+        queryOptions={{ meta: { api_resource: "product_names" } }}
+        alwaysOn
+    >
+        <AutocompleteInputMedium optionText="name" />
     </ReferenceInput>,
-    <ReferenceInput source="product_group" reference="product_groups" sort={{ field: "name", order: "ASC" }} alwaysOn>
-        <AutocompleteInput optionText="name" />
+    <ReferenceInput
+        source="product_group"
+        reference="product_groups"
+        sort={{ field: "name", order: "ASC" }}
+        queryOptions={{ meta: { api_resource: "product_group_names" } }}
+        alwaysOn
+    >
+        <AutocompleteInputMedium optionText="name" />
     </ReferenceInput>,
     <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
     <TextInput source="title" alwaysOn />,

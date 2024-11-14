@@ -74,6 +74,7 @@ const ShowActions = () => {
                     <PrevNextButtons
                         filter={filter}
                         filterDefaultValues={filterDefaultValues}
+                        queryOptions={{ meta: { api_resource: "observation_titles" } }}
                         linkType="show"
                         sort={{ field: "current_severity", order: "ASC" }}
                         storeKey={storeKey}
