@@ -285,7 +285,6 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
 
     observations_this_run: set[str] = set()
     vulnerability_check_observations: set[Observation] = set()
-
     for imported_observation in import_parameters.imported_observations:
         # Set additional data in newly uploaded observation
         _prepare_imported_observation(
@@ -327,22 +326,42 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
                 observations_this_run.add(observation_before.identity_hash)
                 vulnerability_check_observations.add(observation_before)
             else:
-                _process_new_observation(imported_observation)
+                observation_found = (
+                    Observation.objects.filter(
+                        title=imported_observation.title,
+                        branch=import_parameters.branch,
+                        origin_component_name=imported_observation.origin_component_name,
+                        origin_component_version=imported_observation.origin_component_version,
+                    )
+                    .exclude(scanner=imported_observation.scanner)
+                    .exists()
+                )
 
-                rule_engine.apply_rules_for_observation(imported_observation)
-                vex_engine.apply_vex_statements_for_observation(imported_observation)
+                if observation_found:
+                    print(
+                        "Observation already found: "
+                        f"{imported_observation.title} - {imported_observation.origin_component_name} - "
+                        f"{imported_observation.origin_component_version} - {imported_observation.scanner}"
+                        f"{imported_observation.origin_docker_image_name} - {imported_observation.origin_docker_image_tag}"
+                    )
+                else:
+                    _process_new_observation(imported_observation)
 
-                if imported_observation.current_status == _get_initial_status(
-                    imported_observation.product
-                ):
-                    observations_new += 1
+                    rule_engine.apply_rules_for_observation(imported_observation)
+                    vex_engine.apply_vex_statements_for_observation(
+                        imported_observation
+                    )
 
-                # Add identity_hash to set of observations in this run to detect duplicates in this run
-                observations_this_run.add(imported_observation.identity_hash)
-                vulnerability_check_observations.add(imported_observation)
+                    if imported_observation.current_status == _get_initial_status(
+                        imported_observation.product
+                    ):
+                        observations_new += 1
+
+                    # Add identity_hash to set of observations in this run to detect duplicates in this run
+                    observations_this_run.add(imported_observation.identity_hash)
+                    vulnerability_check_observations.add(imported_observation)
 
         scanner = imported_observation.scanner
-
     observations_resolved = _resolve_unimported_observations(observations_before)
     vulnerability_check_observations.update(observations_resolved)
     check_security_gate(import_parameters.product)

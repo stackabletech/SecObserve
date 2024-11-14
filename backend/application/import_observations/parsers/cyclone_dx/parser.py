@@ -85,7 +85,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             sbom_data = json.loads(payload)["predicate"]
 
         self.components = self._get_components(data, sbom_data)
-        observations = self._create_observations(data, sbom_data, branch)
+        observations = self._create_observations(data, sbom_data)
 
         return observations
 
@@ -210,7 +210,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         self,
         data: dict,
         sbom_data: Optional[dict],
-        branch: Optional[Branch],
     ) -> list[Observation]:
         observations = []
         component_dependencies_cache: dict[str, tuple[str, list[dict]]] = {}
@@ -264,7 +263,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                 ref = affected.get("ref")
                 if ref:
                     component = self.components.get(ref)
+                    print(f"Processing vulnerability: {vulnerability_id}")
                     if component:
+                        print(f"Found component for: {vulnerability_id}")
                         title = vulnerability_id
 
                         if component.bom_ref in component_dependencies_cache:
@@ -294,25 +295,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                         patched_versions = self._get_patched_versions(
                             component, recommendation
                         )
-
-                        observation_found = (
-                            Observation.objects.filter(
-                                title=title,
-                                branch=branch,
-                                origin_component_name=component.name,
-                                origin_component_version=component.version,
-                            )
-                            .exclude(scanner=self.metadata.scanner)
-                            .exists()
-                        )
-
-                        if observation_found:
-                            print(
-                                "Observation already found: "
-                                f"{title} - {component.name} - {component.version} - {self.metadata.scanner} - "
-                                f"{self.metadata.container_name} - {self.metadata.container_tag}"
-                            )
-                            continue
 
                         observation = Observation(
                             title=title,
