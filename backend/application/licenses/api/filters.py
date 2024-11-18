@@ -1,13 +1,7 @@
 from datetime import timedelta
 
 from django.utils import timezone
-from django_filters import (
-    CharFilter,
-    ChoiceFilter,
-    FilterSet,
-    NumberFilter,
-    OrderingFilter,
-)
+from django_filters import CharFilter, ChoiceFilter, FilterSet, OrderingFilter
 
 from application.commons.api.extended_ordering_filter import ExtendedOrderingFilter
 from application.commons.types import Age_Choices
@@ -92,9 +86,6 @@ class LicenseFilter(FilterSet):
         ),
     )
 
-    # search is needed for the ReferenceArrayInput field of react-admin
-    search = CharFilter(field_name="spdx_id", lookup_expr="icontains")
-
     class Meta:
         model = License
         fields = [
@@ -116,9 +107,6 @@ class LicenseGroupFilter(FilterSet):
             ("is_public", "is_public"),
         ),
     )
-
-    # search is needed for the ReferenceArrayInput field of react-admin
-    search = CharFilter(field_name="name", lookup_expr="icontains")
 
     class Meta:
         model = License_Group
@@ -164,12 +152,6 @@ class LicenseGroupAuthorizationGroupFilter(FilterSet):
 
 class LicensePolicyFilter(FilterSet):
     name = CharFilter(field_name="name", lookup_expr="icontains")
-    licenses = NumberFilter(
-        field_name="licenses", method="get_license_policies_with_license"
-    )
-    license_groups = NumberFilter(
-        field_name="license_groups", method="get_license_policies_with_license_group"
-    )
 
     ordering = OrderingFilter(
         # tuple-mapping retains order
@@ -179,22 +161,9 @@ class LicensePolicyFilter(FilterSet):
         ),
     )
 
-    # search is needed for the ReferenceArrayInput field of react-admin
-    search = CharFilter(field_name="name", lookup_expr="icontains")
-
     class Meta:
         model = License_Policy
         fields = ["name", "is_public"]
-
-    def get_license_policies_with_license(
-        self, queryset, field_name, value  # pylint: disable=unused-argument
-    ) -> bool:
-        return queryset.filter(license_policy_items__license=value)
-
-    def get_license_policies_with_license_group(
-        self, queryset, field_name, value  # pylint: disable=unused-argument
-    ) -> bool:
-        return queryset.filter(license_policy_items__license_group=value)
 
 
 class LicensePolicyItemFilter(FilterSet):
