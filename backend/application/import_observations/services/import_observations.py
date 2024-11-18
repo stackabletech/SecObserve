@@ -1,3 +1,4 @@
+import gc
 import os
 from dataclasses import dataclass
 from typing import Optional, Tuple
@@ -176,6 +177,11 @@ def file_upload_observations(
             vulnerability_check.last_import_licenses_deleted = None
         vulnerability_check.save()
 
+    del vulnerability_check
+    del import_parameters
+    del data
+    gc.collect()
+
     return (
         numbers_observations[0],
         numbers_observations[1],
@@ -236,6 +242,11 @@ def api_import_observations(
             "scanner": numbers[3],
         },
     )
+
+    del imported_observations
+    del import_parameters
+    del data
+    gc.collect()
 
     return numbers[0], numbers[1], numbers[2]
 
