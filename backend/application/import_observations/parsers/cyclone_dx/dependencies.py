@@ -10,7 +10,7 @@ def get_component_dependencies(
     data: dict,
     components: dict[str, Component],
     component: Component,
-    component_dependency_paths: dict[str, list[list[str]]],
+    component_dependency_paths: dict[str, list[str]],
 ) -> tuple[str, list[dict]]:
     component_dependencies: list[dict[str, str | list[str]]] = []
 
@@ -28,19 +28,8 @@ def get_component_dependencies(
     observation_component_dependencies = ""
 
     paths = component_dependency_paths.get(component.bom_ref, [])
-    seen_relations = set()
-    for path in paths:
-        for i, node in enumerate(path):
-            if i == 0:
-                parent = node
-                continue
-
-            relation = f"{_translate_component(parent, components)} --> {_translate_component(node, components)}\n"
-
-            parent = node
-            if relation not in seen_relations:
-                observation_component_dependencies += relation
-                seen_relations.add(relation)
+    for edge in paths:
+        observation_component_dependencies += f"{edge}\n"
 
     if len(observation_component_dependencies) > 32768:
         observation_component_dependencies = (

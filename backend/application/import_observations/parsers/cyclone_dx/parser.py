@@ -9,7 +9,7 @@ from typing import Any, Optional
 from django.core.files.base import File
 from trycast import trycast
 
-from application.core.models import Branch, Observation
+from application.core.models import Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -204,6 +204,18 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             unknown_license=", ".join(unknown_licenses),
         )
 
+    def _translate_component(self, bom_ref: str) -> str:
+        component = self.components.get(bom_ref, None)
+        if not component:
+            return ""
+
+        if component.version:
+            component_name_version = f"{component.name}:{component.version}"
+        else:
+            component_name_version = component.name
+
+        return component_name_version
+
     def _create_observations(  # pylint: disable=too-many-locals
         self,
         data: dict,
@@ -217,38 +229,45 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         dependencies = sbom_data.get("dependencies", [])
 
-        # Find the root components, meaning: Components that no other components depend on
-        roots = set()
-        nonroots = set()
-        for dep in dependencies:
-            for dep_on in dep.get("dependsOn", []):
-                nonroots.add(dep_on)
-            roots.add(dep.get("ref"))
-        roots = roots - nonroots
+        reverse_dep_map = defaultdict(list)
+        for entry in dependencies:
+            for dep in entry.get("dependsOn", []):
+                reverse_dep_map[dep].append(
+                    entry["ref"]
+                )  # Add a relation from the dependency it's "parent"
 
-        # Create a map of dependencies for each component
-        dep_map = {
-            entry["ref"]: entry.get("dependsOn", [])
-            for entry in sbom_data.get("dependencies", [])
-        }
+        relevant_components = set()
+        for vulnerability in data.get("vulnerabilities", []):
+            for affected in vulnerability.get("affects", []):
+                ref = affected.get("ref")
+                if ref:
+                    component = self.components.get(ref)
+                    if component:
+                        relevant_components.add(component.bom_ref)
 
-        dependency_paths = defaultdict(list)
+        dependency_paths: dict[str, list[str]] = defaultdict(list)
 
-        # Traverse the dependency tree from each root component
-        # While doing that, accumulate all paths from each root to each leaf
-        def traverse(node, path):
-            # Avoid indirect cycles
-            if node in path:
-                return
+        # Get all paths from the root components in the dependency tree to the relevant components
+        for relevant_component in relevant_components:
+            stack: list[tuple[str, Optional[str]]] = [(relevant_component, None)]
+            visited = set()
+            if relevant_component not in dependency_paths:
+                dependency_paths[relevant_component] = []
+            while stack:
+                current, previous = stack.pop()
+                if not current:
+                    continue
 
-            print(f"Traversing {node} with path {path}")
-            dependency_paths[node].append(path)
-            for dep in dep_map.get(node, []):
-                if dep not in path:  # Avoid direct cycles
-                    traverse(dep, path + [dep])
-
-        for root in roots:
-            traverse(root, [root])
+                if previous:
+                    path = f"{self._translate_component(current)} --> {self._translate_component(previous)}"
+                    if path not in dependency_paths[relevant_component]:
+                        dependency_paths[relevant_component].append(path)
+                if current in visited:
+                    continue
+                visited.add(current)
+                if current in reverse_dep_map:
+                    for parent in reverse_dep_map[current]:
+                        stack.append((parent, current))
 
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
@@ -268,7 +287,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                     component = self.components.get(ref)
                     print(f"Processing vulnerability: {vulnerability_id}")
                     if component:
-                        print(f"Found component for: {vulnerability_id}")
                         title = vulnerability_id
 
                         if component.bom_ref in component_dependencies_cache:
