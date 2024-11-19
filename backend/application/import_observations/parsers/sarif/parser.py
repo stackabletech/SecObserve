@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 from django.core.files.base import File
 from packageurl import PackageURL
 
-from application.core.models import Branch, Observation
+from application.core.models import Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,

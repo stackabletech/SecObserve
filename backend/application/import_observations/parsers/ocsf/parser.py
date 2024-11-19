@@ -1,6 +1,5 @@
 import logging
 from json import load
-from typing import Optional
 
 from django.core.files.base import File
 from py_ocsf_models.events.findings.detection_finding import (
@@ -12,7 +11,7 @@ from py_ocsf_models.events.findings.finding import ActivityID
 from rest_framework.exceptions import ValidationError
 from semver import Version
 
-from application.core.models import Branch, Observation
+from application.core.models import Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,

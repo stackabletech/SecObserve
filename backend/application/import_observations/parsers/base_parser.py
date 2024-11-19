@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from django.core.files.base import File
 
-from application.core.models import Branch, Observation
+from application.core.models import Observation
 from application.import_observations.models import Api_Configuration
 from application.licenses.models import License_Component
 

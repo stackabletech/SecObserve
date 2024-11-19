@@ -1,9 +1,8 @@
 from json import dumps, load
-from typing import Optional
 
 from django.core.files.base import File
 
-from application.core.models import Branch, Observation
+from application.core.models import Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
