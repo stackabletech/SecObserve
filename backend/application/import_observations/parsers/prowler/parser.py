@@ -51,9 +51,7 @@ class ProwlerParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: list[dict], branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: list[dict]) -> list[Observation]:
         observations = []
 
         for prowler_observation in data:

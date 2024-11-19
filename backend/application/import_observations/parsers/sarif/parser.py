@@ -71,9 +71,7 @@ class SARIFParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: dict, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: dict) -> list[Observation]:
         observations: list[Observation] = []
 
         for run in data.get("runs", []):

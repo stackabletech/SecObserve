@@ -48,9 +48,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: dict, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: dict) -> list[Observation]:
         self.metadata = self._get_metadata(data)
         sbom_data = None
 
@@ -239,9 +237,14 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         # Traverse the dependency tree from each root component
         # While doing that, accumulate all paths from each root to each leaf
         def traverse(node, path):
+            # Avoid indirect cycles
+            if node in path:
+                return
+
+            print(f"Traversing {node} with path {path}")
             dependency_paths[node].append(path)
             for dep in dep_map.get(node, []):
-                if dep not in path:  # Avoid cycles
+                if dep not in path:  # Avoid direct cycles
                     traverse(dep, path + [dep])
 
         for root in roots:

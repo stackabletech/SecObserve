@@ -126,9 +126,7 @@ class DrHEADerParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: list, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: list) -> list[Observation]:
         observations = []
 
         for drheader_observation in data:

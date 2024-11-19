@@ -31,9 +31,7 @@ class SecObserveParser(BaseParser, BaseFileParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: dict, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: dict) -> list[Observation]:
         observations = []
 
         for uploaded_observation in data.get("observations", []):

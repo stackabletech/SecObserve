@@ -67,9 +67,7 @@ class DependencyTrack(BaseParser, BaseAPIParser):
 
         return True, [], response.json()
 
-    def get_observations(
-        self, data: list[dict], branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: list[dict]) -> list[Observation]:
         observations = []
 
         scanner, version = self.get_about()

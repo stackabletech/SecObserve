@@ -94,9 +94,7 @@ class TrivyOperatorPrometheus(BaseParser, BaseAPIParser):
 
         return True, [], data
 
-    def get_observations(
-        self, data: dict, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: dict) -> list[Observation]:
         observations = []
         for finding in data.get("data", {}).get("result"):
             if (

@@ -16,9 +16,7 @@ class BaseParser:
     def get_type(cls) -> str:
         raise NotImplementedError("get_type() must be overridden")
 
-    def get_observations(
-        self, data: Any, branch: Optional[Branch]
-    ) -> list[Observation]:
+    def get_observations(self, data: Any) -> list[Observation]:
         raise NotImplementedError("get_observations() must be overridden")
 
     def get_license_components(
