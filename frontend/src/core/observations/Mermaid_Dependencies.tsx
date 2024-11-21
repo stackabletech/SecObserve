@@ -71,7 +71,7 @@ const createMermaidGraph = (dependencies_str: string) => {
     let i = 1;
     for (const component of components) {
         mermaid_content = mermaid_content.replaceAll(component + " ", "id" + i.toString() + '("' + component + '") ');
-        mermaid_content = mermaid_content.replaceAll(" " + component, " id" + i.toString() + '("' + component + '")');
+        mermaid_content = mermaid_content.replaceAll(" " + component + "\n", " id" + i.toString() + '("' + component + '")\n');
         i++;
     }
 
