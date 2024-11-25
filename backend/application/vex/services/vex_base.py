@@ -71,6 +71,7 @@ def get_observations_for_vulnerability(
         .filter(vulnerability_id=vulnerability_name)
         .exclude(current_status=Status.STATUS_DUPLICATE)
         .exclude(current_status=Status.STATUS_OPEN)
+        .exclude(branch__name__icontains="0.0.0-dev")
         .order_by("id")
     )
 
