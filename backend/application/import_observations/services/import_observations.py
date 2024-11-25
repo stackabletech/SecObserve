@@ -520,9 +520,7 @@ def _process_new_observation(imported_observation: Observation) -> None:
         else None
     )
 
-    issue_id = _get_github_issue_id(
-        imported_observation
-    )
+    issue_id = _get_github_issue_id(imported_observation)
     if issue_id:
         imported_observation.issue_tracker_issue_id = issue_id
     # Observation has not been imported before, so it is a new one
@@ -633,7 +631,7 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
                 f"{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
                 "\n\n---\n\n"
                 f"### {observation.title}\n{observation.description}"
-            )
+            ),
         }
         response = requests.post(
             url="https://api.github.com/repos/stackabletech/vulnerabilities/issues",

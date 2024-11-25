@@ -131,7 +131,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         evidence.append(dumps(component.json))
         license_component.unsaved_evidences.append(evidence)
 
-    def _get_components(self, data: dict, sbom_data: Optional[dict]) -> dict[str, Component]:
+    def _get_components(
+        self, data: dict, sbom_data: Optional[dict]
+    ) -> dict[str, Component]:
         components_dict = {}
         components_list: list[Component] = []
 
