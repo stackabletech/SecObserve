@@ -21,6 +21,7 @@ from application.core.types import PURL_Type
 from application.licenses.models import (
     License,
     License_Component,
+    License_Component_Evidence,
     License_Group,
     License_Group_Authorization_Group_Member,
     License_Group_Member,
@@ -62,6 +63,30 @@ class LicenseSerializer(ModelSerializer):
         return License_Policy_Item.objects.filter(license=obj).exists()
 
 
+class LicenseComponentEvidenceSerializer(ModelSerializer):
+    product = SerializerMethodField()
+
+    def get_product(self, evidence: License_Component_Evidence) -> int:
+        return evidence.license_component.product.pk
+
+    def get_license_component_title(self, evidence: License_Component_Evidence) -> str:
+        if evidence.license_component.license:
+            return f"{evidence.license_component.license.spdx_id} ({evidence.license_component.license.name})"
+        if evidence.license_component.unknown_license:
+            return evidence.license_component.unknown_license
+        return "No license"
+
+    class Meta:
+        model = License_Component_Evidence
+        fields = "__all__"
+
+
+class NestedLicenseComponentEvidenceSerializer(ModelSerializer):
+    class Meta:
+        model = License_Component_Evidence
+        exclude = ["license_component", "evidence"]
+
+
 class LicenseComponentSerializer(ModelSerializer):
     license_data = LicenseSerializer(
         source="license",
@@ -71,6 +96,10 @@ class LicenseComponentSerializer(ModelSerializer):
     branch_name = SerializerMethodField()
     license_policy_name: Optional[SerializerMethodField] = SerializerMethodField()
     license_policy_id: Optional[SerializerMethodField] = SerializerMethodField()
+    evidences: Optional[NestedLicenseComponentEvidenceSerializer] = (
+        NestedLicenseComponentEvidenceSerializer(many=True)
+    )
+    title = SerializerMethodField()
 
     class Meta:
         model = License_Component
@@ -107,10 +136,18 @@ class LicenseComponentSerializer(ModelSerializer):
 
         return 0
 
+    def get_title(self, obj: License_Component) -> str:
+        if obj.license:
+            return f"{obj.license.spdx_id} ({obj.license.name})"
+        if obj.unknown_license:
+            return obj.unknown_license
+        return "No license"
+
 
 class LicenseComponentListSerializer(LicenseComponentSerializer):
     license_policy_id = None
     license_policy_name = None
+    evidences = None
 
     class Meta:
         model = License_Component
@@ -127,6 +164,20 @@ class LicenseComponentBulkDeleteSerializer(Serializer):
     components = ListField(
         child=IntegerField(min_value=1), min_length=0, max_length=100, required=True
     )
+
+
+class LicenseComponentOverviewElementSerializer(Serializer):
+    branch_name = CharField()
+    spdx_id = CharField()
+    license_name = CharField()
+    unknown_license = CharField()
+    evaluation_result = CharField()
+    num_components = IntegerField()
+
+
+class LicenseComponentOverviewSerializer(Serializer):
+    count = IntegerField()
+    results = ListField(child=LicenseComponentOverviewElementSerializer())
 
 
 class LicenseGroupSerializer(ModelSerializer):
@@ -263,6 +314,7 @@ class LicenseGroupCopySerializer(Serializer):
 class LicensePolicySerializer(ModelSerializer):
     is_manager = SerializerMethodField()
     has_products = SerializerMethodField()
+    has_product_groups = SerializerMethodField()
     has_items = SerializerMethodField()
     has_users = SerializerMethodField()
     has_authorization_groups = SerializerMethodField()
@@ -299,6 +351,9 @@ class LicensePolicySerializer(ModelSerializer):
 
     def get_has_products(self, obj: License_Policy) -> bool:
         return get_products().filter(license_policy=obj).exists()
+
+    def get_has_product_groups(self, obj: License_Policy) -> bool:
+        return get_products(is_product_group=True).filter(license_policy=obj).exists()
 
     def get_has_items(self, obj: License_Policy) -> bool:
         return obj.license_policy_items.exists()

@@ -3,27 +3,38 @@ import PersonIcon from "@mui/icons-material/Person";
 import { Avatar, Button, Card, CardActions, CircularProgress, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import PropTypes from "prop-types";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Form, TextInput, required, useLogin, useNotify, useTheme } from "react-admin";
 import { useAuth } from "react-oidc-context";
 import { Navigate, useLocation } from "react-router-dom";
 
-import { getTheme } from "../commons/user_settings/functions";
-import { OIDCSignInButton } from "./OIDCSignInButton";
-import { jwt_signed_in } from "./authProvider";
+import { getTheme } from "../../commons/user_settings/functions";
+import { OIDCSignInButton } from "../auth_provider/OIDCSignInButton";
+import { jwt_signed_in, oidc_signed_in } from "../auth_provider/authProvider";
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const [, setTheme] = useTheme();
     const auth = useAuth();
-
-    const [feature_loaded, setFeatureLoaded] = useState(false);
     const [feature_disable_user_login, setFeatureDisableUserLogin] = useState(false);
-
     const notify = useNotify();
     const login = useLogin();
     const location = useLocation();
-    const isAuthenticated = jwt_signed_in() || auth.isAuthenticated;
+
+    const isAuthenticated = jwt_signed_in() || oidc_signed_in();
+
+    useEffect(() => {
+        if (window.__RUNTIME_CONFIG__.OIDC_ENABLE == "true") {
+            const settingsStorage = localStorage.getItem("settings");
+            if (settingsStorage) {
+                const settings = JSON.parse(settingsStorage);
+                const features = settings.features || [];
+                setFeatureDisableUserLogin(features.indexOf("feature_disable_user_login") !== -1);
+            } else {
+                get_disable_login_feature();
+            }
+        }
+    }, []);
 
     function get_disable_login_feature() {
         const request = new Request(window.__RUNTIME_CONFIG__.API_BASE_URL + "/status/settings/", {
@@ -40,17 +51,11 @@ const Login = () => {
                 return response.json();
             })
             .then((data) => {
+                localStorage.setItem("settings", JSON.stringify(data));
                 const features = data.features || [];
                 const feature_disable_user_login_position = features.indexOf("feature_disable_user_login");
-                return setFeatureDisableUserLogin(feature_disable_user_login_position !== -1);
+                setFeatureDisableUserLogin(feature_disable_user_login_position !== -1);
             });
-    }
-
-    if (!feature_loaded) {
-        if (window.__RUNTIME_CONFIG__.OIDC_ENABLE == "true") {
-            get_disable_login_feature();
-        }
-        setFeatureLoaded(true);
     }
 
     const handleSubmit = (auth: FormValues) => {

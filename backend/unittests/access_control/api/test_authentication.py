@@ -318,6 +318,9 @@ class TestAuthentication(BaseTestCase):
         self._check_authentication(["get"], "/api/license_components/")
         self._check_authentication(["get"], "/api/license_components/1/")
 
+        self._check_authentication(["get"], "/api/license_component_evidences/")
+        self._check_authentication(["get"], "/api/license_component_evidences/1/")
+
         self._check_authentication(["get", "post"], "/api/license_groups/")
         self._check_authentication(
             ["delete", "get", "put", "patch"], "/api/license_groups/1/"
@@ -325,6 +328,9 @@ class TestAuthentication(BaseTestCase):
         self._check_authentication(["post"], "/api/license_groups/1/copy/")
         self._check_authentication(["post"], "/api/license_groups/1/add_license/")
         self._check_authentication(["post"], "/api/license_groups/1/remove_license/")
+        self._check_authentication(
+            ["post"], "/api/license_groups/import_scancode_licensedb/"
+        )
 
         self._check_authentication(["get", "post"], "/api/license_group_members/")
         self._check_authentication(

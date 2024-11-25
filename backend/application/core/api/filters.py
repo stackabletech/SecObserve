@@ -37,7 +37,7 @@ class ProductGroupFilter(FilterSet):
 
     class Meta:
         model = Product
-        fields = ["name"]
+        fields = ["name", "license_policy"]
 
 
 class ProductFilter(FilterSet):

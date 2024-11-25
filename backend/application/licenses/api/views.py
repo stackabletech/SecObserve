@@ -1,15 +1,24 @@
+from dataclasses import dataclass
+from typing import Optional
+
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from application.access_control.services.authorization import user_has_permission_or_403
+from application.access_control.services.roles_permissions import Permissions
+from application.core.models import Branch, Product
+from application.core.queries.branch import get_branch_by_id
+from application.core.queries.product import get_product_by_id
 from application.licenses.api.filters import (
+    LicenseComponentEvidenceFilter,
     LicenseComponentFilter,
     LicenseFilter,
     LicenseGroupAuthorizationGroupFilter,
@@ -29,8 +38,10 @@ from application.licenses.api.permissions import (
     UserHasLicensePolicyPermission,
 )
 from application.licenses.api.serializers import (
+    LicenseComponentEvidenceSerializer,
     LicenseComponentIdSerializer,
     LicenseComponentListSerializer,
+    LicenseComponentOverviewSerializer,
     LicenseComponentSerializer,
     LicenseGroupAuthorizationGroupMemberSerializer,
     LicenseGroupCopySerializer,
@@ -47,6 +58,7 @@ from application.licenses.api.serializers import (
 from application.licenses.models import (
     License,
     License_Component,
+    License_Component_Evidence,
     License_Group,
     License_Group_Authorization_Group_Member,
     License_Group_Member,
@@ -56,7 +68,13 @@ from application.licenses.models import (
     License_Policy_Member,
 )
 from application.licenses.queries.license import get_license
-from application.licenses.queries.license_component import get_license_components
+from application.licenses.queries.license_component import (
+    get_license_component_licenses,
+    get_license_components,
+)
+from application.licenses.queries.license_component_evidence import (
+    get_license_component_evidences,
+)
 from application.licenses.queries.license_group import (
     get_license_group,
     get_license_groups,
@@ -80,11 +98,31 @@ from application.licenses.queries.license_policy_member import (
     get_license_policy_member,
     get_license_policy_members,
 )
-from application.licenses.services.license_group import copy_license_group
+from application.licenses.services.license_group import (
+    copy_license_group,
+    import_scancode_licensedb,
+)
 from application.licenses.services.license_policy import (
     apply_license_policy,
+    apply_license_policy_product,
     copy_license_policy,
 )
+
+
+@dataclass
+class LicenseComponentOverviewElement:
+    branch_name: Optional[str]
+    spdx_id: Optional[str]
+    license_name: Optional[str]
+    unknown_license: Optional[str]
+    evaluation_result: str
+    num_components: int
+
+
+@dataclass
+class LicenseComponentOverview:
+    count: int
+    results: list[LicenseComponentOverviewElement]
 
 
 class LicenseComponentViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -103,6 +141,80 @@ class LicenseComponentViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin
             get_license_components().select_related("branch").select_related("license")
         )
 
+    @extend_schema(
+        methods=["GET"],
+        responses={200: LicenseComponentOverviewSerializer},
+        parameters=[
+            OpenApiParameter(name="product", type=int, required=True),
+            OpenApiParameter(name="branch", type=int),
+        ],
+    )
+    @action(detail=False, methods=["get"])
+    def license_overview(self, request):
+        product_id = request.query_params.get("product")
+        if not product_id:
+            raise ValidationError("No product id provided")
+        product = _get_product(product_id, Permissions.Product_View)
+        branch = self._get_branch(product, request.query_params.get("branch"))
+        spdx_id = request.query_params.get("spdx_id")
+        unknown_license = request.query_params.get("unknown_license")
+        evaluation_result = request.query_params.get("evaluation_result")
+        purl_type = request.query_params.get("purl_type")
+
+        license_overview_elements = get_license_component_licenses(product, branch)
+        if spdx_id:
+            license_overview_elements = license_overview_elements.filter(
+                license__spdx_id__icontains=spdx_id
+            )
+        if unknown_license:
+            license_overview_elements = license_overview_elements.filter(
+                unknown_license__icontains=unknown_license
+            )
+        if evaluation_result:
+            license_overview_elements = license_overview_elements.filter(
+                evaluation_result=evaluation_result
+            )
+        if purl_type:
+            license_overview_elements = license_overview_elements.filter(
+                purl_type=purl_type
+            )
+
+        results = []
+        for element in license_overview_elements:
+            license_component_overview_element = LicenseComponentOverviewElement(
+                branch_name=element["branch__name"],
+                spdx_id=element["license__spdx_id"],
+                license_name=element["license__name"],
+                unknown_license=element["unknown_license"],
+                evaluation_result=element["evaluation_result"],
+                num_components=element["id__count"],
+            )
+            results.append(license_component_overview_element)
+
+        license_overview = LicenseComponentOverview(
+            count=len(results),
+            results=results,
+        )
+
+        response_serializer = LicenseComponentOverviewSerializer(license_overview)
+
+        return Response(
+            status=HTTP_200_OK,
+            data=response_serializer.data,
+        )
+
+    def _get_branch(self, product: Product, pk: int) -> Optional[Branch]:
+        if not pk:
+            return None
+
+        branch = get_branch_by_id(product, pk)
+        if not branch:
+            raise NotFound()
+
+        user_has_permission_or_403(branch, Permissions.Branch_View)
+
+        return branch
+
 
 class LicenseComponentIdViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = LicenseComponentIdSerializer
@@ -112,6 +224,19 @@ class LicenseComponentIdViewSet(GenericViewSet, ListModelMixin, RetrieveModelMix
 
     def get_queryset(self):
         return get_license_components()
+
+
+class LicenseComponentEvidenceViewSet(
+    GenericViewSet, ListModelMixin, RetrieveModelMixin
+):
+    serializer_class = LicenseComponentEvidenceSerializer
+    filterset_class = LicenseComponentEvidenceFilter
+    queryset = License_Component_Evidence.objects.none()
+
+    def get_queryset(self):
+        return get_license_component_evidences().select_related(
+            "license_component__product"
+        )
 
 
 class LicenseViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -240,6 +365,23 @@ class LicenseGroupViewSet(ModelViewSet):
 
         return Response(status=HTTP_204_NO_CONTENT)
 
+    @extend_schema(
+        methods=["POST"],
+        request=None,
+        responses={HTTP_204_NO_CONTENT: None},
+    )
+    @action(detail=False, methods=["post"])
+    def import_scancode_licensedb(self, request):
+        user = request.user
+        if not user.is_superuser:
+            raise PermissionDenied(
+                "User is not allowed to import license groups from ScanCode LicenseDB"
+            )
+
+        import_scancode_licensedb()
+
+        return Response(status=HTTP_204_NO_CONTENT)
+
 
 class LicenseGroupMemberViewSet(ModelViewSet):
     serializer_class = LicenseGroupMemberSerializer
@@ -348,6 +490,25 @@ class LicensePolicyViewSet(ModelViewSet):
             status=HTTP_204_NO_CONTENT,
         )
 
+    @extend_schema(
+        methods=["POST"],
+        request=None,
+        responses={HTTP_204_NO_CONTENT: None},
+        parameters=[
+            OpenApiParameter(name="product", type=int, required=True),
+        ],
+    )
+    @action(detail=False, methods=["post"])
+    def apply_product(self, request):
+        product = _get_product(
+            request.query_params.get("product"), Permissions.Product_Edit
+        )
+        apply_license_policy_product(product)
+
+        return Response(
+            status=HTTP_204_NO_CONTENT,
+        )
+
 
 class LicensePolicyItemViewSet(ModelViewSet):
     serializer_class = LicensePolicyItemSerializer
@@ -396,3 +557,16 @@ class LicensePolicyAuthorizationGroupMemberViewSet(ModelViewSet):
             .select_related("license_policy")
             .select_related("authorization_group")
         )
+
+
+def _get_product(product_id: int, permission: int) -> Product:
+    if not product_id:
+        raise ValidationError("No product id provided")
+
+    product = get_product_by_id(product_id)
+    if not product:
+        raise NotFound()
+
+    user_has_permission_or_403(product, permission)
+
+    return product

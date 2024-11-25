@@ -10,7 +10,7 @@ import {
     Title,
     Tooltip,
 } from "chart.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Identifier, useNotify } from "react-admin";
 import { Line } from "react-chartjs-2";
 
@@ -33,7 +33,6 @@ interface MetricsSeveritiesTimelineProps {
 
 const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
     const [datasets, setDatasets] = useState<any[]>([]);
-    const [loaded, setLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
     const notify = useNotify();
 
@@ -64,6 +63,10 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
         labels: days,
         datasets: datasets,
     };
+
+    useEffect(() => {
+        get_data();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     function get_data() {
         setLoading(true);
@@ -166,12 +169,7 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                     });
                 }
             });
-        setLoaded(true);
         setLoading(false);
-    }
-
-    if (!loaded) {
-        get_data();
     }
 
     ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, Legend);

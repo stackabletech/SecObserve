@@ -2,9 +2,9 @@ import { User, WebStorageStateStore } from "oidc-client-ts";
 import { UserManager } from "oidc-client-ts";
 import { AuthProvider } from "react-admin";
 
-import { set_settings_in_local_storage } from "../commons/functions";
-import { httpClient } from "../commons/ra-data-django-rest-framework";
-import { saveSettingListProperties, setListProperties } from "../commons/user_settings/functions";
+import { set_settings_in_local_storage } from "../../commons/functions";
+import { httpClient } from "../../commons/ra-data-django-rest-framework";
+import { saveSettingListProperties, setListProperties } from "../../commons/user_settings/functions";
 
 const authProvider: AuthProvider = {
     login: ({ username, password }) => {
@@ -56,18 +56,26 @@ const authProvider: AuthProvider = {
 
         return Promise.resolve();
     },
-    checkError: (error) => {
-        if (error) {
-            if (error.status === 401) {
-                if (oidc_signed_in()) {
-                    localStorage.setItem("last_location", location.hash);
-                    const user_manager = new UserManager(oidcConfig);
-                    return user_manager.signinRedirect();
-                }
-                return Promise.reject({ message: error.message });
+    checkError: async (error) => {
+        if (error.status === 401) {
+            if (oidc_signed_in()) {
+                const user_manager = new UserManager(oidcConfig);
+                localStorage.setItem("last_location", location.hash);
+                await user_manager
+                    .signinSilent()
+                    .then(() => {
+                        error.message = false;
+                        error.logoutUser = false;
+                        error.redirectTo = location.hash;
+                        throw error;
+                    })
+                    .catch(() => {
+                        localStorage.removeItem(oidcStorageKey);
+                        return user_manager.signinRedirect();
+                    });
             }
+            throw error;
         }
-        return Promise.resolve();
     },
     checkAuth: () => {
         if (oidc_signed_in() || jwt_signed_in()) {
@@ -81,14 +89,14 @@ const authProvider: AuthProvider = {
         let fullName = "";
         const avatar = undefined;
 
-        const user = localStorage.getItem("user");
+        let user = localStorage.getItem("user");
+        if (!user) {
+            await setUserInfo();
+        }
+        user = localStorage.getItem("user");
         if (user) {
             const user_json = JSON.parse(user);
             fullName = user_json.full_name;
-        } else {
-            const userinfo = await getUserInfo();
-            const { id: id, full_name: fullName, null: avatar } = userinfo;
-            return Promise.resolve({ id, fullName, avatar });
         }
 
         set_settings_in_local_storage();
@@ -97,12 +105,16 @@ const authProvider: AuthProvider = {
     },
 };
 
-const getUserInfo = async () => {
+export const setUserInfo = async () => {
+    const userinfo = await getUserInfo();
+    setListProperties(userinfo.setting_list_properties);
+    delete userinfo.setting_list_properties;
+    localStorage.setItem("user", JSON.stringify(userinfo));
+    localStorage.setItem("theme", userinfo.setting_theme);
+};
+
+const getUserInfo = () => {
     return httpClient(window.__RUNTIME_CONFIG__.API_BASE_URL + "/users/me/").then((response) => {
-        setListProperties(response.json.setting_list_properties);
-        delete response.json.setting_list_properties;
-        localStorage.setItem("user", JSON.stringify(response.json));
-        localStorage.setItem("theme", response.json.setting_theme);
         return response.json;
     });
 };
@@ -124,6 +136,8 @@ export function oidc_signed_in(): boolean {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-invalid-void-type
 const onSigninCallback = (_user: User | void): void => {
+    const user_manager = new UserManager(oidcConfig);
+    user_manager.clearStaleState();
     const last_location = localStorage.getItem("last_location");
     if (last_location) {
         localStorage.removeItem("last_location");

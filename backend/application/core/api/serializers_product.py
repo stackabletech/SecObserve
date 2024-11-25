@@ -226,10 +226,11 @@ class ProductSerializer(
     product_group_new_observations_in_review = SerializerMethodField()
     has_branches = SerializerMethodField()
     has_licenses = SerializerMethodField()
+    product_group_license_policy = SerializerMethodField()
 
     class Meta:
         model = Product
-        exclude = ["is_product_group", "members"]
+        exclude = ["is_product_group", "members", "authorization_group_members"]
 
     def get_product_group_name(self, obj: Product) -> str:
         if not obj.product_group:
@@ -317,6 +318,11 @@ class ProductSerializer(
 
     def get_has_licenses(self, obj: Product) -> bool:
         return License_Component.objects.filter(product=obj).exists()
+
+    def get_product_group_license_policy(self, obj: Product) -> Optional[int]:
+        if not obj.product_group or not obj.product_group.license_policy:
+            return None
+        return obj.product_group.license_policy.id
 
     def validate(self, attrs: dict):  # pylint: disable=too-many-branches
         # There are quite a lot of branches, but at least they are not nested too much
@@ -406,7 +412,7 @@ class NestedProductSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        exclude = ["members"]
+        exclude = ["members", "authorization_group_members"]
 
     def get_permissions(self, product: Product) -> list[Permissions]:
         return get_permissions_for_role(get_highest_user_role(product))
@@ -438,7 +444,12 @@ class NestedProductListSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        exclude = ["members", "is_product_group", "new_observations_in_review"]
+        exclude = [
+            "members",
+            "authorization_group_members",
+            "is_product_group",
+            "new_observations_in_review",
+        ]
 
     def get_product_group_name(self, obj: Product) -> str:
         if not obj.product_group:
