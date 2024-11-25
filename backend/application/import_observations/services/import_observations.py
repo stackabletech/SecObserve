@@ -340,7 +340,8 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
                         "Observation already found: "
                         f"{imported_observation.title} - {imported_observation.origin_component_name} - "
                         f"{imported_observation.origin_component_version} - {imported_observation.scanner}"
-                        f"{imported_observation.origin_docker_image_name} - {imported_observation.origin_docker_image_tag}"
+                        f"{imported_observation.origin_docker_image_name} - "
+                        f"{imported_observation.origin_docker_image_tag}"
                     )
                 else:
                     _process_new_observation(imported_observation)
@@ -618,16 +619,21 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
         print(f"Creating new issue for vulnerability_id: {observation.title}")
         data: dict[str, Any] = {
             "title": observation.title,
-            "body": f"""[Show observations in SecObserve](https://secobserve.stackable.tech/#/observations?displayedFilters=%7B%7D&filter=%7B%22current_status%22%3A%22Open%22%2C%22title%22%3A%22{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)
-
-[Review assessments in SecObserve](https://secobserve.stackable.tech/#/observation_logs/needs_approval?displayedFilters=%7B%7D&filter=%7B%22observation_title%22%3A%22{observation.title}%22%7D&order=ASC&page=1&perPage=25&sort=created)
-
-[Show completed assessments in SecObserve](https://secobserve.stackable.tech/#/observations?displayedFilters=%7B%7D&filter=%7B%22has_completed_assessment%22%3Atrue%2C%22title%22%3A%22{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)
-
----
-
-### {observation.title}
-{observation.description}""",
+            "body": (
+                "[Show observations in SecObserve](https://secobserve.stackable.tech/#/observations"
+                "?displayedFilters=%7B%7D&filter=%7B%22current_status%22%3A%22Open%22%2C%22title"
+                f"%22%3A%22{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
+                "\n\n"
+                "[Review assessments in SecObserve](https://secobserve.stackable.tech/#/observation_logs"
+                "/needs_approval?displayedFilters=%7B%7D&filter=%7B%22observation_title%22%3A%22"
+                f"{observation.title}%22%7D&order=ASC&page=1&perPage=25&sort=created)"
+                "\n\n"
+                "[Show completed assessments in SecObserve](https://secobserve.stackable.tech/#/observations"
+                "?displayedFilters=%7B%7D&filter=%7B%22has_completed_assessment%22%3Atrue%2C%22title%22%3A%22"
+                f"{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
+                "\n\n---\n\n"
+                f"### {observation.title}\n{observation.description}"
+            )
         }
         response = requests.post(
             url="https://api.github.com/repos/stackabletech/vulnerabilities/issues",
