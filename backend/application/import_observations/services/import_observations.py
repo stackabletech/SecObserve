@@ -624,7 +624,7 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
                 "\n\n"
                 "[Review assessments in SecObserve](https://secobserve.stackable.tech/#/observation_logs"
                 "/needs_approval?displayedFilters=%7B%7D&filter=%7B%22observation_title%22%3A%22"
-                f"{observation.title}%22%7D&order=ASC&page=1&perPage=25&sort=created)"
+                f"{observation.title}%22%7D&order=ASC&page=1&perPage=500&sort=created)"
                 "\n\n"
                 "[Show completed assessments in SecObserve](https://secobserve.stackable.tech/#/observations"
                 "?displayedFilters=%7B%7D&filter=%7B%22has_completed_assessment%22%3Atrue%2C%22title%22%3A%22"
