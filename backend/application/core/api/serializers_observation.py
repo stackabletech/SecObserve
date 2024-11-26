@@ -507,7 +507,7 @@ class ObservationAssessmentSerializer(Serializer):
 
 
 class ObservationRemoveAssessmentSerializer(Serializer):
-    comment = CharField(max_length=4096, required=True)
+    comment = CharField(max_length=4096, required=False)
 
 
 class ObservationBulkDeleteSerializer(Serializer):
@@ -519,7 +519,7 @@ class ObservationBulkDeleteSerializer(Serializer):
 class ObservationBulkAssessmentSerializer(Serializer):
     severity = ChoiceField(choices=Severity.SEVERITY_CHOICES, required=False)
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
-    comment = CharField(max_length=4096, required=True)
+    comment = CharField(max_length=4096, required=False)
     observations = ListField(
         child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True
     )
