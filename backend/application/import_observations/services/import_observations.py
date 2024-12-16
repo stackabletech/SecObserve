@@ -644,6 +644,13 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
         )
         response.raise_for_status()
         issue_number = response.json().get("number")
+
+        # Update issue_tracker_issue_id for all observations with the same title
+        Observation.objects.filter(
+            title=observation.title,
+        ).exclude(issue_tracker_issue_id=issue_number).update(
+            issue_tracker_issue_id=issue_number
+        )
     return issue_number
 
 
