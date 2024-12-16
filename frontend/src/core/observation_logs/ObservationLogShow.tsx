@@ -17,11 +17,12 @@ import {
 } from "react-admin";
 
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
+import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { is_superuser } from "../../commons/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
 import AssessmentApproval from "./AssessmentApproval";
-import MarkdownField from "../../commons/custom_fields/MarkdownField";
+import ObservationLogShowAside from "./ObservationLogShowAside";
 
 const ShowActions = () => {
     const observation_log = useRecordContext();
@@ -34,13 +35,24 @@ const ShowActions = () => {
         sort = { field: "created", order: "DESC" };
         storeKey = "observation_logs.embedded";
     }
-    if (observation_log && observation_log.observation_data && localStorage.getItem("observationlogapprovallist")) {
+    if (observation_log && localStorage.getItem("observationlogapprovallist")) {
+        filter = {
+            assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL,
+        };
+        sort = { field: "created", order: "ASC" };
+        storeKey = "observation_logs.approval";
+    }
+    if (
+        observation_log &&
+        observation_log.observation_data &&
+        localStorage.getItem("observationlogapprovallistproduct")
+    ) {
         filter = {
             product: observation_log.observation_data.product,
             assessment_status: ASSESSMENT_STATUS_NEEDS_APPROVAL,
         };
         sort = { field: "created", order: "ASC" };
-        storeKey = "observation_logs.approval";
+        storeKey = "observation_logs.approvalproduct";
     }
 
     return (
@@ -51,6 +63,8 @@ const ShowActions = () => {
                 )}
                 {observation_log &&
                     observation_log.observation_data &&
+                    observation_log.observation_data.product_data &&
+                    observation_log.observation_data.product_data.permissions &&
                     observation_log.assessment_status == ASSESSMENT_STATUS_NEEDS_APPROVAL &&
                     observation_log.observation_data.product_data.permissions.includes(
                         PERMISSION_OBSERVATION_LOG_APPROVAL
@@ -73,7 +87,7 @@ const ObservationLogComponent = () => {
         <WithRecord
             render={(observation_log) => (
                 <Box width={"100%"}>
-                    <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
+                    <Paper sx={{ marginBottom: 2, padding: 2, width: "100%" }}>
                         <Stack spacing={1}>
                             <Typography variant="h6">Observation Log</Typography>
                             <Labeled label="Product">
@@ -179,9 +193,9 @@ const ObservationLogComponent = () => {
                                 </Labeled>
                             )}
                             {observation_log.comment && (
-                            <Labeled>
-                                <MarkdownField content={observation_log.comment} label="Comment" />
-                            </Labeled>
+                                <Labeled>
+                                    <MarkdownField content={observation_log.comment} label="Comment" />
+                                </Labeled>
                             )}
                             <Labeled label="Created">
                                 <DateField locales="de-DE" source="created" showTime />
@@ -229,7 +243,7 @@ const ObservationLogComponent = () => {
 };
 const ObservationLogShow = () => {
     return (
-        <Show actions={<ShowActions />} component={ObservationLogComponent}>
+        <Show actions={<ShowActions />} component={ObservationLogComponent} aside={<ObservationLogShowAside />}>
             <Fragment />
         </Show>
     );

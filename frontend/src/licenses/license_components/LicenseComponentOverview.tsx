@@ -4,6 +4,7 @@ import {
     AutocompleteInput,
     Datagrid,
     FilterForm,
+    FunctionField,
     ListContextProvider,
     NumberField,
     ReferenceInput,
@@ -27,15 +28,17 @@ type LicenseComponentOverviewProps = {
     product: any;
 };
 
+const licenseNameStyle = (type: string): string => {
+    if (type === "" || type === "Unknown") {
+        return "italic";
+    }
+    return "normal";
+};
+
 const LicenseComponentOverview = ({ product }: LicenseComponentOverviewProps) => {
     const [data, setData] = useState();
     const [count, setCount] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [filterBranch, setFilterBranch] = useState(undefined);
-    const [filterSPDXId, setFilterSPDXId] = useState(undefined);
-    const [filterUnknownLicense, setFilterUnknownLicense] = useState(undefined);
-    const [filterEvaluationResult, setFilterEvaluationResult] = useState(undefined);
-    const [filterPURLType, setFilterPURLType] = useState(undefined);
     const notify = useNotify();
 
     function listFilters(product: any) {
@@ -50,73 +53,66 @@ const LicenseComponentOverview = ({ product }: LicenseComponentOverviewProps) =>
                     filter={{ product: product.id }}
                     alwaysOn
                 >
-                    <AutocompleteInputMedium
-                        optionText="name"
-                        label="Branch / Version"
-                        onChange={(e) => setFilterBranch(e)}
-                    />
+                    <AutocompleteInputMedium optionText="name" label="Branch / Version" />
                 </ReferenceInput>
             );
         }
-        filters.push(
-            <TextInput source="spdx_id" label="SPDX Id" onChange={(e) => setFilterSPDXId(e.target.value)} alwaysOn />
-        );
-        filters.push(
-            <TextInput
-                source="unknown_license"
-                label="Unknown license"
-                onChange={(e) => setFilterUnknownLicense(e.target.value)}
-                alwaysOn
-            />
-        );
+        filters.push(<TextInput source="license_name" label="License" alwaysOn />);
         filters.push(
             <AutocompleteInputMedium
                 source="evaluation_result"
                 label="Evaluation result"
                 choices={EVALUATION_RESULT_CHOICES}
-                onChange={(e) => setFilterEvaluationResult(e)}
                 alwaysOn
             />
         );
         filters.push(
-            <AutocompleteInput
-                source="purl_type"
-                label="Component type"
-                choices={PURL_TYPE_CHOICES}
-                onChange={(e) => setFilterPURLType(e)}
-                alwaysOn
-            />
+            <AutocompleteInput source="purl_type" label="Component type" choices={PURL_TYPE_CHOICES} alwaysOn />
         );
         return filters;
     }
 
-    useEffect(() => {
-        if (filterBranch === undefined) {
-            const storedFilters = localStorage.getItem("RaStore.license_components.overview");
-            if (storedFilters) {
-                const filters = JSON.parse(storedFilters);
-                setFilterBranch(filters.branch);
-                setFilterSPDXId(filters.spdx_id);
-                setFilterUnknownLicense(filters.unknown_license);
-                setFilterEvaluationResult(filters.evaluation_result);
-                setFilterPURLType(filters.purl_type);
-            } else {
-                setFilterBranch(product.repository_default_branch);
-            }
-        } else {
-            localStorage.removeItem("RaStore.license_components.datagrid.expanded");
-            get_data();
-        }
-    }, [filterBranch, filterSPDXId, filterUnknownLicense, filterEvaluationResult, filterPURLType]); // eslint-disable-line react-hooks/exhaustive-deps
+    const filters = () => {
+        const storedListContext = localStorage.getItem("RaStore.license_components.overview");
+        const listContextObject = storedListContext ? JSON.parse(storedListContext) : {};
+        return listContextObject.filter ? listContextObject.filter : { branch: product.repository_default_branch };
+    };
 
-    function storeFilters() {
-        const filterStorage = {
-            branch: filterBranch,
-            spdx_id: filterSPDXId,
-            unknown_license: filterUnknownLicense,
-            evaluation_result: filterEvaluationResult,
-            purl_type: filterPURLType,
+    const sort = () => {
+        const storedListContext = localStorage.getItem("RaStore.license_components.overview");
+        const listContextObject = storedListContext ? JSON.parse(storedListContext) : {};
+        return listContextObject.sort
+            ? { field: listContextObject.sort, order: listContextObject.order }
+            : { field: "evaluation_result", order: "ASC" };
+    };
+    const listContext = useList({
+        data,
+        isLoading: loading,
+        filter: filters(),
+        sort: sort(),
+    });
+
+    useEffect(() => {
+        storeListContext();
+        localStorage.removeItem("RaStore.license_components.datagrid.expanded");
+        get_data();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listContext.sort, listContext.filterValues]);
+
+    function storeListContext() {
+        // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+        const filterStorage: { [key: string]: any } = {};
+        const filter = {
+            branch: listContext.filterValues.branch,
+            license_name: listContext.filterValues.license_name,
+            evaluation_result: listContext.filterValues.evaluation_result,
+            purl_type: listContext.filterValues.purl_type,
         };
+        filterStorage["filter"] = filter;
+        if (listContext.sort.field) {
+            filterStorage["sort"] = listContext.sort.field;
+            filterStorage["order"] = listContext.sort.order;
+        }
         localStorage.setItem("RaStore.license_components.overview", JSON.stringify(filterStorage));
     }
 
@@ -125,20 +121,24 @@ const LicenseComponentOverview = ({ product }: LicenseComponentOverviewProps) =>
 
         let url =
             window.__RUNTIME_CONFIG__.API_BASE_URL + "/license_components/license_overview/?product=" + product.id;
-        if (filterBranch) {
-            url += "&branch=" + filterBranch;
+
+        const filter = listContext.filterValues;
+
+        if (filter.branch) {
+            url += "&branch=" + filter.branch;
         }
-        if (filterSPDXId) {
-            url += "&spdx_id=" + encodeURIComponent(filterSPDXId);
+        if (filter.license_name) {
+            url += "&license_name=" + encodeURIComponent(filter.license_name);
         }
-        if (filterUnknownLicense) {
-            url += "&unknown_license=" + encodeURIComponent(filterUnknownLicense);
+        if (filter.evaluation_result) {
+            url += "&evaluation_result=" + encodeURIComponent(filter.evaluation_result);
         }
-        if (filterEvaluationResult) {
-            url += "&evaluation_result=" + encodeURIComponent(filterEvaluationResult);
+        if (filter.purl_type) {
+            url += "&purl_type=" + encodeURIComponent(filter.purl_type);
         }
-        if (filterPURLType) {
-            url += "&purl_type=" + encodeURIComponent(filterPURLType);
+
+        if (listContext.sort.field) {
+            url += "&ordering=" + (listContext.sort.order === "ASC" ? "" : "-") + listContext.sort.field;
         }
 
         httpClient(url, {
@@ -160,21 +160,8 @@ const LicenseComponentOverview = ({ product }: LicenseComponentOverviewProps) =>
                 }
             });
 
-        storeFilters();
         setLoading(false);
     }
-
-    const listContext = useList({
-        data,
-        isLoading: loading,
-        filter: {
-            branch: filterBranch,
-            spdx_id: filterSPDXId,
-            unknown_license: filterUnknownLicense,
-            evaluation_result: filterEvaluationResult,
-            purl_type: filterPURLType,
-        },
-    });
 
     return (
         <div style={{ width: "100%" }}>
@@ -193,19 +180,21 @@ const LicenseComponentOverview = ({ product }: LicenseComponentOverviewProps) =>
                                 <LicenseComponentEmbeddedList
                                     product={product}
                                     expand={true}
-                                    purl_type={filterPURLType}
+                                    purl_type={listContext.filterValues.purl_type}
                                 />
                             </Paper>
                         }
                         expandSingle
                     >
-                        {product && product.has_branches && (
-                            <TextField source="branch_name" label="Branch / Version" sortable={false} />
-                        )}
-                        <TextField source="spdx_id" label="SPDX Id" sortable={false} />
-                        <TextField source="license_name" label="License name" sortable={false} />
-                        <TextField source="unknown_license" label="Unknown license" sortable={false} />
-                        <EvaluationResultField source="evaluation_result" label="Evaluation result" sortable={false} />
+                        {product && product.has_branches && <TextField source="branch_name" label="Branch / Version" />}
+                        <FunctionField
+                            label="License"
+                            sortBy="license_name"
+                            render={(record: any) => (
+                                <span style={{ fontStyle: licenseNameStyle(record.type) }}>{record.license_name}</span>
+                            )}
+                        />
+                        <EvaluationResultField source="evaluation_result" label="Evaluation result" />
                         <NumberField source="num_components" label="# Components" sortable={false} />
                     </Datagrid>
                 </ListContextProvider>

@@ -68,7 +68,7 @@ const Menu = ({ dense = false }: MenuProps) => {
                     dense={dense}
                 />
                 <MenuItemLink
-                    to="/observation_logs/needs_approval"
+                    to="/reviews/observation_log_approvals"
                     state={{ _scrollToTop: true }}
                     primaryText="Reviews"
                     leftIcon={<ChecklistIcon />}

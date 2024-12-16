@@ -2,9 +2,7 @@ import { Box, Paper, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
     ArrayField,
-    ChipField,
     Datagrid,
-    DateField,
     EditButton,
     Labeled,
     NumberField,
@@ -22,10 +20,9 @@ import {
     PERMISSION_OBSERVATION_EDIT,
     PERMISSION_OBSERVATION_LOG_APPROVAL,
 } from "../../access_control/types";
-import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { get_cwe_url, get_vulnerability_url } from "../../commons/functions";
-import { useLinkStyles, useStyles } from "../../commons/layout/themes";
+import { useLinkStyles } from "../../commons/layout/themes";
 import { getSettingTheme } from "../../commons/user_settings/functions";
 import AssessmentApproval from "../observation_logs/AssessmentApproval";
 import ObservationLogEmbeddedList from "../observation_logs/ObservationLogEmbeddedList";
@@ -33,7 +30,7 @@ import { OBSERVATION_STATUS_IN_REVIEW, OBSERVATION_STATUS_OPEN } from "../types"
 import ObservationAssessment from "./ObservationAssessment";
 import ObservationRemoveAssessment from "./ObservationRemoveAssessment";
 import ObservationsShowAside from "./ObservationShowAside";
-import ObservationShowDescriptionRecommendation from "./ObservationShowDescriptionRecommendation";
+import ObservationShowHeader from "./ObservationShowHeader";
 import ObservationShowOrigins from "./ObservationShowOrigins";
 import PotentialDuplicatesList from "./PotentialDuplicatesList";
 import {
@@ -41,6 +38,7 @@ import {
     IDENTIFIER_OBSERVATION_EMBEDDED_LIST,
     IDENTIFIER_OBSERVATION_LIST,
     IDENTIFIER_OBSERVATION_REVIEW_LIST,
+    IDENTIFIER_OBSERVATION_REVIEW_LIST_PRODUCT,
 } from "./functions";
 
 const ShowActions = () => {
@@ -62,8 +60,11 @@ const ShowActions = () => {
             current_status: OBSERVATION_STATUS_OPEN,
         };
         storeKey = "observations.dashboard";
-    } else if (observation && localStorage.getItem(IDENTIFIER_OBSERVATION_REVIEW_LIST) === "true") {
+    } else if (observation && localStorage.getItem(IDENTIFIER_OBSERVATION_REVIEW_LIST_PRODUCT) === "true") {
         filter = { product: observation.product, current_status: OBSERVATION_STATUS_IN_REVIEW };
+        storeKey = "observations.review.product";
+    } else if (localStorage.getItem(IDENTIFIER_OBSERVATION_REVIEW_LIST) === "true") {
+        filter = { current_status: OBSERVATION_STATUS_IN_REVIEW };
         storeKey = "observations.review";
     }
 
@@ -106,91 +107,13 @@ const ShowActions = () => {
 };
 
 const ObservationShowComponent = () => {
-    const { classes } = useStyles();
     const linkStyles = useLinkStyles({ setting_theme: getSettingTheme() });
 
     return (
         <WithRecord
             render={(observation) => (
                 <Box width={"100%"}>
-                    <Paper sx={{ marginBottom: 2, padding: 2 }}>
-                        <Typography variant="h6" sx={{ marginBottom: 1 }}>
-                            Observation
-                        </Typography>
-                        <Stack direction="row" spacing={4}>
-                            <Stack spacing={2}>
-                                <Labeled>
-                                    <SeverityField label="Severity" source="current_severity" />
-                                </Labeled>
-                                {observation.parser_severity != "" &&
-                                    (observation.rule_severity != "" || observation.assessment_severity != "") && (
-                                        <Labeled>
-                                            <TextField source="parser_severity" />
-                                        </Labeled>
-                                    )}
-                                {observation.rule_severity != "" && (
-                                    <Labeled>
-                                        <TextField source="rule_severity" />
-                                    </Labeled>
-                                )}
-                                {observation.assessment_severity != "" && (
-                                    <Labeled>
-                                        <TextField source="assessment_severity" />
-                                    </Labeled>
-                                )}
-                            </Stack>
-                            <Stack spacing={2}>
-                                <Labeled>
-                                    <ChipField source="current_status" label="Status" />
-                                </Labeled>
-                                {observation.parser_status != "" &&
-                                    (observation.rule_status != "" ||
-                                        observation.assessment_status != "" ||
-                                        observation.vex_status != "") && (
-                                        <Labeled>
-                                            <TextField source="parser_status" />
-                                        </Labeled>
-                                    )}
-                                {observation.vex_status != "" && (
-                                    <Labeled label="VEX status">
-                                        <TextField source="vex_status" />
-                                    </Labeled>
-                                )}
-                                {observation.rule_status != "" && (
-                                    <Labeled>
-                                        <TextField source="rule_status" />
-                                    </Labeled>
-                                )}
-                                {observation.assessment_status != "" && (
-                                    <Labeled>
-                                        {observation.assessment_status == "Duplicate" && observation.duplicate_of ? (
-                                            <TextUrlField
-                                                label="Assessment status"
-                                                text={"Duplicate of " + observation.duplicate_of}
-                                                url={"#/observations/" + observation.duplicate_of + "/show"}
-                                            />
-                                        ) : (
-                                            <TextField source="assessment_status" />
-                                        )}
-                                    </Labeled>
-                                )}
-                            </Stack>
-                            {observation.found != null && (
-                                <Labeled>
-                                    <DateField locales="de-DE" source="found" />
-                                </Labeled>
-                            )}
-                            {observation.risk_acceptance_expiry_date != null && (
-                                <Labeled label="Risk acceptance expiry">
-                                    <DateField source="risk_acceptance_expiry_date" />
-                                </Labeled>
-                            )}
-                            <Labeled>
-                                <TextField source="title" className={classes.fontBigBold} />
-                            </Labeled>
-                        </Stack>
-                        <ObservationShowDescriptionRecommendation />
-                    </Paper>
+                    <ObservationShowHeader />
 
                     {(observation.vulnerability_id != "" ||
                         observation.cvss3_score != null ||
@@ -253,7 +176,7 @@ const ObservationShowComponent = () => {
                         </Paper>
                     )}
 
-                    <ObservationShowOrigins elevated={true} />
+                    <ObservationShowOrigins showDependencies={true} elevated={true} />
 
                     {observation && observation.exploit_available && (
                         <Paper sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2, paddingRight: 2 }}>

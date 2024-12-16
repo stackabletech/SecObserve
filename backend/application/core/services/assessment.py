@@ -160,7 +160,11 @@ def _update_observation(
         observation.current_vex_remediations = get_current_vex_remediations(observation)
 
     previous_risk_acceptance_expiry_date = observation.risk_acceptance_expiry_date
-    observation.risk_acceptance_expiry_date = new_risk_acceptance_expiry_date
+    observation.risk_acceptance_expiry_date = (
+        new_risk_acceptance_expiry_date
+        if observation.current_status == Status.STATUS_RISK_ACCEPTED
+        else None
+    )
 
     if (
         previous_current_severity  # pylint: disable=too-many-boolean-expressions
@@ -193,17 +197,20 @@ def remove_assessment(observation: Observation, comment: str) -> bool:
         observation.assessment_vex_justification = ""
         observation.assessment_vex_remediations = ""
         observation.current_severity = get_current_severity(observation)
+        previous_status = observation.current_status
         observation.current_status = get_current_status(observation)
         observation.current_vex_justification = get_current_vex_justification(
             observation
         )
         observation.current_vex_remediations = get_current_vex_remediations(observation)
-        risk_acceptance_expiry_date = (
-            calculate_risk_acceptance_expiry_date(observation.product)
-            if observation.current_status == Status.STATUS_RISK_ACCEPTED
-            else None
-        )
-        observation.risk_acceptance_expiry_date = risk_acceptance_expiry_date
+
+        if observation.current_status == Status.STATUS_RISK_ACCEPTED:
+            if previous_status != Status.STATUS_RISK_ACCEPTED:
+                observation.risk_acceptance_expiry_date = (
+                    calculate_risk_acceptance_expiry_date(observation.product)
+                )
+        else:
+            observation.risk_acceptance_expiry_date = None
 
         create_observation_log(
             observation=observation,
@@ -213,7 +220,7 @@ def remove_assessment(observation: Observation, comment: str) -> bool:
             vex_justification="",
             vex_remediations="",
             assessment_status=Assessment_Status.ASSESSMENT_STATUS_REMOVED,
-            risk_acceptance_expiry_date=risk_acceptance_expiry_date,
+            risk_acceptance_expiry_date=observation.risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation.product)

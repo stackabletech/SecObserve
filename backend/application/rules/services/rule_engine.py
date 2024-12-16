@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from typing import Optional
 
 from application.commons.services.global_request import get_current_user
@@ -57,12 +58,13 @@ class Rule_Engine:
         if observation.current_status != Status.STATUS_OPEN:
             return
 
-        previous_product_rule = None
-        if observation.product_rule:
-            previous_product_rule = observation.product_rule
-        previous_general_rule = None
-        if observation.general_rule:
-            previous_general_rule = observation.general_rule
+        previous_product_rule = (
+            observation.product_rule if observation.product_rule else None
+        )
+        previous_general_rule = (
+            observation.general_rule if observation.general_rule else None
+        )
+
         observation.product_rule = None
         observation.general_rule = None
 
@@ -117,11 +119,6 @@ class Rule_Engine:
                 if rule.new_status:
                     observation.rule_status = rule.new_status
                     observation.current_status = get_current_status(observation)
-                    observation.risk_acceptance_expiry_date = (
-                        calculate_risk_acceptance_expiry_date(observation.product)
-                        if observation.current_status == Status.STATUS_RISK_ACCEPTED
-                        else None
-                    )
 
                 previous_vex_justification = observation.current_vex_justification
                 previous_rule_vex_justification = observation.rule_vex_justification
@@ -138,6 +135,17 @@ class Rule_Engine:
                     observation.current_vex_remediations = get_current_vex_remediations(
                         observation
                     )
+
+                previous_risk_acceptance_expiry_date = (
+                    observation.risk_acceptance_expiry_date
+                )
+                if observation.current_status == Status.STATUS_RISK_ACCEPTED:
+                    if previous_status != Status.STATUS_RISK_ACCEPTED:
+                        observation.risk_acceptance_expiry_date = (
+                            calculate_risk_acceptance_expiry_date(observation.product)
+                        )
+                else:
+                    observation.risk_acceptance_expiry_date = None
 
                 if rule.product:
                     observation.product_rule = rule
@@ -167,6 +175,7 @@ class Rule_Engine:
                         previous_status=previous_status,
                         previous_vex_justification=previous_vex_justification,
                         previous_vex_remediations=previous_vex_remediations,
+                        previous_risk_acceptance_expiry_date=previous_risk_acceptance_expiry_date,
                     )
                     push_observation_to_issue_tracker(observation, get_current_user())
                 rule_found = True
@@ -210,6 +219,7 @@ class Rule_Engine:
         previous_status: str,
         previous_vex_justification: str,
         previous_vex_remediations: str,
+        previous_risk_acceptance_expiry_date: Optional[date],
     ) -> None:
         if previous_status != observation.current_status:
             status = observation.current_status
@@ -227,6 +237,13 @@ class Rule_Engine:
             vex_remediations = observation.current_vex_remediations
         else:
             vex_remediations = ""
+        if (
+            previous_risk_acceptance_expiry_date
+            != observation.risk_acceptance_expiry_date
+        ):
+            risk_acceptance_expiry_date = observation.risk_acceptance_expiry_date
+        else:
+            risk_acceptance_expiry_date = None
 
         if rule.description:
             comment = rule.description
@@ -235,12 +252,6 @@ class Rule_Engine:
                 comment = f"Updated by product rule {rule.name}"
             else:
                 comment = f"Updated by general rule {rule.name}"
-
-        risk_acceptance_expiry_date = (
-            calculate_risk_acceptance_expiry_date(observation.product)
-            if status == Status.STATUS_RISK_ACCEPTED
-            else None
-        )
 
         create_observation_log(
             observation=observation,
@@ -266,11 +277,6 @@ class Rule_Engine:
         observation.rule_status = ""
         previous_status = observation.current_status
         observation.current_status = get_current_status(observation)
-        observation.risk_acceptance_expiry_date = (
-            calculate_risk_acceptance_expiry_date(observation.product)
-            if observation.current_status == Status.STATUS_RISK_ACCEPTED
-            else None
-        )
 
         observation.rule_vex_justification = ""
         previous_vex_justification = observation.current_vex_justification
@@ -278,26 +284,49 @@ class Rule_Engine:
             observation
         )
 
+        previous_risk_acceptance_expiry_date = observation.risk_acceptance_expiry_date
+        if observation.current_status == Status.STATUS_RISK_ACCEPTED:
+            if previous_status != Status.STATUS_RISK_ACCEPTED:
+                observation.risk_acceptance_expiry_date = (
+                    calculate_risk_acceptance_expiry_date(observation.product)
+                )
+        else:
+            observation.risk_acceptance_expiry_date = None
+
+        log_status = (
+            observation.current_status
+            if previous_status != observation.current_status
+            else ""
+        )
+
+        log_severity = (
+            observation.current_severity
+            if previous_severity != observation.current_severity
+            else ""
+        )
+
+        log_vex_justification = (
+            observation.current_vex_justification
+            if previous_vex_justification != observation.current_vex_justification
+            else ""
+        )
+
+        log_risk_acceptance_expiry_date = (
+            observation.risk_acceptance_expiry_date
+            if previous_risk_acceptance_expiry_date
+            != observation.risk_acceptance_expiry_date
+            else None
+        )
+
         observation.rule_vex_remediations = ""
         previous_vex_remediations = observation.current_vex_remediations
         observation.current_vex_remediations = get_current_vex_remediations(observation)
 
-        if previous_status != observation.current_status:
-            status = observation.current_status
-        else:
-            status = ""
-        if previous_severity != observation.current_severity:
-            severity = observation.current_severity
-        else:
-            severity = ""
-        if previous_vex_justification != observation.current_vex_justification:
-            vex_justification = observation.current_vex_justification
-        else:
-            vex_justification = ""
-        if previous_vex_remediations != observation.current_vex_remediations:
-            vex_remediations = observation.current_vex_remediations
-        else:
-            vex_remediations = ""
+        log_vex_remediations = (
+            observation.current_vex_remediations
+            if previous_vex_remediations != observation.current_vex_remediations
+            else ""
+        )
 
         if previous_product_rule:
             comment = f"Removed product rule {previous_product_rule.name}"
@@ -306,19 +335,13 @@ class Rule_Engine:
         else:
             comment = "Removed unknown rule"
 
-        risk_acceptance_expiry_date = (
-            calculate_risk_acceptance_expiry_date(observation.product)
-            if status == Status.STATUS_RISK_ACCEPTED
-            else None
-        )
-
         create_observation_log(
             observation=observation,
-            severity=severity,
-            status=status,
+            severity=log_severity,
+            status=log_status,
             comment=comment,
-            vex_justification=vex_justification,
-            vex_remediations=vex_remediations,
+            vex_justification=log_vex_justification,
+            vex_remediations=log_vex_remediations,
             assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
-            risk_acceptance_expiry_date=risk_acceptance_expiry_date,
+            risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
         )
