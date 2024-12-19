@@ -678,6 +678,9 @@ class Observation(Model):
         on_delete=SET_NULL,
     )
     risk_acceptance_expiry_date = DateField(null=True)
+    upgrade_impact_score = IntegerField(
+        null=True, validators=[MinValueValidator(0), MaxValueValidator(999999)]
+    )
 
     class Meta:
         indexes = [
@@ -701,6 +704,7 @@ class Observation(Model):
             Index(fields=["patch_available"]),
             Index(fields=["in_vulncheck_kev"]),
             Index(fields=["exploit_available"]),
+            Index(fields=["upgrade_impact_score"]),
         ]
 
     def __str__(self):

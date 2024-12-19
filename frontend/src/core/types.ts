@@ -104,6 +104,7 @@ export interface Observation extends RaRecord {
     epss_score: number;
     epss_percentile: number;
     stackable_score: number;
+    upgrade_impact_score: number;
     cwe: number;
     found: Date;
     scanner: string;

@@ -212,6 +212,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                         <TextField source="title" />
                         <SeverityField label="Severity" source="current_severity" />
                         <ChipField source="current_status" label="Status" />
+                        <NumberField source="upgrade_impact_score" label="Upgrade Impact Score" />
                         {product && product.has_component && <NumberField source="epss_score" label="EPSS" />}
                         {/* {product && product.has_services && <TextField source="origin_service_name" label="Service" />} */}
                         {product && product.has_component && (

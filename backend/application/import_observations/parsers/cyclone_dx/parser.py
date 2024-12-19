@@ -321,6 +321,35 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             component, recommendation
                         )
 
+                        upgrade_impact_score = 0
+                        if patched_versions:
+
+                            def parse_version(version: str):
+                                version = version.split("-")[0]
+                                # Remove everything that is not a number or a dot
+                                version = "".join(
+                                    [c for c in version if c.isdigit() or c == "."]
+                                )
+                                rettuple = tuple(map(int, version.split(".")[:3]))
+                                for _ in range(3 - len(rettuple)):
+                                    rettuple += (0,)
+                                return rettuple
+
+                            v1 = parse_version(component.version)
+                            lowest_impact_score = 9999999
+                            patched_versions_split = patched_versions.split(",")
+                            for patched_version in patched_versions_split:
+                                v2 = parse_version(patched_version)
+                                major_diff = abs(v2[0] - v1[0])
+                                minor_diff = abs(v2[1] - v1[1])
+                                patch_diff = abs(v2[2] - v1[2])
+                                upgrade_impact_score = (
+                                    major_diff * 100 + minor_diff * 10 + patch_diff
+                                )
+                                if upgrade_impact_score < lowest_impact_score:
+                                    lowest_impact_score = upgrade_impact_score
+                            upgrade_impact_score = lowest_impact_score
+
                         observation = Observation(
                             title=title,
                             description=description,
@@ -342,6 +371,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_source_file=self.metadata.file,
                             origin_component_location=component_location,
                             patched_in_versions=patched_versions,
+                            upgrade_impact_score=upgrade_impact_score,
                             patch_available=bool(patched_versions),
                         )
 
@@ -484,12 +514,15 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     def _get_patched_versions(self, component: Component, recommendation: str) -> str:
         if not recommendation:
             return ""
+        component_name = re.sub(r":\d+", "", component.name)
 
         group = re.search(
-            r"Upgrade (\S+:)?" + component.name + r" to version ([a-z0-9\.\-_\s,]+)",
+            r"Upgrade (\S+:)?"
+            + component_name
+            + r" to version (\d+:)?([a-z0-9\.\-_\s,]+)",
             recommendation,
         )
         if group:
-            return group.group(2)
+            return group.group(3)
 
         return ""

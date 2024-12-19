@@ -140,6 +140,7 @@ const ObservationList = () => {
                         <ChipField source="current_status" label="Status" />
                         <NumberField source="epss_score" label="EPSS" />
                         <NumberField source="stackable_score" label="Stackable Score" />
+                        <NumberField source="upgrade_impact_score" label="Upgrade Impact Score" />
                         {/* <TextField source="origin_service_name" label="Service" /> */}
                         <TextField
                             source="origin_component_name_version"
