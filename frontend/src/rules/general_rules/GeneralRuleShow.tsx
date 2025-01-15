@@ -29,7 +29,7 @@ const ShowActions = () => {
     const rule = useRecordContext();
     return (
         <TopToolbar>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
                 <PrevNextButtons linkType="show" sort={{ field: "name", order: "ASC" }} storeKey="general_rules.list" />
                 {rule &&
                     rule.approval_status == RULE_STATUS_NEEDS_APPROVAL &&
@@ -56,7 +56,7 @@ const GeneralRuleComponent = () => {
         <WithRecord
             render={(rule) => (
                 <Box width={"100%"}>
-                    <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
+                    <Paper sx={{ marginBottom: 2, padding: 2, width: "100%" }}>
                         <Typography variant="h6" sx={{ marginBottom: 1 }}>
                             General Rule
                         </Typography>
@@ -110,7 +110,7 @@ const GeneralRuleComponent = () => {
                         </Stack>
                     </Paper>
 
-                    <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
+                    <Paper sx={{ marginBottom: 2, padding: 2, width: "100%" }}>
                         <Typography variant="h6" sx={{ marginBottom: 1 }}>
                             Observation
                         </Typography>
@@ -151,7 +151,7 @@ const GeneralRuleComponent = () => {
                             rule.origin_source_file ||
                             rule.origin_cloud_qualified_resource ||
                             rule.origin_kubernetes_qualified_resource) && (
-                            <Paper sx={{ marginBottom: 1, padding: 2, width: "100%" }}>
+                            <Paper sx={{ marginBottom: 2, padding: 2, width: "100%" }}>
                                 <Typography variant="h6" sx={{ marginBottom: 1 }}>
                                     Origins
                                 </Typography>

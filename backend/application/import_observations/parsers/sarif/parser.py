@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from json import dumps, load
-from typing import Optional, Tuple
+from json import dumps
+from typing import Any, Optional, Tuple
 
-from django.core.files.base import File
 from packageurl import PackageURL
 
 from application.core.models import Observation
@@ -11,7 +10,7 @@ from application.import_observations.parsers.base_parser import (
     BaseFileParser,
     BaseParser,
 )
-from application.import_observations.types import Parser_Type
+from application.import_observations.types import Parser_Filetype, Parser_Type
 
 SEVERITIES = {
     "error": Severity.SEVERITY_HIGH,
@@ -48,28 +47,21 @@ class SARIFParser(BaseParser, BaseFileParser):
         return "SARIF"
 
     @classmethod
+    def get_filetype(cls) -> str:
+        return Parser_Filetype.FILETYPE_JSON
+
+    @classmethod
     def get_type(cls) -> str:
         return Parser_Type.TYPE_SAST
 
-    def check_format(self, file: File) -> tuple[bool, list[str], dict]:
-        try:
-            data = load(file)
-        except Exception:
-            return False, ["File is not valid JSON"], {}
-
-        version = data.get("version")
-        schema = data.get("$schema")
-        if not version or not schema:
-            return (
-                False,
-                ["File is not SARIF format, 'version' and/or '$schema' are missing"],
-                {},
-            )
-
-        if version != "2.1.0":
-            return False, ["File is not SARIF format, version is not 2.1.0"], {}
-
-        return True, [], data
+    def check_format(self, data: Any) -> bool:
+        if (
+            isinstance(data, dict)
+            and "sarif" in data.get("$schema", "").lower()
+            and data.get("version") == "2.1.0"
+        ):
+            return True
+        return False
 
     def get_observations(self, data: dict) -> list[Observation]:
         observations: list[Observation] = []
@@ -115,7 +107,7 @@ class SARIFParser(BaseParser, BaseFileParser):
 
         return observations
 
-    def create_observation(
+    def create_observation(  # pylint: disable=too-many-locals
         self,
         *,
         result: dict,
@@ -131,10 +123,13 @@ class SARIFParser(BaseParser, BaseFileParser):
 
         parser_severity = self.get_parser_severity(result, sarif_scanner, sarif_rule)
 
-        parser_cvss3_score = self.get_dependency_check_cvss3_score(
-            sarif_scanner, sarif_rule
+        parser_cvss3_score, parser_cvss3_vector = self.get_dependency_check_cvss(
+            sarif_scanner, sarif_rule, 3
         )
-        if parser_cvss3_score:
+        parser_cvss4_score, parser_cvss4_vector = self.get_dependency_check_cvss(
+            sarif_scanner, sarif_rule, 4
+        )
+        if parser_cvss3_score or parser_cvss4_score:
             parser_severity = ""
 
         title = self.get_title(sarif_scanner, sarif_rule_id, sarif_rule)
@@ -177,6 +172,9 @@ class SARIFParser(BaseParser, BaseFileParser):
             scanner=sarif_scanner,
             cwe=sarif_cwe,
             cvss3_score=parser_cvss3_score,
+            cvss3_vector=parser_cvss3_vector,
+            cvss4_score=parser_cvss4_score,
+            cvss4_vector=parser_cvss4_vector,
             vulnerability_id=parser_vulnerability_id,
             origin_component_purl=origin_component_purl,
             origin_component_name=origin_component_name,
@@ -398,16 +396,20 @@ class SARIFParser(BaseParser, BaseFileParser):
 
         return ""
 
-    def get_dependency_check_cvss3_score(self, sarif_scanner: str, sarif_rule: Rule):
+    def get_dependency_check_cvss(
+        self, sarif_scanner: str, sarif_rule: Rule, version: int
+    ):
         # Dependency Check SARIF has no proper level, but stores the severity in a property
         if (
             sarif_scanner.lower().startswith("dependency-check")
             and sarif_rule.properties
             and isinstance(sarif_rule.properties, dict)
         ):
-            return sarif_rule.properties.get("cvssv3_baseScore")
+            return sarif_rule.properties.get(
+                f"cvssv{version}_baseScore"
+            ), sarif_rule.properties.get(f"cvssv{version}_vector")
 
-        return None
+        return None, None
 
     def get_dependency_check_vulnerability_id(
         self, sarif_scanner: str, title: str

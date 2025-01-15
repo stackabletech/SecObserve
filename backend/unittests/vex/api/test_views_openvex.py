@@ -64,7 +64,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0001.json",
+            "attachment; filename=OpenVEX_2020_0001_0001.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -73,13 +73,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(Product.objects.get(id=1), openvex.product)
         self.assertEqual(1, openvex.version)
         self.assertEqual(
-            "7feb7c735c24a76887d877709b7ecf0dd4444892e75c1345d7a5b3024f36feac",
+            "2349866f922095e32c824029bffedd6a5d3a94fb48385879840542cee7a8528f",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)
@@ -109,7 +109,7 @@ class TestOpenVEX(TestCase):
 
         api_client = APIClient()
         response = api_client.post(
-            "/api/vex/openvex_document/update/OpenVEX/2024_0001/",
+            "/api/vex/openvex_document/update/OpenVEX/2020_0001/",
             parameters,
             format="json",
         )
@@ -136,7 +136,7 @@ class TestOpenVEX(TestCase):
 
         api_client = APIClient()
         response = api_client.post(
-            "/api/vex/openvex_document/update/OpenVEX/2024_0001/",
+            "/api/vex/openvex_document/update/OpenVEX/2020_0001/",
             parameters,
             format="json",
         )
@@ -144,7 +144,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0002.json",
+            "attachment; filename=OpenVEX_2020_0001_0002.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -153,13 +153,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(Product.objects.get(id=1), openvex.product)
         self.assertEqual(2, openvex.version)
         self.assertEqual(
-            "16c17dda22d8eac14b003b0c4cbce1c8b7b5a3a577720d6430f588a93e48c044",
+            "eb2c932985b9f3100a175f9d1640162aa073af950a2275220fbe1d7edafbfb53",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)
@@ -217,7 +217,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0001.json",
+            "attachment; filename=OpenVEX_2020_0001_0001.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -226,13 +226,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(Product.objects.get(id=2), openvex.product)
         self.assertEqual(1, openvex.version)
         self.assertEqual(
-            "94b35adc77df02b3ce5faf3e0892ca294cc97ac5c469a3f0c619cd47ebec53d8",
+            "881f388d3f22c81060697db0af4660cbf787f95567414572e3fbc3807ce10309",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)
@@ -291,7 +291,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0001.json",
+            "attachment; filename=OpenVEX_2020_0001_0001.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -300,13 +300,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(Product.objects.get(id=2), openvex.product)
         self.assertEqual(1, openvex.version)
         self.assertEqual(
-            "398407e8135486b39c7a14b1100b449fc19c39e76e64152c7ff706efb451582b",
+            "6a23e9f89f7128b0af35856153657ad7368e1311989a5cce0885e54da4ce7bd2",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)
@@ -365,7 +365,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0001.json",
+            "attachment; filename=OpenVEX_2020_0001_0001.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -374,13 +374,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(None, openvex.product)
         self.assertEqual(1, openvex.version)
         self.assertEqual(
-            "acf86c76016f0c1753dbcdd32bc10f3023ab3d2548380a1cd1c1b58c87b50c1d",
+            "06008cc75b1a9fdf51bbd7e876c2be85ed0cf4d0162947c9bca3068267f340c4",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)
@@ -411,7 +411,7 @@ class TestOpenVEX(TestCase):
 
         api_client = APIClient()
         response = api_client.post(
-            "/api/vex/openvex_document/update/OpenVEX/2024_0001/",
+            "/api/vex/openvex_document/update/OpenVEX/2020_0001/",
             parameters,
             format="json",
         )
@@ -434,7 +434,7 @@ class TestOpenVEX(TestCase):
 
         api_client = APIClient()
         response = api_client.post(
-            "/api/vex/openvex_document/update/OpenVEX/2024_0001/",
+            "/api/vex/openvex_document/update/OpenVEX/2020_0001/",
             parameters,
             format="json",
         )
@@ -442,7 +442,7 @@ class TestOpenVEX(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
         self.assertEqual(
-            "attachment; filename=OpenVEX_2024_0001_0002.json",
+            "attachment; filename=OpenVEX_2020_0001_0002.json",
             response.headers["Content-Disposition"],
         )
         with open(
@@ -452,13 +452,13 @@ class TestOpenVEX(TestCase):
             self.assertEqual(testfile.read(), response._container[0].decode("utf-8"))
 
         openvex = OpenVEX.objects.get(
-            document_id_prefix="OpenVEX", document_base_id="2024_0001"
+            document_id_prefix="OpenVEX", document_base_id="2020_0001"
         )
         self.assertEqual(vex_user, openvex.user)
         self.assertEqual(None, openvex.product)
         self.assertEqual(2, openvex.version)
         self.assertEqual(
-            "01c46b464b562c39734cd5d273867e65f9d01f2ac23d370b71679196cf97bc13",
+            "8e6638435007780014a05d1b8a568db18a50c16ebc89f8bab32a08a87b0ea4ba",
             openvex.content_hash,
         )
         self.assertEqual("https://vex.example.com", openvex.id_namespace)

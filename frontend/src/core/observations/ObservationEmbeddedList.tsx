@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 import {
     AutocompleteInput,
     BooleanField,
@@ -134,14 +134,14 @@ type ObservationsEmbeddedListProps = {
 };
 
 const BulkActionButtons = (product: any) => (
-    <Fragment>
+    <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
         {product.product.permissions.includes(PERMISSION_OBSERVATION_ASSESSMENT) && (
             <ObservationBulkAssessment product={product.product} />
         )}
         {product.product.permissions.includes(PERMISSION_OBSERVATION_DELETE) && (
             <ObservationBulkDeleteButton product={product.product} />
         )}
-    </Fragment>
+    </Stack>
 );
 
 const ListActions = (product: any) => (
@@ -164,6 +164,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
             localStorage.removeItem("RaStore.observations.embedded");
             localStorage.removeItem("RaStore.license_components.embedded");
             localStorage.removeItem("RaStore.license_components.overview");
+            localStorage.removeItem("RaStore.vulnerability_checks.embedded");
             localStorage.setItem("observationembeddedlist.product", product.id);
             navigate(get_observations_url(product.repository_default_branch));
         }

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
@@ -15,6 +16,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from application.access_control.services.authorization import user_has_permission_or_403
 from application.access_control.services.roles_permissions import Permissions
+from application.commons.services.global_request import get_current_user
 from application.core.models import Branch, Product
 from application.core.queries.branch import get_branch_by_id
 from application.core.queries.product import get_product_by_id
@@ -76,10 +78,7 @@ from application.licenses.queries.license_component import (
 from application.licenses.queries.license_component_evidence import (
     get_license_component_evidences,
 )
-from application.licenses.queries.license_group import (
-    get_license_group,
-    get_license_groups,
-)
+from application.licenses.queries.license_group import get_license_groups
 from application.licenses.queries.license_group_authorization_group_member import (
     get_license_group_authorization_group_members,
 )
@@ -87,10 +86,7 @@ from application.licenses.queries.license_group_member import (
     get_license_group_member,
     get_license_group_members,
 )
-from application.licenses.queries.license_policy import (
-    get_license_policies,
-    get_license_policy,
-)
+from application.licenses.queries.license_policy import get_license_policies
 from application.licenses.queries.license_policy_authorization_group_member import (
     get_license_policy_authorization_group_members,
 )
@@ -98,6 +94,10 @@ from application.licenses.queries.license_policy_item import get_license_policy_
 from application.licenses.queries.license_policy_member import (
     get_license_policy_member,
     get_license_policy_members,
+)
+from application.licenses.services.export_license_policy import (
+    export_license_policy_json,
+    export_license_policy_yaml,
 )
 from application.licenses.services.license_group import (
     copy_license_group,
@@ -175,9 +175,9 @@ class LicenseComponentViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin
             elif element["license_expression"]:
                 license_name = element["license_expression"]
                 element_type = "Expression"
-            elif element["unknown_license"]:
-                license_name = element["unknown_license"]
-                element_type = "Unknown"
+            elif element["non_spdx_license"]:
+                license_name = element["non_spdx_license"]
+                element_type = "Non-SPDX"
             else:
                 license_name = "No license information"
                 element_type = ""
@@ -231,10 +231,10 @@ class LicenseComponentViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin
                 evaluation_result=filter_evaluation_result
             )
 
-        filter_purl_type = request.query_params.get("purl_type")
-        if filter_purl_type:
+        filter_component_purl_type = request.query_params.get("component_purl_type")
+        if filter_component_purl_type:
             license_overview_elements = license_overview_elements.filter(
-                purl_type=filter_purl_type
+                component_purl_type=filter_component_purl_type
             )
 
         return license_overview_elements
@@ -309,14 +309,9 @@ class LicenseGroupViewSet(ModelViewSet):
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
-        license_group = get_license_group(pk)
+        license_group = self._get_license_group(pk)
         if license_group is None:
             raise NotFound("License group not found")
-
-        if not (user.is_superuser or license_group.is_public):
-            license_group_member = get_license_group_member(license_group, user)
-            if not license_group_member:
-                raise NotFound("License group not found")
 
         name = request_serializer.validated_data.get("name")
         try:
@@ -343,17 +338,9 @@ class LicenseGroupViewSet(ModelViewSet):
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
-        license_group = get_license_group(pk)
+        license_group = self._get_license_group(pk, True)
         if license_group is None:
             raise NotFound("License group not found")
-
-        user = request.user
-        if not user.is_superuser:
-            license_group_member = get_license_group_member(license_group, user)
-            if not license_group_member:
-                raise NotFound("License group not found")
-            if not license_group_member.is_manager:
-                raise PermissionDenied("User is not a manager of this license group")
 
         license_id = request_serializer.validated_data.get("license")
         license_to_be_added = get_license(license_id)
@@ -380,17 +367,9 @@ class LicenseGroupViewSet(ModelViewSet):
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
-        license_group = get_license_group(pk)
+        license_group = self._get_license_group(pk, True)
         if license_group is None:
             raise NotFound("License group not found")
-
-        user = request.user
-        if not user.is_superuser:
-            license_group_member = get_license_group_member(license_group, user)
-            if not license_group_member:
-                raise NotFound("License group not found")
-            if not license_group_member.is_manager:
-                raise PermissionDenied("User is not a manager of this license group")
 
         license_id = request_serializer.validated_data.get("license")
         license_to_be_removed = get_license(license_id)
@@ -417,6 +396,28 @@ class LicenseGroupViewSet(ModelViewSet):
         import_scancode_licensedb()
 
         return Response(status=HTTP_204_NO_CONTENT)
+
+    def _get_license_group(
+        self, pk: int, manager: Optional[bool] = False
+    ) -> License_Group:
+        license_group = get_license_groups().filter(pk=pk).first()
+        if license_group is None:
+            raise NotFound("License group not found")
+
+        if manager:
+            user = get_current_user()
+            if not user:
+                raise PermissionDenied("No user found")
+
+            if user.is_superuser:
+                return license_group
+
+            license_group_member = get_license_group_member(license_group, user)
+
+            if not license_group_member or not license_group_member.is_manager:
+                raise PermissionDenied("You are not a manager of this license group")
+
+        return license_group
 
 
 class LicenseGroupMemberViewSet(ModelViewSet):
@@ -478,14 +479,9 @@ class LicensePolicyViewSet(ModelViewSet):
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
-        license_policy = get_license_policy(pk)
+        license_policy = self._get_license_policy(pk)
         if license_policy is None:
             raise NotFound("License policy not found")
-
-        if not (user.is_superuser or license_policy.is_public):
-            license_policy_member = get_license_policy_member(license_policy, user)
-            if not license_policy_member:
-                raise NotFound("License policy not found")
 
         name = request_serializer.validated_data.get("name")
         try:
@@ -508,17 +504,9 @@ class LicensePolicyViewSet(ModelViewSet):
     )
     @action(detail=True, methods=["post"])
     def apply(self, request, pk):
-        license_policy = get_license_policy(pk)
+        license_policy = self._get_license_policy(pk, True)
         if license_policy is None:
             raise NotFound("License policy not found")
-
-        user = request.user
-        if not user.is_superuser:
-            license_policy_member = get_license_policy_member(license_policy, user)
-            if not license_policy.is_public and not license_policy_member:
-                raise NotFound("License policy not found")
-            if license_policy_member and not license_policy_member.is_manager:
-                raise PermissionDenied("You are not allowed to apply a license policy")
 
         apply_license_policy(license_policy)
 
@@ -544,6 +532,66 @@ class LicensePolicyViewSet(ModelViewSet):
         return Response(
             status=HTTP_204_NO_CONTENT,
         )
+
+    @extend_schema(
+        methods=["GET"],
+        responses={200: None},
+    )
+    @action(detail=True, methods=["get"])
+    def export_json(self, request, pk=None):
+        license_policy = self._get_license_policy(pk, False)
+        license_policy_export = export_license_policy_json(license_policy)
+
+        response = HttpResponse(  # pylint: disable=http-response-with-content-type-json
+            content=license_policy_export,
+            content_type="application/json",
+        )
+        response["Content-Disposition"] = (
+            f"attachment; filename=license_policy_{pk}.json"
+        )
+
+        return response
+
+    @extend_schema(
+        methods=["GET"],
+        responses={200: None},
+    )
+    @action(detail=True, methods=["get"])
+    def export_yaml(self, request, pk=None):
+        license_policy = self._get_license_policy(pk, False)
+        license_policy_export = export_license_policy_yaml(license_policy)
+
+        response = HttpResponse(
+            content=license_policy_export,
+            content_type="application/yaml",
+        )
+        response["Content-Disposition"] = (
+            f"attachment; filename=license_policy_{pk}.yaml"
+        )
+
+        return response
+
+    def _get_license_policy(
+        self, pk: int, manager: Optional[bool] = False
+    ) -> License_Policy:
+        license_policy = get_license_policies().filter(pk=pk).first()
+        if license_policy is None:
+            raise NotFound("License policy not found")
+
+        if manager:
+            user = get_current_user()
+            if not user:
+                raise PermissionDenied("No user found")
+
+            if user.is_superuser:
+                return license_policy
+
+            license_policy_member = get_license_policy_member(license_policy, user)
+
+            if not license_policy_member or not license_policy_member.is_manager:
+                raise PermissionDenied("You are not a manager of this license policy")
+
+        return license_policy
 
 
 class LicensePolicyItemViewSet(ModelViewSet):

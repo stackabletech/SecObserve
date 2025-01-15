@@ -88,6 +88,22 @@ export function get_cwe_url(cwe: number): string {
     return "https://cwe.mitre.org/data/definitions/" + cwe + ".html";
 }
 
+export function get_cvss3_url(cvss_vector: string): string {
+    if (cvss_vector.startsWith("CVSS:3.0/")) {
+        return "https://www.first.org/cvss/calculator/3.0#" + cvss_vector;
+    } else if (cvss_vector.startsWith("CVSS:3.1/")) {
+        return "https://www.first.org/cvss/calculator/3.1#" + cvss_vector;
+    }
+    return "";
+}
+
+export function get_cvss4_url(cvss_vector: string): string {
+    if (cvss_vector.startsWith("CVSS:4.0/")) {
+        return "https://www.first.org/cvss/calculator/4.0#" + cvss_vector;
+    }
+    return "";
+}
+
 const VULNERABILITY_URLS = {
     CVE: "https://nvd.nist.gov/vuln/detail/",
     DLA: "https://security-tracker.debian.org/tracker/",
@@ -114,32 +130,32 @@ export function get_vulnerability_url(vulnerability_id: string): string | null {
 export function get_component_purl_url(
     component_name: string,
     component_version: string | null,
-    purl_type: string | null,
-    purl_namespace: string | null
+    component_purl_type: string | null,
+    component_purl_namespace: string | null
 ): string | null {
-    if (purl_type === null) {
+    if (component_purl_type === null) {
         return null;
     }
 
     const typeArray: string[] = ["cargo", "golang", "maven", "npm", "nuget", "pypi"];
-    if (!typeArray.includes(purl_type)) {
+    if (!typeArray.includes(component_purl_type)) {
         return null;
     }
 
-    let deps_dev_type = purl_type;
-    if (purl_type === "golang") {
+    let deps_dev_type = component_purl_type;
+    if (component_purl_type === "golang") {
         deps_dev_type = "go";
     }
 
     let namespace_separator = "/";
-    if (purl_type === "maven") {
+    if (component_purl_type === "maven") {
         namespace_separator = ":";
     }
 
     let component_purl_url = "https://deps.dev/" + deps_dev_type + "/";
-    if (!component_name.includes(":") && purl_namespace !== null) {
+    if (!component_name.includes(":") && component_purl_namespace !== null) {
         component_purl_url =
-            component_purl_url + encodeURIComponent(purl_namespace) + encodeURIComponent(namespace_separator);
+            component_purl_url + encodeURIComponent(component_purl_namespace) + encodeURIComponent(namespace_separator);
     }
     component_purl_url = component_purl_url + encodeURIComponent(component_name);
     if (component_version !== null) {

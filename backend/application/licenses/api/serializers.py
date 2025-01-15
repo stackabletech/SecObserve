@@ -1,5 +1,6 @@
 from typing import Optional
 
+from license_expression import get_spdx_licensing
 from packageurl import PackageURL
 from rest_framework.serializers import (
     CharField,
@@ -34,13 +35,19 @@ from application.licenses.queries.license_group_authorization_group_member impor
     get_license_group_authorization_group_member,
     get_license_group_authorization_group_members,
 )
-from application.licenses.queries.license_group_member import get_license_group_member
+from application.licenses.queries.license_group_member import (
+    get_license_group_member,
+    get_license_group_members,
+)
 from application.licenses.queries.license_policy_authorization_group_member import (
     get_license_policy_authorization_group_member,
     get_license_policy_authorization_group_members,
 )
 from application.licenses.queries.license_policy_item import get_license_policy_items
-from application.licenses.queries.license_policy_member import get_license_policy_member
+from application.licenses.queries.license_policy_member import (
+    get_license_policy_member,
+    get_license_policy_members,
+)
 from application.licenses.services.license_policy import get_ignore_component_type_list
 
 
@@ -72,8 +79,8 @@ class LicenseComponentEvidenceSerializer(ModelSerializer):
     def get_license_component_title(self, evidence: License_Component_Evidence) -> str:
         if evidence.license_component.license:
             return f"{evidence.license_component.license.spdx_id} ({evidence.license_component.license.name})"
-        if evidence.license_component.unknown_license:
-            return evidence.license_component.unknown_license
+        if evidence.license_component.non_spdx_license:
+            return evidence.license_component.non_spdx_license
         return "No license"
 
     class Meta:
@@ -92,7 +99,7 @@ class LicenseComponentSerializer(ModelSerializer):
         source="license",
         read_only=True,
     )
-    purl_namespace = SerializerMethodField()
+    component_purl_namespace = SerializerMethodField()
     branch_name = SerializerMethodField()
     license_policy_name: Optional[SerializerMethodField] = SerializerMethodField()
     license_policy_id: Optional[SerializerMethodField] = SerializerMethodField()
@@ -106,10 +113,13 @@ class LicenseComponentSerializer(ModelSerializer):
         model = License_Component
         fields = "__all__"
 
-    def get_purl_namespace(self, obj: License_Component) -> Optional[str]:
-        if obj.purl:
-            purl = PackageURL.from_string(obj.purl)
-            return purl.namespace
+    def get_component_purl_namespace(self, obj: License_Component) -> Optional[str]:
+        if obj.component_purl:
+            try:
+                purl = PackageURL.from_string(obj.component_purl)
+                return purl.namespace
+            except ValueError:
+                return ""
 
         return ""
 
@@ -142,12 +152,12 @@ class LicenseComponentSerializer(ModelSerializer):
             return "SPDX"
         if obj.license_expression:
             return "Expression"
-        if obj.unknown_license:
-            return "Unknown"
+        if obj.non_spdx_license:
+            return "Non-SPDX"
         return ""
 
     def get_title(self, obj: License_Component) -> str:
-        return f"{obj.license_name} / {obj.name_version}"
+        return f"{obj.license_name} / {obj.component_name_version}"
 
 
 class LicenseComponentListSerializer(LicenseComponentSerializer):
@@ -157,7 +167,7 @@ class LicenseComponentListSerializer(LicenseComponentSerializer):
 
     class Meta:
         model = License_Component
-        exclude = ["dependencies"]
+        exclude = ["component_dependencies"]
 
 
 class LicenseComponentIdSerializer(ModelSerializer):
@@ -220,7 +230,7 @@ class LicenseGroupSerializer(ModelSerializer):
         return obj.licenses.exists()
 
     def get_has_users(self, obj: License_Group) -> bool:
-        return obj.users.exists()
+        return get_license_group_members().filter(license_group=obj).exists()
 
     def get_has_authorization_groups(self, obj: License_Group) -> bool:
         return (
@@ -317,6 +327,8 @@ class LicenseGroupCopySerializer(Serializer):
 
 
 class LicensePolicySerializer(ModelSerializer):
+    parent_name = SerializerMethodField()
+    is_parent = SerializerMethodField()
     is_manager = SerializerMethodField()
     has_products = SerializerMethodField()
     has_product_groups = SerializerMethodField()
@@ -324,18 +336,14 @@ class LicensePolicySerializer(ModelSerializer):
     has_users = SerializerMethodField()
     has_authorization_groups = SerializerMethodField()
 
-    class Meta:
-        model = License_Policy
-        exclude = ["users", "authorization_groups"]
+    def get_parent_name(self, obj: License_Policy) -> str:
+        if obj.parent:
+            return obj.parent.name
 
-    def validate_ignore_component_types(self, value: str) -> str:
-        ignore_component_types = get_ignore_component_type_list(value)
-        for component_type in ignore_component_types:
-            for component_type in ignore_component_types:
-                if not PURL_Type.PURL_TYPE_CHOICES.get(component_type):
-                    raise ValidationError(f"Invalid component type {component_type}")
+        return ""
 
-        return value
+    def get_is_parent(self, obj: License_Policy) -> bool:
+        return obj.children.exists()
 
     def get_is_manager(self, obj: License_Policy) -> bool:
         user = get_current_user()
@@ -355,7 +363,7 @@ class LicensePolicySerializer(ModelSerializer):
         return False
 
     def get_has_products(self, obj: License_Policy) -> bool:
-        return get_products().filter(license_policy=obj).exists()
+        return get_products(is_product_group=False).filter(license_policy=obj).exists()
 
     def get_has_product_groups(self, obj: License_Policy) -> bool:
         return get_products(is_product_group=True).filter(license_policy=obj).exists()
@@ -364,7 +372,7 @@ class LicensePolicySerializer(ModelSerializer):
         return obj.license_policy_items.exists()
 
     def get_has_users(self, obj: License_Policy) -> bool:
-        return obj.users.exists()
+        return get_license_policy_members().filter(license_policy=obj).exists()
 
     def get_has_authorization_groups(self, obj: License_Policy) -> bool:
         return (
@@ -372,6 +380,36 @@ class LicensePolicySerializer(ModelSerializer):
             .filter(license_policy=obj)
             .exists()
         )
+
+    class Meta:
+        model = License_Policy
+        exclude = ["users", "authorization_groups"]
+
+    def validate_ignore_component_types(self, value: str) -> str:
+        ignore_component_types = get_ignore_component_type_list(value)
+        for component_type in ignore_component_types:
+            for component_type in ignore_component_types:
+                if not PURL_Type.PURL_TYPE_CHOICES.get(component_type):
+                    raise ValidationError(f"Invalid component type {component_type}")
+
+        return value
+
+    def validate_parent(self, value: License_Policy) -> License_Policy:
+        if value.parent:
+            raise ValidationError("A child cannot be a parent itself")
+
+        return value
+
+    def update(self, instance: License_Policy, validated_data: dict):
+        parent = validated_data.get("parent")
+        instance_has_children = instance.children.exists()
+        if parent:
+            if instance_has_children:
+                raise ValidationError("A parent cannot have a parent itself")
+            if instance == parent:
+                raise ValidationError("A license policy cannot be parent of itself")
+
+        return super().update(instance, validated_data)
 
 
 class LicensePolicyItemSerializer(ModelSerializer):
@@ -403,18 +441,18 @@ class LicensePolicyItemSerializer(ModelSerializer):
         data_license_group = attrs.get("license_group")
         data_license = attrs.get("license")
         data_license_expression = attrs.get("license_expression", "")
-        data_unknown_license = attrs.get("unknown_license", "")
+        data_non_spdx_license = attrs.get("non_spdx_license", "")
 
         if self.instance:
             self.instance.license_group = data_license_group
             self.instance.license = data_license
             self.instance.license_expression = data_license_expression
-            self.instance.unknown_license = data_unknown_license
+            self.instance.non_spdx_license = data_non_spdx_license
             num_fields = (
                 bool(self.instance.license_group)
                 + bool(self.instance.license)
                 + bool(self.instance.license_expression)
-                + bool(self.instance.unknown_license)
+                + bool(self.instance.non_spdx_license)
             )
             try:
                 item = License_Policy_Item.objects.get(
@@ -422,7 +460,7 @@ class LicensePolicyItemSerializer(ModelSerializer):
                     license_group=self.instance.license_group,
                     license=self.instance.license,
                     license_expression=self.instance.license_expression,
-                    unknown_license=self.instance.unknown_license,
+                    non_spdx_license=self.instance.non_spdx_license,
                 )
                 if item.pk != self.instance.pk:
                     raise ValidationError("License policy item already exists")
@@ -433,7 +471,7 @@ class LicensePolicyItemSerializer(ModelSerializer):
                 bool(data_license_group)
                 + bool(data_license)
                 + bool(data_license_expression)
-                + bool(data_unknown_license)
+                + bool(data_non_spdx_license)
             )
             try:
                 License_Policy_Item.objects.get(
@@ -441,7 +479,7 @@ class LicensePolicyItemSerializer(ModelSerializer):
                     license_group=data_license_group,
                     license=data_license,
                     license_expression=data_license_expression,
-                    unknown_license=data_unknown_license,
+                    non_spdx_license=data_non_spdx_license,
                 )
                 raise ValidationError("License policy item already exists")
             except License_Policy_Item.DoesNotExist:
@@ -456,6 +494,19 @@ class LicensePolicyItemSerializer(ModelSerializer):
                 "Only one of license group, license, license expression or unknown license must be set"
             )
         return attrs
+
+    def validate_license_expression(self, value: str) -> str:
+        if value:
+            licensing = get_spdx_licensing()
+            expression_info = licensing.validate(value, strict=True)
+            if not expression_info.errors:
+                value = expression_info.normalized_expression
+            else:
+                raise ValidationError(
+                    f"Invalid license expression: {expression_info.errors}"
+                )
+
+        return value
 
 
 class LicensePolicyMemberSerializer(ModelSerializer):

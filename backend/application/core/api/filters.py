@@ -74,7 +74,6 @@ class ProductFilter(FilterSet):
 
 
 class ProductMemberFilter(FilterSet):
-    product = NumberFilter(field_name="product")
     is_product_group = BooleanFilter(field_name="product__is_product_group")
 
     ordering = OrderingFilter(
@@ -92,7 +91,6 @@ class ProductMemberFilter(FilterSet):
 
 
 class ProductAuthorizationGroupMemberFilter(FilterSet):
-    product = NumberFilter(field_name="product")
     is_product_group = BooleanFilter(field_name="product__is_product_group")
 
     ordering = OrderingFilter(
@@ -193,13 +191,9 @@ class ObservationFilter(FilterSet):
     )
     branch_name = CharFilter(field_name="branch__name", lookup_expr="icontains")
 
-    has_pending_assessment = ChoiceFilter(
+    has_pending_assessment = BooleanFilter(
         field_name="has_pending_assessment",
         method="get_has_pending_assessment",
-        choices=[
-            ("true", "true"),
-            ("false", "false"),
-        ],
     )
 
     has_completed_assessment = ChoiceFilter(
@@ -216,7 +210,7 @@ class ObservationFilter(FilterSet):
     ):  # pylint: disable=unused-argument
         # field_name is used as a positional argument
 
-        if value == "true":
+        if value:
             return queryset.filter(
                 id__in=Observation_Log.objects.filter(
                     assessment_status="Needs approval"

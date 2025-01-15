@@ -1,7 +1,7 @@
-import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
-import { Button, Confirm, useNotify, useRefresh } from "react-admin";
+import { Confirm, useNotify, useRefresh } from "react-admin";
 
+import RemoveButton from "../../commons/custom_fields/RemoveButton";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 
 type LicensePolicyItemRemoveProps = {
@@ -15,8 +15,8 @@ const getItemName = (license_policy_item: any) => {
     if (license_policy_item.license_spdx_id) {
         return license_policy_item.license_spdx_id;
     }
-    if (license_policy_item.unknown_license) {
-        return license_policy_item.unknown_license;
+    if (license_policy_item.non_spdx_license) {
+        return license_policy_item.non_spdx_license;
     }
     return "";
 };
@@ -46,7 +46,7 @@ const LicensePolicyItemRemove = ({ license_policy_item }: LicensePolicyItemRemov
 
     return (
         <>
-            <Button label="Remove" onClick={handleClick} startIcon={<DeleteIcon />} sx={{ color: "#d32f2f" }} />
+            <RemoveButton title="Remove" onClick={handleClick} />
             <Confirm
                 isOpen={open}
                 title="Remove license policy item"

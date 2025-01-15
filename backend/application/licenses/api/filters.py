@@ -2,9 +2,11 @@ from datetime import timedelta
 
 from django.utils import timezone
 from django_filters import (
+    BooleanFilter,
     CharFilter,
     ChoiceFilter,
     FilterSet,
+    ModelMultipleChoiceFilter,
     NumberFilter,
     OrderingFilter,
 )
@@ -23,17 +25,22 @@ from application.licenses.models import (
     License_Policy_Item,
     License_Policy_Member,
 )
+from application.licenses.queries.license_group import get_license_groups
 
 
 class LicenseComponentFilter(FilterSet):
-    name_version = CharFilter(field_name="name_version", lookup_expr="icontains")
+    component_name_version = CharFilter(
+        field_name="component_name_version", lookup_expr="icontains"
+    )
     license_name = CharFilter(field_name="license_name", lookup_expr="icontains")
     license_name_exact = CharFilter(field_name="license_name")
     license_spdx_id = CharFilter(field_name="license__spdx_id", lookup_expr="icontains")
     license_expression = CharFilter(
         field_name="license_expression", lookup_expr="icontains"
     )
-    unknown_license = CharFilter(field_name="unknown_license", lookup_expr="icontains")
+    non_spdx_license = CharFilter(
+        field_name="non_spdx_license", lookup_expr="icontains"
+    )
     age = ChoiceFilter(
         field_name="age", method="get_age", choices=Age_Choices.AGE_CHOICES
     )
@@ -56,12 +63,12 @@ class LicenseComponentFilter(FilterSet):
         fields=(
             ("license__spdx_id", "license_data.spdx_id"),
             ("license_expression", "license_expression"),
-            ("unknown_license", "unknown_license"),
+            ("non_spdx_license", "non_spdx_license"),
             (
                 (
                     "license_name",
                     "numerical_evaluation_result",
-                    "name_version",
+                    "component_name_version",
                 ),
                 "license_name",
             ),
@@ -69,7 +76,7 @@ class LicenseComponentFilter(FilterSet):
                 (
                     "numerical_evaluation_result",
                     "license_name",
-                    "name_version",
+                    "component_name_version",
                 ),
                 "evaluation_result",
             ),
@@ -78,19 +85,19 @@ class LicenseComponentFilter(FilterSet):
                     "branch__name",
                     "license_name",
                     "numerical_evaluation_result",
-                    "name_version",
+                    "component_name_version",
                 ),
                 "branch_name",
             ),
-            ("name_version", "name_version"),
+            ("component_name_version", "component_name_version"),
             (
                 (
-                    "purl_type",
+                    "component_purl_type",
                     "numerical_evaluation_result",
                     "license_name",
-                    "name_version",
+                    "component_name_version",
                 ),
-                "purl_type",
+                "component_purl_type",
             ),
             ("last_change", "last_change"),
         ),
@@ -104,10 +111,10 @@ class LicenseComponentFilter(FilterSet):
             "license_name",
             "license_spdx_id",
             "license_expression",
-            "unknown_license",
+            "non_spdx_license",
             "evaluation_result",
-            "name_version",
-            "purl_type",
+            "component_name_version",
+            "component_purl_type",
         ]
 
 
@@ -133,6 +140,7 @@ class LicenseFilter(FilterSet):
     exclude_license_policy = NumberFilter(
         field_name="exclude_license_policy", method="get_exclude_license_policy"
     )
+    license_groups = ModelMultipleChoiceFilter(queryset=License.objects.none())
 
     def get_exclude_license_group(
         self, queryset, field_name, value
@@ -157,6 +165,10 @@ class LicenseFilter(FilterSet):
             ("is_deprecated", "is_deprecated"),
         ),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["license_groups"].queryset = get_license_groups()
 
     class Meta:
         model = License
@@ -234,12 +246,25 @@ class LicenseGroupAuthorizationGroupFilter(FilterSet):
 
 class LicensePolicyFilter(FilterSet):
     name = CharFilter(field_name="name", lookup_expr="icontains")
+    is_child = BooleanFilter(field_name="is_child", method="get_is_child")
+    is_not_id = NumberFilter(field_name="is_not_id", method="get_is_not_id")
     license = NumberFilter(
         field_name="license", method="get_license_policies_with_license"
     )
     license_group = NumberFilter(
         field_name="license_group", method="get_license_policies_with_license_group"
     )
+
+    def get_is_child(
+        self, queryset, field_name, value  # pylint: disable=unused-argument
+    ) -> bool:
+        parent_null = not value
+        return queryset.filter(parent__isnull=parent_null)
+
+    def get_is_not_id(
+        self, queryset, field_name, value  # pylint: disable=unused-argument
+    ) -> bool:
+        return queryset.exclude(pk=value)
 
     def get_license_policies_with_license(
         self, queryset, field_name, value  # pylint: disable=unused-argument
@@ -251,17 +276,18 @@ class LicensePolicyFilter(FilterSet):
     ) -> bool:
         return queryset.filter(license_policy_items__license_group=value)
 
-    ordering = OrderingFilter(
+    ordering = ExtendedOrderingFilter(
         # tuple-mapping retains order
         fields=(
             ("name", "name"),
+            (("parent__name", "name"), "parent_name"),
             ("is_public", "is_public"),
         ),
     )
 
     class Meta:
         model = License_Policy
-        fields = ["name", "is_public"]
+        fields = ["name", "is_public", "parent"]
 
 
 class LicensePolicyItemFilter(FilterSet):
@@ -272,7 +298,9 @@ class LicensePolicyItemFilter(FilterSet):
     license_expression = CharFilter(
         field_name="license_expression", lookup_expr="icontains"
     )
-    unknown_license = CharFilter(field_name="unknown_license", lookup_expr="icontains")
+    non_spdx_license = CharFilter(
+        field_name="non_spdx_license", lookup_expr="icontains"
+    )
 
     ordering = ExtendedOrderingFilter(
         # tuple-mapping retains order
@@ -283,7 +311,7 @@ class LicensePolicyItemFilter(FilterSet):
                     "license_group__name",
                     "license__spdx_id",
                     "license_expression",
-                    "unknown_license",
+                    "non_spdx_license",
                 ),
                 "license_group_name",
             ),
@@ -292,7 +320,7 @@ class LicensePolicyItemFilter(FilterSet):
                     "license__spdx_id",
                     "license_group__name",
                     "license_expression",
-                    "unknown_license",
+                    "non_spdx_license",
                 ),
                 "license_spdx_id",
             ),
@@ -301,18 +329,18 @@ class LicensePolicyItemFilter(FilterSet):
                     "license_expression",
                     "license_group__name",
                     "license__spdx_id",
-                    "unknown_license",
+                    "non_spdx_license",
                 ),
                 "license_expression",
             ),
             (
                 (
-                    "unknown_license",
+                    "non_spdx_license",
                     "license_group__name",
                     "license__spdx_id",
                     "license_expression",
                 ),
-                "unknown_license",
+                "non_spdx_license",
             ),
             (
                 (
@@ -320,7 +348,7 @@ class LicensePolicyItemFilter(FilterSet):
                     "license_group__name",
                     "license__spdx_id",
                     "license_expression",
-                    "unknown_license",
+                    "non_spdx_license",
                 ),
                 "evaluation_result",
             ),
@@ -334,7 +362,7 @@ class LicensePolicyItemFilter(FilterSet):
             "license_group_name",
             "license_spdx_id",
             "license_expression",
-            "unknown_license",
+            "non_spdx_license",
             "evaluation_result",
             "license_group_name",
         ]

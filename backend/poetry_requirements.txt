@@ -1,1 +1,1 @@
-poetry==1.8.5  # https://python-poetry.org/
+poetry==2.0.1  # https://python-poetry.org/

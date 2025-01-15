@@ -3,10 +3,9 @@ import json
 import re
 import subprocess
 from collections import defaultdict
-from json import dumps, load
+from json import dumps
 from typing import Any, Optional
 
-from django.core.files.base import File
 from trycast import trycast
 
 from application.core.models import Observation
@@ -19,7 +18,7 @@ from application.import_observations.parsers.cyclone_dx.dependencies import (
     get_component_dependencies,
 )
 from application.import_observations.parsers.cyclone_dx.types import Component, Metadata
-from application.import_observations.types import Parser_Type
+from application.import_observations.types import Parser_Filetype, Parser_Type
 from application.licenses.models import License_Component
 
 
@@ -33,20 +32,17 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         return "CycloneDX"
 
     @classmethod
+    def get_filetype(cls) -> str:
+        return Parser_Filetype.FILETYPE_JSON
+
+    @classmethod
     def get_type(cls) -> str:
         return Parser_Type.TYPE_SCA
 
-    def check_format(self, file: File) -> tuple[bool, list[str], dict]:
-        try:
-            data = load(file)
-        except Exception:
-            return False, ["File is not valid JSON"], {}
-
-        bom_format = data.get("bomFormat")
-        if bom_format != "CycloneDX":
-            return False, ["File is not a CycloneDX SBOM"], {}
-
-        return True, [], data
+    def check_format(self, data: Any) -> bool:
+        if isinstance(data, dict) and data.get("bomFormat") == "CycloneDX":
+            return True
+        return False
 
     def get_observations(self, data: dict) -> list[Observation]:
         self.metadata = self._get_metadata(data)
@@ -94,28 +90,26 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             self.metadata = self._get_metadata(data)
 
         components = []
-        licenses_exist = False
 
+        licenses_exist = False
         for component in self.components.values():
-            if component.unknown_license:
+            if component.unsaved_license:
                 licenses_exist = True
+                break
 
         if licenses_exist:
             for component in self.components.values():
-                if component.unknown_license:
-                    licenses_exist = True
-
                 observation_component_dependencies, _ = get_component_dependencies(
                     data, self.components, component, defaultdict(list)
                 )
                 model_component = License_Component(
-                    name=component.name,
-                    version=component.version,
-                    purl=component.purl,
-                    cpe=component.cpe,
-                    dependencies=observation_component_dependencies,
+                    component_name=component.name,
+                    component_version=component.version,
+                    component_purl=component.purl,
+                    component_cpe=component.cpe,
+                    component_dependencies=observation_component_dependencies,
                 )
-                model_component.unsaved_license = component.unknown_license
+                model_component.unsaved_license = component.unsaved_license
                 self._add_license_component_evidence(component, model_component)
                 components.append(model_component)
 
@@ -183,19 +177,19 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         if not component_data.get("bom-ref"):
             return None
 
-        unknown_licenses = []
+        cyclonedx_licenses = []
         licenses = component_data.get("licenses", [])
         if licenses and licenses[0].get("expression"):
-            unknown_licenses.append(licenses[0].get("expression"))
+            cyclonedx_licenses.append(licenses[0].get("expression"))
         else:
             for my_license in licenses:
                 component_license = my_license.get("license", {}).get("id")
-                if component_license and component_license not in unknown_licenses:
-                    unknown_licenses.append(component_license)
+                if component_license and component_license not in cyclonedx_licenses:
+                    cyclonedx_licenses.append(component_license)
 
                 component_license = my_license.get("license", {}).get("name")
-                if component_license and component_license not in unknown_licenses:
-                    unknown_licenses.append(component_license)
+                if component_license and component_license not in cyclonedx_licenses:
+                    cyclonedx_licenses.append(component_license)
 
         return Component(
             bom_ref=component_data.get("bom-ref", ""),
@@ -205,7 +199,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             purl=component_data.get("purl", ""),
             cpe=component_data.get("cpe", ""),
             json=component_data,
-            unknown_license=", ".join(unknown_licenses),
+            unsaved_license=", ".join(cyclonedx_licenses),
         )
 
     def _translate_component(self, bom_ref: str) -> str:
@@ -275,9 +269,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
-            cvss3_score, cvss3_vector = self._get_cvss3(vulnerability)
+            cvss3_score, cvss3_vector = self._get_cvss(vulnerability, 3)
+            cvss4_score, cvss4_vector = self._get_cvss(vulnerability, 4)
             severity = ""
-            if not cvss3_score:
+            if not cvss3_score and not cvss4_score:
                 severity = self._get_highest_severity(vulnerability)
             cwe = self._get_cwe(vulnerability)
             description = vulnerability.get("description")
@@ -363,6 +358,8 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_component_dependencies=observation_component_dependencies,
                             cvss3_score=cvss3_score,
                             cvss3_vector=cvss3_vector,
+                            cvss4_score=cvss4_score,
+                            cvss4_vector=cvss4_vector,
                             cwe=cwe,
                             scanner=self.metadata.scanner,
                             origin_docker_image_name=self.metadata.container_name,
@@ -434,20 +431,20 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             file=file,
         )
 
-    def _get_cvss3(self, vulnerability):
+    def _get_cvss(self, vulnerability: dict, version: int):
         ratings = vulnerability.get("ratings", [])
         if ratings:
-            cvss3_score = 0
-            cvss3_vector = None
+            cvss_score = 0
+            cvss_vector = None
             for rating in ratings:
                 method = rating.get("method")
-                if method and method.lower().startswith("cvssv3"):
-                    current_cvss3_score = rating.get("score", 0)
-                    if current_cvss3_score > cvss3_score:
-                        cvss3_score = current_cvss3_score
-                        cvss3_vector = rating.get("vector")
-            if cvss3_score > 0:
-                return cvss3_score, cvss3_vector
+                if method and method.lower().startswith(f"cvssv{str(version)}"):
+                    current_cvss_score = rating.get("score", 0)
+                    if current_cvss_score > cvss_score:
+                        cvss_score = current_cvss_score
+                        cvss_vector = rating.get("vector")
+            if cvss_score > 0:
+                return cvss_score, cvss_vector
         return None, None
 
     def _get_highest_severity(self, vulnerability):

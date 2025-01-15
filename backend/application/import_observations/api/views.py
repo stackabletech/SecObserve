@@ -47,10 +47,6 @@ from application.import_observations.queries.api_configuration import (
     get_api_configuration_by_name,
     get_api_configurations,
 )
-from application.import_observations.queries.parser import (
-    get_parser_by_id,
-    get_parser_by_name,
-)
 from application.import_observations.queries.vulnerability_check import (
     get_vulnerability_checks,
 )
@@ -236,11 +232,6 @@ class FileUploadObservationsById(APIView):
                     f"Branch {branch_id} does not exist for product {product}"
                 )
 
-        parser_id = request_serializer.validated_data.get("parser")
-        parser = get_parser_by_id(parser_id)
-        if not parser:
-            raise ValidationError(f"Parser {parser_id} does not exist")
-
         file = request_serializer.validated_data.get("file")
         service = request_serializer.validated_data.get("service")
         docker_image_name_tag = request_serializer.validated_data.get(
@@ -255,7 +246,6 @@ class FileUploadObservationsById(APIView):
         file_upload_parameters = FileUploadParameters(
             product=product,
             branch=branch,
-            parser=parser,
             file=file,
             service=service,
             docker_image_name_tag=docker_image_name_tag,
@@ -337,11 +327,6 @@ class FileUploadObservationsByName(APIView):
                 )
                 branch.save()
 
-        parser_name = request_serializer.validated_data.get("parser_name")
-        parser = get_parser_by_name(parser_name)
-        if not parser:
-            raise ValidationError(f"Parser {parser_name} does not exist")
-
         file = request_serializer.validated_data.get("file")
         service = request_serializer.validated_data.get("service")
         docker_image_name_tag = request_serializer.validated_data.get(
@@ -356,7 +341,6 @@ class FileUploadObservationsByName(APIView):
         file_upload_parameters = FileUploadParameters(
             product=product,
             branch=branch,
-            parser=parser,
             file=file,
             service=service,
             docker_image_name_tag=docker_image_name_tag,

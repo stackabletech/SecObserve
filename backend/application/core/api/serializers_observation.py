@@ -24,6 +24,7 @@ from application.core.api.serializers_helpers import (
     get_origin_component_name_version,
     get_scanner_name,
     validate_cvss3_vector,
+    validate_cvss4_vector,
     validate_cvss_and_severity,
 )
 from application.core.api.serializers_product import (
@@ -143,16 +144,23 @@ class ObservationSerializer(ModelSerializer):
 
     def get_origin_component_purl_type(self, observation: Observation) -> str:
         if observation.origin_component_purl:
-            purl = PackageURL.from_string(observation.origin_component_purl)
-            return purl.type
+            try:
+                purl = PackageURL.from_string(observation.origin_component_purl)
+                return purl.type
+            except ValueError:
+                return ""
+
         return ""
 
     def get_origin_component_purl_namespace(
         self, observation: Observation
     ) -> Optional[str]:
         if observation.origin_component_purl:
-            purl = PackageURL.from_string(observation.origin_component_purl)
-            return purl.namespace
+            try:
+                purl = PackageURL.from_string(observation.origin_component_purl)
+                return purl.namespace
+            except ValueError:
+                return ""
         return ""
 
     def _create_azure_devops_url(
@@ -296,6 +304,9 @@ class ObservationUpdateSerializer(ModelSerializer):
     def validate_cvss3_vector(self, cvss3_vector: str) -> str:
         return validate_cvss3_vector(cvss3_vector)
 
+    def validate_cvss4_vector(self, cvss4_vector: str) -> str:
+        return validate_cvss4_vector(cvss4_vector)
+
     def update(self, instance: Observation, validated_data: dict):
         actual_severity = instance.current_severity
         actual_status = instance.current_status
@@ -410,6 +421,8 @@ class ObservationUpdateSerializer(ModelSerializer):
             "vulnerability_id",
             "cvss3_score",
             "cvss3_vector",
+            "cvss4_score",
+            "cvss4_vector",
             "cwe",
             "risk_acceptance_expiry_date",
         ]
@@ -439,6 +452,9 @@ class ObservationCreateSerializer(ModelSerializer):
 
     def validate_cvss3_vector(self, cvss3_vector: str) -> str:
         return validate_cvss3_vector(cvss3_vector)
+
+    def validate_cvss4_vector(self, cvss4_vector: str) -> str:
+        return validate_cvss4_vector(cvss4_vector)
 
     def create(self, validated_data):
         if validated_data.get("origin_service"):
@@ -505,6 +521,8 @@ class ObservationCreateSerializer(ModelSerializer):
             "vulnerability_id",
             "cvss3_score",
             "cvss3_vector",
+            "cvss4_score",
+            "cvss4_vector",
             "cwe",
             "risk_acceptance_expiry_date",
         ]

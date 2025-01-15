@@ -9,7 +9,7 @@ const ObservationShowDescriptionRecommendation = () => {
     return (
         <Stack spacing={2}>
             {observation && observation.description != "" && (
-                <Labeled sx={{ paddingTop: 2 }}>
+                <Labeled>
                     <MarkdownField content={observation.description} label="Description" />
                 </Labeled>
             )}

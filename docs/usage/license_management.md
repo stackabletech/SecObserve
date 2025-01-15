@@ -10,14 +10,14 @@ If license management is deactivated:
 
 * The `Licenses` menu is not visible in the navigation.
 * The [automatic import of SPDX licenses](../integrations/license_data.md#spdx-licenses) is deactivated.
-* Licenses for components are not imported from CycloneDX files and the `License` tab is not visible in the Product view.
+* Licenses for components are not imported from CycloneDX or SPDX files and the `License` tab is not visible in the Product view.
 
 
 ## Managing licenses in products
 
 #### Importing components with licenses
 
-When importing data from CycloneDX SBOMs, the licenses of the components are imported as well, if they are available in the SBOM and the parameter `SO_SUPPRESS_LICENSES` is not set or set to `false` ^1)^. The licenses are shown in the `License` tab of the Product view.
+When importing data from CycloneDX or SPDX SBOMs, the licenses of the components are imported as well, if they are available in the SBOM and the parameter `SO_SUPPRESS_LICENSES` is not set or set to `false` ^1)^. The licenses are shown in the `License` tab of the Product view.
 
 **^1)^** `SO_SUPPRESS_LICENSES` will be set to `true` by the *Grype*, *Trivy Filesystem* and *Trivy Image* GitHub actions / GitLab templates if not set otherwise, to not accidently import licenses.
 
@@ -34,7 +34,7 @@ A License Policy for the Product can be set, when editing the product settings.
 
 ![Product set license policy](../assets/images/screenshot_product_license_policy.png){ width="80%" style="display: block; margin: 0 auto" }
 
-If no License Policy is set, all licenses are evaluated as `Unkown`. If a License Policy is set, the licenses are evaluated according to the policy:
+If no License Policy is set, all licenses are evaluated as `Unknown`. If a License Policy is set, the licenses are evaluated according to the policy:
 
 * **Allowed:** There is no problem using the component with that license.
 * **Forbidden:** Using the component with that license might lead to legal problems and the component cannot be used for the Product.
@@ -42,7 +42,7 @@ If no License Policy is set, all licenses are evaluated as `Unkown`. If a Licens
 * **Unknown:** The license is not included in the License Policy.
 * **Ignored:** The component is not relevant for the license management.
 
-License expressions are evaluated by their included licenses, if the operators are either all `AND` or all `OR`. If the operators are mixed or other operators are used, the expression is evaluated as `Unknown`, if there is no explicit rule for this license expression.
+License expressions are evaluated by their included licenses, if the operators are all either `AND` or `OR`. If other operators are used, e.g. `WITH`, the expression is evaluated as `Unknown`, if there is no explicit rule for this license expression.
 
 A good strategy is to start with an existing License Policy and when needed make a copy of it and adjust the rules to the needs of the Product.
 
@@ -52,13 +52,17 @@ A `License Policy` defines the rules for the usage of licenses in a Product.
 
 The list of `License Policies` can be found in the `Licenses` sub-menu under `Administration`.
 
+A `License Policy` can have another license policy as a `Parent`. If a license policy has a parent, the rules of the parent are also valid for the child policy, but existing rules of the parent can be overriden and new rules can be added. A license policy which is a parent cannot have a parent itself.
+
 Within the `License Policy` itself a comma-separated list of component (e.g. `apk` or `deb`) types can be defined, which shall be ignored in the license evaluation. This can be useful for operating system packages in a Docker container, which are not relevant for the license management.
 
 The attribute `Public` defines, if the License Policy is visible for all users or only for the members of the policy.
 
-With the `Apply` button the rules of the License Policy are applied to all products, that have this License Policy set.
+**Actions**
 
-The `Copy` button creates a new License Policy with the same rules, which can be adjusted for a specific Product.
+* The `Export` button opens a sub-menu to exports the License Policy either as a JSON or a YAML file.	
+* With the `Apply` button the rules of the License Policy are applied to all products, that have this License Policy set.
+* The `Copy` button creates a new License Policy with the same rules, which can be adjusted for a specific Product.
 
 ![License policy](../assets/images/screenshot_license_policy.png)
 
@@ -68,12 +72,12 @@ A `License Policy` has a list of items, which are the rules of the policy. It ca
 * a rule for a **License Group** or
 * a rule for a specific **SPDX license**, 
 * a rule for a **license expression** or
-* a rule for an **unkown license** string, e.g. a license that is not in the SPDX list or a license expression.
+* a rule for an **non-spdx license** string, e.g. a license that is not in the SPDX list or a license expression.
 
 ![License policy item](../assets/images/screenshot_license_policy_item.png){ width="60%" style="display: block; margin: 0 auto" }
 
 
-Additionally a `License Policy` has a list of user members and a list of authorization group members, which define who has access to a license policy, either read-only or as a manager. To define read-only members is not necessary, if the policy is defined as `Public`.
+Additionally a `License Policy` has a list of user members and a list of authorization group members, which define who has access to a license policy, either read-only or as a manager. To define read-only members is not necessary, if the policy is defined as `Public`. Additionally, users can view all license policies that are assigned to a product, if they have access to the product.
 
 ![License policy member](../assets/images/screenshot_license_policy_member.png){ width="60%" style="display: block; margin: 0 auto" }
 
@@ -86,5 +90,6 @@ As with `License Policies`, a `License Group`
 
 * can be found in the `Licenses` sub-menu under `Administration`,
 * can be copied if adjustments are needed for a specific Product,
-* can be public, so that all users can see the group and its licenses and
+* can be public, so that all users can see the group and its licenses,
 * has a list of user members and a list of authorization group members, which define who has access to a license group, either read-only or as a manager.
+* users can view all license groups that are assigned to a license policy which is assigned to a product, if they have access to the product.

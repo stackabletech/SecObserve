@@ -91,6 +91,7 @@ erDiagram
     Product_Group }o--o| License_Policy : references
     License_Component }o--o| License : references
     License_Component ||--|{ License_Component_Evidence : has
+    License_Policy }o--o| License_Policy : parent
     License_Policy ||--o{ License_Policy_Item : has
     License_Policy ||--o{ License_Policy_Member : has
     License_Policy ||--o{ License_Policy_Authorization_Group_Member : has
@@ -110,7 +111,7 @@ A `License Component` is a library or package used in a product that is licensed
 
 * a license with a known SPDX identifier
 * a license expression, if the license expression in the scan report is valid [according to the SPDX specification](https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/) and consists only of known SPDX identifiers
-* an unknown license string in all other cases
+* a non-spdx license string in all other cases
 
 #### License Component Evidence
 
@@ -120,9 +121,11 @@ A `License Component` is a library or package used in a product that is licensed
 
 A `License Policy` defines the rules for the usage of licenses in a product. It can define which licenses are allowed, which are forbidden, and which need a review.
 
+A `License Policy` can have another license policy as a `Parent`. If a license policy has a parent, the rules of the parent are also valid for the child policy, but existing rules of the parent can be overriden and new rules can be added. 
+
 #### License Policy Item
 
-A `License Policy Item` is a single rule in a license policy. It can be a rule for a specific license, a rule for a license group or a rule for an unkown license string, e.g. a license that is not in the SPDX list or a license expression.
+A `License Policy Item` is a single rule in a license policy. It can be a rule for a specific license, a rule for a license group or a rule for a non-spdx license string, e.g. a license that is not in the SPDX list or a license expression.
 
 #### License Policy Member
 

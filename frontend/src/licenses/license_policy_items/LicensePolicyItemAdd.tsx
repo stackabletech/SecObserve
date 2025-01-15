@@ -1,10 +1,11 @@
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { Button, Dialog, DialogContent, DialogTitle } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { CreateBase, ReferenceInput, SaveButton, SimpleForm, Toolbar, useNotify, useRefresh } from "react-admin";
+import { CreateBase, ReferenceInput, SaveButton, SimpleForm, useNotify, useRefresh } from "react-admin";
 import { useFormContext } from "react-hook-form";
 
+import AddButton from "../../commons/custom_fields/AddButton";
+import CancelButton from "../../commons/custom_fields/CancelButton";
+import Toolbar from "../../commons/custom_fields/Toolbar";
 import { validate_255, validate_required } from "../../commons/custom_validators";
 import { AutocompleteInputExtraWide, AutocompleteInputMedium, TextInputExtraWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
@@ -32,33 +33,18 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
     const [license_group, setLicenseGroup] = useState();
     const [license, setLicense] = useState();
     const [license_expression, setLicenseExpression] = useState();
-    const [unknown_license, setUnknownLicense] = useState();
+    const [non_spdx_license, setNonSPDXLicense] = useState();
     const [evaluation_result, setEvaluationResult] = useState();
+    const [comment, setComment] = useState();
 
     const resetState = () => {
         setLicenseGroup(undefined);
         setLicense(undefined);
         setLicenseExpression(undefined);
-        setUnknownLicense(undefined);
+        setNonSPDXLicense(undefined);
         setEvaluationResult(undefined);
+        setComment(undefined);
     };
-
-    const CancelButton = () => (
-        <Button
-            sx={{
-                mr: "1em",
-                direction: "row",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-            variant="contained"
-            onClick={handleCancel}
-            color="inherit"
-            startIcon={<CancelIcon />}
-        >
-            Cancel
-        </Button>
-    );
 
     const CustomToolbar = () => {
         const { reset } = useFormContext();
@@ -78,8 +64,9 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
                 license_group: license_group,
                 license: license,
                 license_expression: license_expression,
-                unknown_license: unknown_license,
+                non_spdx_license: non_spdx_license,
                 evaluation_result: evaluation_result,
+                comment: comment,
             };
             return data;
         };
@@ -88,8 +75,11 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
             if (!data.license_expression) {
                 data.license_expression = "";
             }
-            if (!data.unknown_license) {
-                data.unknown_license = "";
+            if (!data.non_spdx_license) {
+                data.non_spdx_license = "";
+            }
+            if (!data.comment) {
+                data.comment = "";
             }
             const url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/license_policy_items/";
             const body = JSON.stringify({ license_policy: id, ...data });
@@ -112,14 +102,9 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
         };
 
         return (
-            <Toolbar sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <CancelButton />
-                <SaveButton
-                    label="Save & Continue"
-                    type="button"
-                    onClick={handleSaveContinue}
-                    sx={{ marginRight: 2 }}
-                />
+            <Toolbar>
+                <CancelButton onClick={handleCancel} />
+                <SaveButton label="Save & Continue" type="button" onClick={handleSaveContinue} />
                 <SaveButton type="button" onClick={handleSaveClose} />
             </Toolbar>
         );
@@ -127,14 +112,7 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
 
     return (
         <Fragment>
-            <Button
-                variant="contained"
-                onClick={handleOpen}
-                sx={{ mr: "7px", width: "fit-content", fontSize: "0.8125rem", marginBottom: 1 }}
-                startIcon={<AddIcon />}
-            >
-                Add license policy item
-            </Button>
+            <AddButton title="Add license policy item" onClick={handleOpen} />
             <Dialog open={open} onClose={handleClose} maxWidth={"lg"}>
                 <DialogTitle>Add license policy item</DialogTitle>
                 <DialogContent>
@@ -165,10 +143,10 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
                                 onChange={(e) => setLicenseExpression(e.target.value)}
                             />
                             <TextInputExtraWide
-                                source="unknown_license"
-                                label="Unknown license"
+                                source="non_spdx_license"
+                                label="Non-SPDX license"
                                 validate={validate_255}
-                                onChange={(e) => setUnknownLicense(e.target.value)}
+                                onChange={(e) => setNonSPDXLicense(e.target.value)}
                             />
                             <AutocompleteInputMedium
                                 source="evaluation_result"
@@ -176,6 +154,12 @@ const LicensePolicyItemAdd = ({ id }: LicensePolicyItemAddProps) => {
                                 choices={EVALUATION_RESULT_CHOICES}
                                 validate={validate_required}
                                 onChange={(e) => setEvaluationResult(e)}
+                            />
+                            <TextInputExtraWide
+                                source="comment"
+                                label="Comment"
+                                validate={validate_255}
+                                onChange={(e) => setComment(e.target.value)}
                             />
                         </SimpleForm>
                     </CreateBase>

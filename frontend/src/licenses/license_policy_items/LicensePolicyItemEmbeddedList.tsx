@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import {
     Datagrid,
     FilterForm,
+    FunctionField,
     Identifier,
     ListContextProvider,
     ResourceContextProvider,
@@ -28,7 +29,7 @@ function listFilters() {
         <TextInput source="license_group_name" label="License group" alwaysOn />,
         <TextInput source="license_spdx_id" label="License" alwaysOn />,
         <TextInput source="license_expression" label="License expression" alwaysOn />,
-        <TextInput source="unknown_license" label="Unknown license" alwaysOn />,
+        <TextInput source="non_spdx_license" label="Non-SPDX license" alwaysOn />,
         <AutocompleteInputMedium
             source="evaluation_result"
             label="Evaluation result"
@@ -44,6 +45,13 @@ const showLicenseGroup = (id: Identifier) => {
 
 const showLicense = (id: Identifier) => {
     return "#/licenses/" + id + "/show";
+};
+
+export const commentShortened = (comment: string | null) => {
+    if (comment && comment.length > 100) {
+        return comment.substring(0, 96) + " ...";
+    }
+    return comment;
 };
 
 type LicensePolicyItemEmbeddedListProps = {
@@ -99,8 +107,14 @@ const LicensePolicyItemEmbeddedList = ({ license_policy }: LicensePolicyItemEmbe
                                     )}
                                 />
                                 <TextField source="license_expression" label="License expression" />
-                                <TextField source="unknown_license" label="Unknown license" />
+                                <TextField source="non_spdx_license" label="Non-SPDX license" />
                                 <EvaluationResultField source="evaluation_result" label="Evaluation result" />
+                                <FunctionField
+                                    label="Comment"
+                                    render={(record) => commentShortened(record.comment)}
+                                    sortable={false}
+                                    sx={{ wordBreak: "break-word" }}
+                                />{" "}
                                 {(is_superuser() || license_policy.is_manager) && (
                                     <WithRecord
                                         render={(license_policy_item) => (
