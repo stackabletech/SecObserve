@@ -47,6 +47,9 @@ jobs:
             CREATED=${{ env.CREATED }}
             REVISION=${{ github.sha }}
             VERSION=dev
+      -
+        name: Sign the published backend image
+        run: cosign sign -y oci.stackable.tech/stackable/secobserve-backend@${{ steps.build-and-push-backend.outputs.digest }}
 
   docker_frontend_dev:
     runs-on: ubuntu-latest
@@ -67,12 +70,11 @@ jobs:
           registry: oci.stackable.tech
           username: robot$stackable+github-action-build
           password: ${{ secrets.HARBOR_ROBOT_STACKABLE_GITHUB_ACTION_BUILD_SECRET }}
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # tag=v3.3.0
       -
         name: Set current date as env variable
         run: echo "CREATED=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-      -
-        name: Sign the published backend image
-        run: cosign sign -y oci.stackable.tech/stackable/secobserve-backend@${{ steps.build-and-push-backend.outputs.digest }}
       -
         name: Build and push frontend
         id: build-and-push-frontend
