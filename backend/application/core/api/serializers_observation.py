@@ -98,7 +98,6 @@ class ObservationSerializer(ModelSerializer):
     evidences = NestedEvidenceSerializer(many=True)
     exploits = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
-    origin_component_purl_type = SerializerMethodField()
     origin_component_purl_namespace = SerializerMethodField()
     issue_tracker_issue_url = SerializerMethodField()
     duplicates = NestedObservationIdSerializer(many=True)
@@ -141,16 +140,6 @@ class ObservationSerializer(ModelSerializer):
                 )
 
         return origin_source_file_url
-
-    def get_origin_component_purl_type(self, observation: Observation) -> str:
-        if observation.origin_component_purl:
-            try:
-                purl = PackageURL.from_string(observation.origin_component_purl)
-                return purl.type
-            except ValueError:
-                return ""
-
-        return ""
 
     def get_origin_component_purl_namespace(
         self, observation: Observation

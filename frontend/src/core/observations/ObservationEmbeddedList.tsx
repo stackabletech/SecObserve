@@ -34,7 +34,6 @@ import {
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_OPEN,
     Observation,
-    PURL_TYPE_CHOICES,
     Product,
 } from "../types";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
@@ -51,7 +50,7 @@ function listFilters(product: Product) {
                 reference="branches"
                 queryOptions={{ meta: { api_resource: "branch_names" } }}
                 sort={{ field: "name", order: "ASC" }}
-                filter={{ product: product.id }}
+                filter={{ product: product.id, for_observations: true }}
                 alwaysOn
             >
                 <AutocompleteInputMedium optionText="name" label="Branch / Version" />
@@ -82,12 +81,14 @@ function listFilters(product: Product) {
     if (product && product.has_component) {
         filters.push(<TextInput source="origin_component_name_version" label="Component" alwaysOn />);
         filters.push(
-            <AutocompleteInput
+            <ReferenceInput
                 source="origin_component_purl_type"
-                label="Component type"
-                choices={PURL_TYPE_CHOICES}
+                reference="purl_types"
+                filter={{ product: product.id, for_observations: true }}
                 alwaysOn
-            />
+            >
+                <AutocompleteInputMedium optionText="name" label="Component type" />
+            </ReferenceInput>
         );
     }
     if (product && product.has_docker_image) {
@@ -112,10 +113,6 @@ function listFilters(product: Product) {
     filters.push(<TextInput source="api_configuration_name" label="API configuration" />);
     if (product && product.has_potential_duplicates) {
         filters.push(<NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />);
-    }
-    if (product && product.observation_log_approvals > 0) {
-        filters.push(<NullableBooleanInput source="has_pending_assessment" label="Pending assessment" alwaysOn />);
-        filters.push(<NullableBooleanInput source="has_completed_assessment" label="Completed assessment" alwaysOn />);
     }
     // filters.push(<TextInput source="origin_component_location" label="Component location" />);
     filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
