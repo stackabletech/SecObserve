@@ -6,8 +6,6 @@ from collections import defaultdict
 from json import dumps
 from typing import Any, Optional
 
-from trycast import trycast
-
 from application.core.models import Observation
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
@@ -496,16 +494,14 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             evidence.append(dumps(translated_component_dependencies))
             observation.unsaved_evidences.append(evidence)
 
-    def _get_component_location(self, component_json: dict[str, str]) -> str:
-        properties_as_list = trycast(
-            list[dict[str, str]], component_json.get("properties", "")
-        )
-        if properties_as_list is not None:
-            for prop in properties_as_list:
+    def _get_component_location(self, component_json: dict[str, Any]) -> str:
+        properties = component_json.get("properties", [])
+        if isinstance(properties, list) and all(isinstance(prop, dict) for prop in properties):
+            for prop in properties:
                 if prop.get("name") == "syft:location:0:path":
-                    return prop.get("value")
+                    return prop.get("value", "")
                 if prop.get("name") == "aquasecurity:trivy:FilePath":
-                    return prop.get("value")
+                    return prop.get("value", "")
         return ""
 
     def _get_patched_versions(self, component: Component, recommendation: str) -> str:
