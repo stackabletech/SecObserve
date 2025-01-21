@@ -496,7 +496,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
     def _get_component_location(self, component_json: dict[str, Any]) -> str:
         properties = component_json.get("properties", [])
-        if isinstance(properties, list) and all(isinstance(prop, dict) for prop in properties):
+        if isinstance(properties, list) and all(
+            isinstance(prop, dict) for prop in properties
+        ):
             for prop in properties:
                 if prop.get("name") == "syft:location:0:path":
                     return prop.get("value", "")

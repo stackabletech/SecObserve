@@ -1,7 +1,17 @@
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { ArrayInput, DateInput, FormDataConsumer, SaveButton, SimpleForm, SimpleFormIterator, useNotify, useRecordContext, useRefresh } from "react-admin";
+import {
+    ArrayInput,
+    DateInput,
+    FormDataConsumer,
+    SaveButton,
+    SimpleForm,
+    SimpleFormIterator,
+    useNotify,
+    useRecordContext,
+    useRefresh,
+} from "react-admin";
 
 import CancelButton from "../../commons/custom_fields/CancelButton";
 import SmallButton from "../../commons/custom_fields/SmallButton";

@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0057_observation_cvss4_score_observation_cvss4_vector'),
-        ('core', '0068_observation_core_observ_upgrade_f3aeed_idx'),
+        ("core", "0057_observation_cvss4_score_observation_cvss4_vector"),
+        ("core", "0068_observation_core_observ_upgrade_f3aeed_idx"),
     ]
 
-    operations = [
-    ]
+    operations = []

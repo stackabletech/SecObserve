@@ -15,14 +15,14 @@ import {
     useUnselectAll,
 } from "react-admin";
 
+import CancelButton from "../../commons/custom_fields/CancelButton";
+import SmallButton from "../../commons/custom_fields/SmallButton";
+import { validate_after_today } from "../../commons/custom_validators";
 import {
     justificationIsEnabledForStatus,
     remediationsAreEnabledForStatus,
     settings_risk_acceptance_expiry_date,
 } from "../../commons/functions";
-import CancelButton from "../../commons/custom_fields/CancelButton";
-import SmallButton from "../../commons/custom_fields/SmallButton";
-import { validate_after_today } from "../../commons/custom_validators";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {

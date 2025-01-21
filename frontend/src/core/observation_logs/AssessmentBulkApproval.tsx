@@ -6,7 +6,7 @@ import { SaveButton, SimpleForm, useListContext, useNotify, useRefresh, useUnsel
 import CancelButton from "../../commons/custom_fields/CancelButton";
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import Toolbar from "../../commons/custom_fields/Toolbar";
-import { validate_required, } from "../../commons/custom_validators";
+import { validate_required } from "../../commons/custom_validators";
 import { AutocompleteInputMedium } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { ASSESSMENT_STATUS_CHOICES } from "../types";
