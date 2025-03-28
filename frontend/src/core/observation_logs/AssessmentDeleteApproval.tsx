@@ -1,8 +1,7 @@
-import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Backdrop, Button, CircularProgress, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
-import { useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
+import { Confirm, useListContext, useNotify, useRefresh, useUnselectAll } from "react-admin";
 
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 
@@ -24,12 +23,13 @@ const AssessmentDeleteApproval = () => {
             method: "DELETE",
             body: JSON.stringify(deleteBody),
         })
-            .then(() => {
+            .then((response) => {
                 refresh();
                 setOpen(false);
                 setLoading(false);
                 unselectAll();
-                notify("Assessments deleted", {
+                const count = response.json.count;
+                notify(`${count} assessment${count === 1 ? "" : "s"} deleted`, {
                     type: "success",
                 });
             })
@@ -44,31 +44,8 @@ const AssessmentDeleteApproval = () => {
             });
     };
 
-    const handleClose = (event: object, reason: string) => {
-        if (reason && reason == "backdropClick") return;
-        setOpen(false);
-    };
-
     const handleCancel = () => setOpen(false);
-
     const handleOpen = () => setOpen(true);
-
-    const CancelButton = () => (
-        <Button
-            sx={{
-                mr: "1em",
-                direction: "row",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-            variant="contained"
-            onClick={handleCancel}
-            color="inherit"
-            startIcon={<CancelIcon />}
-        >
-            Cancel
-        </Button>
-    );
 
     return (
         <Fragment>
@@ -80,19 +57,13 @@ const AssessmentDeleteApproval = () => {
             >
                 Delete
             </Button>
-            <Dialog open={open && !loading} onClose={handleClose}>
-                <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-                    <DeleteIcon />
-                    &nbsp;&nbsp;Delete assessments
-                </DialogTitle>
-                <DialogContent>
-                    <p>Are you sure you want to delete the selected assessments?</p>
-                    <CancelButton />
-                    <Button onClick={assessmentDelete} variant="contained" color="primary">
-                        Confirm deletion
-                    </Button>
-                </DialogContent>
-            </Dialog>
+            <Confirm
+                isOpen={open}
+                title="Delete assessments"
+                content={"Are you sure you want to delete the selected assessments?"}
+                onConfirm={assessmentDelete}
+                onClose={handleCancel}
+            />
             {loading ? (
                 <Backdrop sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }} open={open}>
                     <CircularProgress color="primary" />

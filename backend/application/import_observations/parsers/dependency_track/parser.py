@@ -3,7 +3,7 @@ from typing import Optional
 
 import requests
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation, Product
 from application.core.types import Severity, Status
 from application.import_observations.models import Api_Configuration
 from application.import_observations.parsers.base_parser import (
@@ -23,7 +23,7 @@ STATUS_MAPPING = {
 
 
 class DependencyTrack(BaseParser, BaseAPIParser):
-    def __init__(self):
+    def __init__(self) -> None:
         self.api_configuration: Optional[Api_Configuration] = None
 
     @classmethod
@@ -34,9 +34,7 @@ class DependencyTrack(BaseParser, BaseAPIParser):
     def get_type(cls) -> str:
         return Parser_Type.TYPE_SCA
 
-    def check_connection(
-        self, api_configuration: Api_Configuration
-    ) -> tuple[bool, list[str], dict]:
+    def check_connection(self, api_configuration: Api_Configuration) -> tuple[bool, list[str], dict]:
         self.api_configuration = api_configuration
 
         dependency_track_base_url = api_configuration.base_url
@@ -47,9 +45,7 @@ class DependencyTrack(BaseParser, BaseAPIParser):
         if not dependency_track_base_url.endswith("/"):
             dependency_track_base_url += "/"
 
-        dependency_track_base_url += (
-            f"api/v1/finding/project/{dependency_track_project_key}?suppressed=false"
-        )
+        dependency_track_base_url += f"api/v1/finding/project/{dependency_track_project_key}?suppressed=false"
 
         headers = {
             "X-Api-Key": dependency_track_api_key,
@@ -67,7 +63,9 @@ class DependencyTrack(BaseParser, BaseAPIParser):
 
         return True, [], response.json()
 
-    def get_observations(self, data: list[dict]) -> list[Observation]:
+    def get_observations(  # pylint: disable=too-many-locals
+        self, data: list[dict], product: Product, branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         scanner, version = self.get_about()
@@ -83,9 +81,7 @@ class DependencyTrack(BaseParser, BaseAPIParser):
             vulnerability_id = finding.get("vulnerability", {}).get("vulnId", "")
             cvss_v3_base_score = finding.get("vulnerability", {}).get("cvssV3BaseScore")
             cvss_v3_vector = finding.get("vulnerability", {}).get("cvssV3Vector")
-            severity = finding.get("vulnerability", {}).get(
-                "severity", Severity.SEVERITY_UNKNOWN
-            )
+            severity = finding.get("vulnerability", {}).get("severity", Severity.SEVERITY_UNKNOWN)
             description = finding.get("vulnerability", {}).get("description")
 
             state = finding.get("analysis", {}).get("state")

@@ -1,6 +1,7 @@
 from os import path
 from unittest import TestCase
 
+from application.core.models import Product
 from application.core.types import Severity
 from application.import_observations.parsers.ocsf.parser import OCSFParser
 from application.import_observations.services.parser_detector import detect_parser
@@ -13,18 +14,16 @@ class TestOCSFParser(TestCase):
             self.assertEqual("OCSF (Open Cybersecurity Schema Framework)", parser.name)
             self.assertTrue(isinstance(parser_instance, OCSFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(0, len(observations))
 
     def test_prowler_multiple_findings(self):
-        with open(
-            path.dirname(__file__) + "/files/prowler_multiple_findings.json"
-        ) as testfile:
+        with open(path.dirname(__file__) + "/files/prowler_multiple_findings.json") as testfile:
             parser, parser_instance, data = detect_parser(testfile)
             self.assertEqual("OCSF (Open Cybersecurity Schema Framework)", parser.name)
             self.assertTrue(isinstance(parser_instance, OCSFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(2, len(observations))
 
             observation = observations[0]

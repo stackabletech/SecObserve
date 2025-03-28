@@ -1,19 +1,20 @@
 import hashlib
+from decimal import Decimal
 from urllib.parse import urlparse
 
+from cvss import CVSS3, CVSS4
 from packageurl import PackageURL
 
+from application.core.models import Observation
 from application.core.types import Severity, Status
 
-# Parameter observation cannot be typed, because some methods are used in the model class
 
-
-def get_identity_hash(observation) -> str:
+def get_identity_hash(observation: Observation) -> str:
     hash_string = _get_string_to_hash(observation)
     return hashlib.sha256(hash_string.casefold().encode("utf-8").strip()).hexdigest()
 
 
-def _get_string_to_hash(observation):  # pylint: disable=too-many-branches
+def _get_string_to_hash(observation: Observation) -> str:  # pylint: disable=too-many-branches
     hash_string = observation.title
 
     if observation.origin_component_name_version:
@@ -61,14 +62,20 @@ def _get_string_to_hash(observation):  # pylint: disable=too-many-branches
     return hash_string
 
 
-def get_current_severity(observation) -> str:
+def get_current_severity(observation: Observation) -> str:
+    if observation.cvss3_vector:
+        observation.cvss3_score = CVSS3(observation.cvss3_vector).base_score
+
+    if observation.cvss4_vector:
+        observation.cvss4_score = CVSS4(observation.cvss4_vector).base_score
+
     if observation.assessment_severity:
         return observation.assessment_severity
 
     if observation.rule_severity:
         return observation.rule_severity
 
-    if observation.parser_severity:
+    if observation.parser_severity and observation.parser_severity != Severity.SEVERITY_UNKNOWN:
         return observation.parser_severity
 
     if observation.cvss4_score is not None:
@@ -80,7 +87,7 @@ def get_current_severity(observation) -> str:
     return Severity.SEVERITY_UNKNOWN
 
 
-def get_cvss_severity(cvss_score: int) -> str:
+def get_cvss_severity(cvss_score: Decimal) -> str:
     if cvss_score is None:
         return Severity.SEVERITY_UNKNOWN
 
@@ -99,7 +106,7 @@ def get_cvss_severity(cvss_score: int) -> str:
     return Severity.SEVERITY_NONE
 
 
-def get_current_status(observation) -> str:
+def get_current_status(observation: Observation) -> str:
     if observation.parser_status == Status.STATUS_RESOLVED:
         return observation.parser_status
 
@@ -118,7 +125,7 @@ def get_current_status(observation) -> str:
     return Status.STATUS_OPEN
 
 
-def get_current_vex_justification(observation) -> str:
+def get_current_vex_justification(observation: Observation) -> str:
     if observation.assessment_vex_justification:
         return observation.assessment_vex_justification
 
@@ -147,7 +154,7 @@ def get_current_vex_remediations(observation) -> str:
     return ""
 
 
-def normalize_observation_fields(observation) -> None:
+def normalize_observation_fields(observation: Observation) -> None:
     normalize_origin_component(observation)
     normalize_origin_docker(observation)
     normalize_origin_endpoint(observation)
@@ -160,6 +167,8 @@ def normalize_observation_fields(observation) -> None:
     normalize_vex_remediations(observation)
 
     normalize_description(observation)
+    normalize_vulnerability_ids(observation)
+    normalize_cvss_vectors(observation)
 
     if observation.recommendation is None:
         observation.recommendation = ""
@@ -169,25 +178,35 @@ def normalize_observation_fields(observation) -> None:
         observation.origin_service_name = ""
     if observation.origin_source_file is None:
         observation.origin_source_file = ""
-    if observation.cvss3_vector is None:
-        observation.cvss3_vector = ""
-    if observation.cvss4_vector is None:
-        observation.cvss4_vector = ""
     if observation.scanner is None:
         observation.scanner = ""
     if observation.api_configuration_name is None:
         observation.api_configuration_name = ""
     if observation.upload_filename is None:
         observation.upload_filename = ""
-    if observation.vulnerability_id is None:
-        observation.vulnerability_id = ""
     if observation.issue_tracker_issue_id is None:
         observation.issue_tracker_issue_id = ""
     if observation.issue_tracker_jira_initial_status is None:
         observation.issue_tracker_jira_initial_status = ""
 
 
-def normalize_description(observation):
+def normalize_vulnerability_ids(observation: Observation) -> None:
+    if observation.vulnerability_id is None:
+        observation.vulnerability_id = ""
+    if observation.vulnerability_id_aliases is None:
+        observation.vulnerability_id_aliases = ""
+
+
+def normalize_cvss_vectors(observation: Observation) -> None:
+    if observation.cvss3_vector is None:
+        observation.cvss3_vector = ""
+    if observation.cvss4_vector is None:
+        observation.cvss4_vector = ""
+    if observation.cve_found_in is None:
+        observation.cve_found_in = ""
+
+
+def normalize_description(observation: Observation) -> None:
     if observation.description is None:
         observation.description = ""
     else:
@@ -196,38 +215,31 @@ def normalize_description(observation):
             observation.description = observation.description[:-1]
 
         # \u0000 can lead to SQL exceptions
-        observation.description = observation.description.replace(
-            "\u0000", "REDACTED_NULL"
-        )
+        observation.description = observation.description.replace("\u0000", "REDACTED_NULL")
 
 
-def normalize_origin_component(observation):  # pylint: disable=too-many-branches
+def normalize_origin_component(observation: Observation) -> None:  # pylint: disable=too-many-branches
     if not observation.origin_component_name_version:
         if observation.origin_component_name and observation.origin_component_version:
             observation.origin_component_name_version = (
-                observation.origin_component_name
-                + ":"
-                + observation.origin_component_version
+                observation.origin_component_name + ":" + observation.origin_component_version
             )
         elif observation.origin_component_name:
-            observation.origin_component_name_version = (
-                observation.origin_component_name
-            )
+            observation.origin_component_name_version = observation.origin_component_name
     else:
         component_parts = observation.origin_component_name_version.split(":")
         if len(component_parts) == 3:
-            observation.origin_component_name = (
-                f"{component_parts[0]}:{component_parts[1]}"
-            )
-            observation.origin_component_version = component_parts[2]
+            if component_parts[0] == observation.origin_component_name:
+                observation.origin_component_version = f"{component_parts[1]}:{component_parts[2]}"
+            else:
+                observation.origin_component_name = f"{component_parts[0]}:{component_parts[1]}"
+                observation.origin_component_version = component_parts[2]
         elif len(component_parts) == 2:
             observation.origin_component_name = component_parts[0]
             observation.origin_component_version = component_parts[1]
         elif len(component_parts) == 1:
-            observation.origin_component_name = (
-                observation.origin_component_name_version
-            )
-            observation.origin_component_version = None
+            observation.origin_component_name = observation.origin_component_name_version
+            observation.origin_component_version = ""
 
     if observation.origin_component_name_version is None:
         observation.origin_component_name_version = ""
@@ -254,21 +266,17 @@ def normalize_origin_component(observation):  # pylint: disable=too-many-branche
         observation.origin_component_purl_type = ""
 
 
-def normalize_origin_docker(observation):
+def normalize_origin_docker(observation: Observation) -> None:
     if not observation.origin_docker_image_name_tag:
         _normalize_origin_docker_image_name(observation)
     else:
         _normalize_origin_docker_image_name_tag(observation)
 
     if observation.origin_docker_image_name_tag:
-        origin_docker_image_name_tag_parts = (
-            observation.origin_docker_image_name_tag.split("/")
-        )
-        observation.origin_docker_image_name_tag_short = (
-            origin_docker_image_name_tag_parts[
-                len(origin_docker_image_name_tag_parts) - 1
-            ].strip()
-        )
+        origin_docker_image_name_tag_parts = observation.origin_docker_image_name_tag.split("/")
+        observation.origin_docker_image_name_tag_short = origin_docker_image_name_tag_parts[
+            len(origin_docker_image_name_tag_parts) - 1
+        ].strip()
     else:
         observation.origin_docker_image_name_tag_short = ""
 
@@ -282,7 +290,7 @@ def normalize_origin_docker(observation):
         observation.origin_docker_image_digest = ""
 
 
-def _normalize_origin_docker_image_name(observation):
+def _normalize_origin_docker_image_name(observation: Observation) -> None:
     if observation.origin_docker_image_name and not observation.origin_docker_image_tag:
         docker_image_parts = observation.origin_docker_image_name.split(":")
         if len(docker_image_parts) == 2:
@@ -291,15 +299,13 @@ def _normalize_origin_docker_image_name(observation):
 
     if observation.origin_docker_image_name and observation.origin_docker_image_tag:
         observation.origin_docker_image_name_tag = (
-            observation.origin_docker_image_name
-            + ":"
-            + observation.origin_docker_image_tag
+            observation.origin_docker_image_name + ":" + observation.origin_docker_image_tag
         )
     else:
         observation.origin_docker_image_name_tag = observation.origin_docker_image_name
 
 
-def _normalize_origin_docker_image_name_tag(observation):
+def _normalize_origin_docker_image_name_tag(observation: Observation) -> None:
     docker_image_parts = observation.origin_docker_image_name_tag.split(":")
     if len(docker_image_parts) == 2:
         observation.origin_docker_image_name = docker_image_parts[0]
@@ -308,11 +314,11 @@ def _normalize_origin_docker_image_name_tag(observation):
         observation.origin_docker_image_name = observation.origin_docker_image_name_tag
 
 
-def normalize_origin_endpoint(observation):
+def normalize_origin_endpoint(observation: Observation) -> None:
     if observation.origin_endpoint_url:
         parse_result = urlparse(observation.origin_endpoint_url)
         observation.origin_endpoint_scheme = parse_result.scheme
-        observation.origin_endpoint_hostname = parse_result.hostname
+        observation.origin_endpoint_hostname = str(parse_result.hostname)
         observation.origin_endpoint_port = parse_result.port
         observation.origin_endpoint_path = parse_result.path
         observation.origin_endpoint_params = parse_result.params
@@ -343,7 +349,7 @@ def normalize_origin_endpoint(observation):
         observation.origin_endpoint_fragment = ""
 
 
-def normalize_origin_cloud(observation):
+def normalize_origin_cloud(observation: Observation) -> None:
     if observation.origin_cloud_provider is None:
         observation.origin_cloud_provider = ""
     if observation.origin_cloud_account_subscription_project is None:
@@ -360,10 +366,7 @@ def normalize_origin_cloud(observation):
             if len(observation.origin_cloud_account_subscription_project) > 122
             else observation.origin_cloud_account_subscription_project
         )
-    if (
-        observation.origin_cloud_account_subscription_project
-        and observation.origin_cloud_resource
-    ):
+    if observation.origin_cloud_account_subscription_project and observation.origin_cloud_resource:
         observation.origin_cloud_qualified_resource += " / "
     if observation.origin_cloud_resource:
         observation.origin_cloud_qualified_resource += (
@@ -373,7 +376,7 @@ def normalize_origin_cloud(observation):
         )
 
 
-def normalize_origin_kubernetes(observation):
+def normalize_origin_kubernetes(observation: Observation) -> None:
     if observation.origin_kubernetes_cluster is None:
         observation.origin_kubernetes_cluster = ""
     if observation.origin_kubernetes_namespace is None:
@@ -408,7 +411,7 @@ def normalize_origin_kubernetes(observation):
         )
 
 
-def normalize_severity(observation):
+def normalize_severity(observation: Observation) -> None:
     if observation.current_severity is None:
         observation.current_severity = ""
     if observation.assessment_severity is None:
@@ -427,11 +430,11 @@ def normalize_severity(observation):
     observation.current_severity = get_current_severity(observation)
 
     observation.numerical_severity = Severity.NUMERICAL_SEVERITIES.get(
-        observation.current_severity
+        observation.current_severity, Severity.SEVERITY_UNKNOWN
     )
 
 
-def normalize_status(observation):
+def normalize_status(observation: Observation) -> None:
     if observation.current_status is None:
         observation.current_status = ""
     if observation.assessment_status is None:
@@ -446,7 +449,7 @@ def normalize_status(observation):
     observation.current_status = get_current_status(observation)
 
 
-def normalize_vex_justification(observation):
+def normalize_vex_justification(observation: Observation) -> None:
     if observation.current_vex_justification is None:
         observation.current_vex_justification = ""
     if observation.assessment_vex_justification is None:
@@ -474,27 +477,18 @@ def normalize_vex_remediations(observation):
     observation.current_vex_remediations = get_current_vex_remediations(observation)
 
 
-def set_product_flags(observation) -> None:
+def set_product_flags(observation: Observation) -> None:
     product_changed = False
 
-    if (
-        observation.origin_cloud_qualified_resource
-        and not observation.product.has_cloud_resource
-    ):
+    if observation.origin_cloud_qualified_resource and not observation.product.has_cloud_resource:
         observation.product.has_cloud_resource = True
         product_changed = True
 
-    if (
-        observation.origin_component_name_version
-        and not observation.product.has_component
-    ):
+    if observation.origin_component_name_version and not observation.product.has_component:
         observation.product.has_component = True
         product_changed = True
 
-    if (
-        observation.origin_docker_image_name_tag
-        and not observation.product.has_docker_image
-    ):
+    if observation.origin_docker_image_name_tag and not observation.product.has_docker_image:
         observation.product.has_docker_image = True
         product_changed = True
 
@@ -502,10 +496,7 @@ def set_product_flags(observation) -> None:
         observation.product.has_endpoint = True
         product_changed = True
 
-    if (
-        observation.origin_kubernetes_qualified_resource
-        and not observation.product.has_kubernetes_resource
-    ):
+    if observation.origin_kubernetes_qualified_resource and not observation.product.has_kubernetes_resource:
         observation.product.has_kubernetes_resource = True
         product_changed = True
 
@@ -513,10 +504,7 @@ def set_product_flags(observation) -> None:
         observation.product.has_source = True
         product_changed = True
 
-    if (
-        observation.has_potential_duplicates
-        and not observation.product.has_potential_duplicates
-    ):
+    if observation.has_potential_duplicates and not observation.product.has_potential_duplicates:
         observation.product.has_potential_duplicates = True
         product_changed = True
 

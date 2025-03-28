@@ -16,6 +16,7 @@ import {
     useRecordContext,
 } from "react-admin";
 
+import observation_logs from ".";
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
 import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
@@ -89,8 +90,11 @@ const ObservationLogComponent = () => {
                 <Box width={"100%"}>
                     <Paper sx={{ marginBottom: 2, padding: 2, width: "100%" }}>
                         <Stack spacing={1}>
-                            <Typography variant="h6">Observation Log</Typography>
-                            <Labeled label="Product">
+                            <Typography variant="h6" alignItems="center" display={"flex"} sx={{ marginBottom: 1 }}>
+                                <observation_logs.icon />
+                                &nbsp;&nbsp;Observation Log
+                            </Typography>
+                            {/* <Labeled label="Product">
                                 <ReferenceField
                                     source="observation_data.product"
                                     reference="products"
@@ -116,7 +120,7 @@ const ObservationLogComponent = () => {
                                 >
                                     <TextField source="title" />
                                 </ReferenceField>
-                            </Labeled>
+                            </Labeled> */}
                             <Labeled label="User">
                                 <TextField source="user_full_name" />
                             </Labeled>

@@ -8,11 +8,12 @@ from application.commons.services.log_message import format_log_message
 from application.commons.services.send_notifications import (
     send_task_exception_notification,
 )
+from application.core.models import Product
 
 logger = logging.getLogger("secobserve.tasks")
 
 
-def handle_task_exception(e: Exception, user: User = None) -> None:
+def handle_task_exception(e: Exception, user: User = None, product: Product = None) -> None:
     data: dict[str, Any] = {}
     function = None
     arguments = None
@@ -39,6 +40,4 @@ def handle_task_exception(e: Exception, user: User = None) -> None:
     )
     logger.error(traceback.format_exc())
 
-    send_task_exception_notification(
-        function=function, arguments=arguments, user=user, exception=e
-    )
+    send_task_exception_notification(function=function, arguments=arguments, user=user, exception=e, product=product)

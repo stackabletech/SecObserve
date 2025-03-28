@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -36,10 +38,13 @@ class Notification(Model):
     arguments = TextField(max_length=4096, blank=True)
 
 
+class Notification_Viewed(Model):
+    notification = ForeignKey(Notification, on_delete=CASCADE)
+    user = ForeignKey(User, on_delete=CASCADE)
+
+
 class Settings(Model):
-    security_gate_active = BooleanField(
-        default=True, help_text="Is the security gate activated?"
-    )
+    security_gate_active = BooleanField(default=True, help_text="Is the security gate activated?")
     security_gate_threshold_critical = IntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
@@ -145,9 +150,7 @@ class Settings(Model):
         validators=[MinValueValidator(0), MaxValueValidator(23)],
         help_text="Hour crontab expression for branch housekeeping (UTC)",
     )
-    branch_housekeeping_active = BooleanField(
-        default=True, help_text="Delete inactive branches"
-    )
+    branch_housekeeping_active = BooleanField(default=True, help_text="Delete inactive branches")
     branch_housekeeping_keep_inactive_days = IntegerField(
         default=30,
         validators=[MinValueValidator(0), MaxValueValidator(999999)],
@@ -159,15 +162,9 @@ class Settings(Model):
         help_text="Regular expression which branches to exempt from deletion",
     )
 
-    feature_vex = BooleanField(
-        default=False, help_text="Generate VEX documents in OpenVEX and CSAF format"
-    )
-    feature_disable_user_login = BooleanField(
-        default=False, help_text="Disable user login"
-    )
-    feature_general_rules_need_approval = BooleanField(
-        default=False, help_text="General rules need approval"
-    )
+    feature_vex = BooleanField(default=False, help_text="Generate VEX documents in OpenVEX and CSAF format")
+    feature_disable_user_login = BooleanField(default=False, help_text="Disable user login")
+    feature_general_rules_need_approval = BooleanField(default=False, help_text="General rules need approval")
 
     exploits_last_sync_vulncheck_kev = DateTimeField(
         null=True, help_text="Last sync date of Vulncheck KEV data"
@@ -205,9 +202,7 @@ class Settings(Model):
         help_text="Hour crontab expression for checking risk acceptance expiry (UTC)",
     )
 
-    feature_automatic_api_import = BooleanField(
-        default=True, help_text="Enable automatic API imports"
-    )
+    feature_automatic_api_import = BooleanField(default=True, help_text="Enable automatic API imports")
     api_import_crontab_minute = IntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(59)],
@@ -235,9 +230,7 @@ class Settings(Model):
         default=True, help_text="Validate that the password is not entirely numeric."
     )
 
-    feature_license_management = BooleanField(
-        default=True, help_text="Enable license management"
-    )
+    feature_license_management = BooleanField(default=True, help_text="Enable license management")
     license_import_crontab_minute = IntegerField(
         default=30,
         validators=[MinValueValidator(0), MaxValueValidator(59)],
@@ -248,8 +241,15 @@ class Settings(Model):
         validators=[MinValueValidator(0), MaxValueValidator(23)],
         help_text="Hour crontab expression for importing licenses (UTC)",
     )
+    feature_automatic_osv_scanning = BooleanField(default=True, help_text="Enable automatic OSV scanning")
+    feature_exploit_information = BooleanField(default=True, help_text="Enable CVSS enrichment")
+    exploit_information_max_age_years = IntegerField(
+        default=10,
+        validators=[MinValueValidator(0), MaxValueValidator(999999)],
+        help_text="Maximum age of CVEs for enrichment in years",
+    )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Save object to the database. Removes all other entries if there
         are any.
@@ -258,7 +258,7 @@ class Settings(Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def load(cls):
+    def load(cls) -> "Settings":
         """
         Load object from the database. Failing that, create a new empty
         (default) instance of the object and return it (without saving it

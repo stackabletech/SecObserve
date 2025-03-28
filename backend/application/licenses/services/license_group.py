@@ -48,17 +48,19 @@ def import_scancode_licensedb() -> None:
                 _add_license_to_group(license_groups, category, other_spdx_license_key)
 
 
-def _add_license_to_group(license_groups, category, spdx_license_key):
+def _add_license_to_group(license_groups: dict[str, License_Group], category: str, spdx_license_key: str) -> None:
     try:
         spdx_license = License.objects.get(spdx_id=spdx_license_key)
         license_group = license_groups.get(category)
         if not license_group:
             license_group, _ = License_Group.objects.get_or_create(
                 name=f"{category} (ScanCode LicenseDB)",
-                description="Do not edit! "
-                + "Imported from [ScanCode LicenseDB](https://scancode-licensedb.aboutcode.org/) "
-                + "under the CC-BY-4.0 license.",
-                is_public=True,
+                defaults={
+                    "description": "Do not edit! "
+                    + "Imported from [ScanCode LicenseDB](https://scancode-licensedb.aboutcode.org/) "
+                    + "under the CC-BY-4.0 license.",
+                    "is_public": True,
+                },
             )
             license_groups[category] = license_group
             license_group.licenses.clear()

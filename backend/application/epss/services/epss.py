@@ -30,9 +30,7 @@ def import_epss() -> None:
             epss_date = re.search(r"(\d{4}-\d{2}-\d{2})", decoded_line)
             if epss_date:
                 epss_status = EPSS_Status.load()
-                epss_status.score_date = datetime.strptime(
-                    epss_date.group(0), "%Y-%m-%d"
-                )
+                epss_status.score_date = datetime.strptime(epss_date.group(0), "%Y-%m-%d")
                 epss_status.save()
 
         if decoded_line.startswith("CVE"):
@@ -68,31 +66,22 @@ def epss_apply_observations() -> None:
         updates = []
 
         for observation in page.object_list:
-            if _epss_apply_score(observation):
+            if apply_epss(observation):
                 updates.append(observation)
 
         Observation.objects.bulk_update(updates, ["epss_score", "epss_percentile"])
 
 
-def _epss_apply_score(observation: Observation) -> bool:
+def apply_epss(observation: Observation) -> bool:
     if observation.vulnerability_id.startswith("CVE-"):
         try:
             epss_score = EPSS_Score.objects.get(cve=observation.vulnerability_id)
         except EPSS_Score.DoesNotExist:
             return False
 
-        new_epss_score = (
-            round(epss_score.epss_score * 100, 3) if epss_score.epss_score else None
-        )
-        new_epss_percentile = (
-            round(epss_score.epss_percentile * 100, 3)
-            if epss_score.epss_percentile
-            else None
-        )
-        if (
-            observation.epss_score != new_epss_score
-            or observation.epss_percentile != new_epss_percentile
-        ):
+        new_epss_score = round(epss_score.epss_score * 100, 3) if epss_score.epss_score else None
+        new_epss_percentile = round(epss_score.epss_percentile * 100, 3) if epss_score.epss_percentile else None
+        if observation.epss_score != new_epss_score or observation.epss_percentile != new_epss_percentile:
             observation.epss_score = new_epss_score
             observation.epss_percentile = new_epss_percentile
             return True

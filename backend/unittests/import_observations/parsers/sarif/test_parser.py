@@ -1,6 +1,7 @@
 from os import path
 from unittest import TestCase
 
+from application.core.models import Product
 from application.core.types import Severity
 from application.import_observations.parsers.sarif.parser import SARIFParser
 from application.import_observations.services.parser_detector import detect_parser
@@ -13,7 +14,7 @@ class TestSarifParser(TestCase):
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(4, len(observations))
 
             observation = observations[0]
@@ -26,9 +27,7 @@ class TestSarifParser(TestCase):
 
 """
             self.assertEqual(description, observation.description)
-            self.assertEqual(
-                "frontend/docker/Dockerfile", observation.origin_source_file
-            )
+            self.assertEqual("frontend/docker/Dockerfile", observation.origin_source_file)
             self.assertEqual(1, observation.origin_source_line_start)
             self.assertEqual(41, observation.origin_source_line_end)
             self.assertEqual(Severity.SEVERITY_HIGH, observation.parser_severity)
@@ -39,9 +38,7 @@ class TestSarifParser(TestCase):
             self.assertEqual("Rule", observation.unsaved_evidences[0][0])
             self.assertIn('"id": "CKV_DOCKER_2"', observation.unsaved_evidences[0][1])
             self.assertEqual("Result", observation.unsaved_evidences[1][0])
-            self.assertIn(
-                '"ruleId": "CKV_DOCKER_2"', observation.unsaved_evidences[1][1]
-            )
+            self.assertIn('"ruleId": "CKV_DOCKER_2"', observation.unsaved_evidences[1][1])
 
     def test_eslint(self):
         with open(path.dirname(__file__) + "/files/eslint.sarif") as testfile:
@@ -49,7 +46,7 @@ class TestSarifParser(TestCase):
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(5, len(observations))
 
             observation = observations[0]
@@ -89,7 +86,7 @@ class TestSarifParser(TestCase):
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(2, len(observations))
 
             observation = observations[0]
@@ -105,9 +102,7 @@ class TestSarifParser(TestCase):
 
 """
             self.assertEqual(description, observation.description)
-            self.assertEqual(
-                "backend/config/settings/dist.py", observation.origin_source_file
-            )
+            self.assertEqual("backend/config/settings/dist.py", observation.origin_source_file)
             self.assertEqual(14, observation.origin_source_line_start)
             self.assertIsNone(observation.origin_source_line_end)
             self.assertEqual(Severity.SEVERITY_MEDIUM, observation.parser_severity)
@@ -126,7 +121,7 @@ class TestSarifParser(TestCase):
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(2, len(observations))
 
             observation = observations[0]
@@ -138,9 +133,7 @@ class TestSarifParser(TestCase):
 
 """
             self.assertEqual(description, observation.description)
-            self.assertEqual(
-                "docker-compose-prod-postgres.yml", observation.origin_source_file
-            )
+            self.assertEqual("docker-compose-prod-postgres.yml", observation.origin_source_file)
             self.assertEqual(34, observation.origin_source_line_start)
             self.assertIsNone(observation.origin_source_line_end)
             self.assertEqual(Severity.SEVERITY_HIGH, observation.parser_severity)
@@ -165,14 +158,12 @@ class TestSarifParser(TestCase):
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(1, len(observations))
 
             observation = observations[0]
             self.assertEqual("Trivy / 0.47.0", observation.scanner)
-            self.assertEqual(
-                "Ensure that the expiration date is set on all keys", observation.title
-            )
+            self.assertEqual("Ensure that the expiration date is set on all keys", observation.title)
             description = """**Rule full description:** Expiration Date is an optional Key Vault Key behavior and is not set by default.
 
 Set when the resource will be become inactive.
@@ -185,9 +176,7 @@ Set when the resource will be become inactive.
 
 """
             self.assertEqual(description, observation.description)
-            self.assertEqual(
-                "modules/azure-cosmosdb/main.tf", observation.origin_source_file
-            )
+            self.assertEqual("modules/azure-cosmosdb/main.tf", observation.origin_source_file)
             self.assertEqual(164, observation.origin_source_line_start)
             self.assertEqual(176, observation.origin_source_line_end)
             self.assertEqual(Severity.SEVERITY_MEDIUM, observation.parser_severity)
@@ -212,7 +201,7 @@ Set when the resource will be become inactive.
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(3, len(observations))
 
             observation = observations[0]
@@ -247,7 +236,7 @@ Set when the resource will be become inactive.
             self.assertEqual("SARIF", parser.name)
             self.assertTrue(isinstance(parser_instance, SARIFParser))
 
-            observations = parser_instance.get_observations(data)
+            observations = parser_instance.get_observations(data, Product(name="product"), None)
             self.assertEqual(4, len(observations))
 
             observation = observations[0]

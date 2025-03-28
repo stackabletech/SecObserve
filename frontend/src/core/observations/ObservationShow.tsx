@@ -1,4 +1,4 @@
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, TableHead, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
     ArrayField,
@@ -8,7 +8,6 @@ import {
     NumberField,
     PrevNextButtons,
     Show,
-    TextField,
     TopToolbar,
     UrlField,
     WithRecord,
@@ -20,10 +19,12 @@ import {
     PERMISSION_OBSERVATION_EDIT,
     PERMISSION_OBSERVATION_LOG_APPROVAL,
 } from "../../access_control/types";
+import CVEFoundInField from "../../commons/custom_fields/CVEFoundInField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
-import { get_cvss3_url, get_cvss4_url, get_cwe_url, get_vulnerability_url } from "../../commons/functions";
+import { get_cvss3_url, get_cvss4_url, get_cwe_url } from "../../commons/functions";
 import { useLinkStyles } from "../../commons/layout/themes";
 import { getSettingTheme } from "../../commons/user_settings/functions";
+import VulnerabilityIdField from "../../commons/custom_fields/VulnerabilityIdField";
 import AssessmentApproval from "../observation_logs/AssessmentApproval";
 import ObservationLogEmbeddedList from "../observation_logs/ObservationLogEmbeddedList";
 import { OBSERVATION_STATUS_IN_REVIEW, OBSERVATION_STATUS_OPEN } from "../types";
@@ -106,6 +107,8 @@ const ShowActions = () => {
     );
 };
 
+const EmptyDatagridHeader = () => <TableHead />;
+
 const ObservationShowComponent = () => {
     const linkStyles = useLinkStyles({ setting_theme: getSettingTheme() });
 
@@ -128,25 +131,49 @@ const ObservationShowComponent = () => {
                                 Vulnerability
                             </Typography>
                             <Stack direction="row" spacing={4}>
-                                {observation.vulnerability_id != "" &&
-                                    get_vulnerability_url(observation.vulnerability_id) == null && (
-                                        <Labeled>
-                                            <TextField source="vulnerability_id" label="Vulnerability ID" />
-                                        </Labeled>
-                                    )}
-                                {observation.vulnerability_id != "" &&
-                                    get_vulnerability_url(observation.vulnerability_id) != null && (
-                                        <Labeled>
-                                            <TextUrlField
-                                                label="Vulnerability ID"
-                                                text={observation.vulnerability_id}
-                                                url={
-                                                    observation.vulnerability_id &&
-                                                    get_vulnerability_url(observation.vulnerability_id)
-                                                }
+                                {observation.vulnerability_id != "" && (
+                                    <Stack spacing={2}>
+                                        <Labeled label="Vulnerability Id">
+                                            <WithRecord
+                                                render={(observation) => (
+                                                    <VulnerabilityIdField
+                                                        vulnerability_id={observation.vulnerability_id}
+                                                    />
+                                                )}
                                             />
                                         </Labeled>
-                                    )}
+                                        {observation.vulnerability_id_aliases &&
+                                            observation.vulnerability_id_aliases.length > 0 && (
+                                                <Labeled label="Aliases">
+                                                    <Box>
+                                                        <ArrayField source="vulnerability_id_aliases">
+                                                            <Datagrid
+                                                                bulkActionButtons={false}
+                                                                header={EmptyDatagridHeader}
+                                                                rowClick={false}
+                                                                sx={{
+                                                                    "& .RaDatagrid-rowCell": {
+                                                                        paddingLeft: 0,
+                                                                        borderBottom: 0,
+                                                                        paddingBottom: "1px",
+                                                                        paddingTop: "1px",
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <WithRecord
+                                                                    render={(alias) => (
+                                                                        <VulnerabilityIdField
+                                                                            vulnerability_id={alias.alias}
+                                                                        />
+                                                                    )}
+                                                                />
+                                                            </Datagrid>
+                                                        </ArrayField>
+                                                    </Box>
+                                                </Labeled>
+                                            )}
+                                    </Stack>
+                                )}
                                 {(observation.cvss3_score != null ||
                                     observation.cvss3_vector != "" ||
                                     observation.cvss4_score != null ||
@@ -162,9 +189,10 @@ const ObservationShowComponent = () => {
                                                 {observation.cvss4_vector != "" && (
                                                     <Labeled label="CVSS 4 vector">
                                                         <TextUrlField
-                                                            label="CWE"
+                                                            label="CVSS 4 vector"
                                                             text={observation.cvss4_vector}
                                                             url={get_cvss4_url(observation.cvss4_vector)}
+                                                            new_tab={true}
                                                         />
                                                     </Labeled>
                                                 )}
@@ -180,13 +208,22 @@ const ObservationShowComponent = () => {
                                                 {observation.cvss3_vector != "" && (
                                                     <Labeled label="CVSS 3 vector">
                                                         <TextUrlField
-                                                            label="CWE"
+                                                            label="CVSS 3 vector"
                                                             text={observation.cvss3_vector}
                                                             url={get_cvss3_url(observation.cvss3_vector)}
+                                                            new_tab={true}
                                                         />
                                                     </Labeled>
                                                 )}
                                             </Stack>
+                                        )}
+                                        {observation.cve_found_in && observation.cve_found_in.length > 0 && (
+                                            <Labeled label="Exploit information found in">
+                                                <CVEFoundInField
+                                                    cve_found_in={observation.cve_found_in}
+                                                    vulnerability_id={observation.vulnerability_id}
+                                                />
+                                            </Labeled>
                                         )}
                                     </Stack>
                                 )}
@@ -196,6 +233,7 @@ const ObservationShowComponent = () => {
                                             label="CWE"
                                             text={observation.cwe}
                                             url={get_cwe_url(observation.cwe)}
+                                            new_tab={true}
                                         />
                                     </Labeled>
                                 )}

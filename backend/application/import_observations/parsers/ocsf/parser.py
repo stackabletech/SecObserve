@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from py_ocsf_models.events.findings.detection_finding import (
     ClassUID,
@@ -10,7 +10,7 @@ from py_ocsf_models.events.findings.finding import ActivityID
 from rest_framework.exceptions import ValidationError
 from semver import Version
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation, Product
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -36,26 +36,17 @@ class OCSFParser(BaseParser, BaseFileParser):
         return Parser_Type.TYPE_INFRASTRUCTURE
 
     def check_format(self, data: Any) -> bool:
-        if (
-            isinstance(data, list)
-            and len(data) >= 1
-            and isinstance(data[0], dict)
-            and data[0].get("class_uid")
-        ):
+        if isinstance(data, list) and len(data) >= 1 and isinstance(data[0], dict) and data[0].get("class_uid"):
             tool_name = data[0].get("metadata", {}).get("product", {}).get("name", "")
-            tool_version = (
-                data[0].get("metadata", {}).get("product", {}).get("version", "")
-            )
-            if tool_name == "Prowler" and (
-                not tool_version or Version.parse(tool_version) < Version.parse("4.5.0")
-            ):
+            tool_version = data[0].get("metadata", {}).get("product", {}).get("version", "")
+            if tool_name == "Prowler" and (not tool_version or Version.parse(tool_version) < Version.parse("4.5.0")):
                 return False
 
             return True
 
         return False
 
-    def get_observations(self, data: list) -> list[Observation]:
+    def get_observations(self, data: list, product: Product, branch: Optional[Branch]) -> list[Observation]:
         observations = []
 
         for element in data:

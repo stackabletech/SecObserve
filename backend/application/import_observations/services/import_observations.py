@@ -36,7 +36,8 @@ from application.core.services.risk_acceptance_expiry import (
 )
 from application.core.services.security_gate import check_security_gate
 from application.core.types import Assessment_Status, Status
-from application.epss.services.epss import epss_apply_observation
+from application.epss.services.cvss_bt import apply_exploit_information
+from application.epss.services.epss import apply_epss
 from application.import_observations.exceptions import ParserError
 from application.import_observations.models import (
     Api_Configuration,
@@ -97,13 +98,11 @@ def file_upload_observations(
 ) -> Tuple[int, int, int, int, int, int]:
 
     parser, parser_instance, data = detect_parser(file_upload_parameters.file)
-    imported_observations = parser_instance.get_observations(data)
-
-    filename = (
-        os.path.basename(file_upload_parameters.file.name)
-        if file_upload_parameters.file.name
-        else ""
+    imported_observations = parser_instance.get_observations(
+        data, file_upload_parameters.product, file_upload_parameters.branch
     )
+
+    filename = os.path.basename(file_upload_parameters.file.name) if file_upload_parameters.file.name else ""
 
     import_parameters = ImportParameters(
         product=file_upload_parameters.product,
@@ -118,12 +117,14 @@ def file_upload_observations(
         imported_observations=imported_observations,
     )
 
-    numbers_observations: Tuple[int, int, int, str] = _process_data(import_parameters)
+    settings = Settings.load()
+    numbers_observations: Tuple[int, int, int, str] = _process_data(import_parameters, settings)
 
     vulnerability_check, _ = Vulnerability_Check.objects.update_or_create(
         product=import_parameters.product,
         branch=import_parameters.branch,
         filename=import_parameters.filename,
+        api_configuration_name="",
         defaults={
             "last_import_observations_new": numbers_observations[0],
             "last_import_observations_updated": numbers_observations[1],
@@ -133,28 +134,14 @@ def file_upload_observations(
     )
 
     numbers_license_components = (0, 0, 0)
-    settings = Settings.load()
-    if (
-        settings.feature_license_management
-        and not file_upload_parameters.suppress_licenses
-    ):
+    if settings.feature_license_management and not file_upload_parameters.suppress_licenses:
         imported_license_components = parser_instance.get_license_components(data)
-        numbers_license_components = process_license_components(
-            imported_license_components, vulnerability_check
-        )
+        numbers_license_components = process_license_components(imported_license_components, vulnerability_check)
         if numbers_license_components != (0, 0, 0):
             vulnerability_check.last_import_licenses_new = numbers_license_components[0]
-            vulnerability_check.last_import_licenses_updated = (
-                numbers_license_components[1]
-            )
-            vulnerability_check.last_import_licenses_deleted = (
-                numbers_license_components[2]
-            )
-            if (
-                numbers_observations[0] == 0
-                and numbers_observations[1] == 0
-                and numbers_observations[2] == 0
-            ):
+            vulnerability_check.last_import_licenses_updated = numbers_license_components[1]
+            vulnerability_check.last_import_licenses_deleted = numbers_license_components[2]
+            if numbers_observations[0] == 0 and numbers_observations[1] == 0 and numbers_observations[2] == 0:
                 vulnerability_check.last_import_observations_new = None
                 vulnerability_check.last_import_observations_updated = None
                 vulnerability_check.last_import_observations_resolved = None
@@ -180,19 +167,17 @@ def api_import_observations(
     parser_instance = instanciate_parser(api_import_parameters.api_configuration.parser)
 
     if not isinstance(parser_instance, BaseAPIParser):
-        raise ParserError(
-            f"{api_import_parameters.api_configuration.parser.name} isn't an API parser"
-        )
+        raise ParserError(f"{api_import_parameters.api_configuration.parser.name} isn't an API parser")
 
-    format_valid, errors, data = parser_instance.check_connection(
-        api_import_parameters.api_configuration
-    )
+    format_valid, errors, data = parser_instance.check_connection(api_import_parameters.api_configuration)
     if not format_valid:
-        raise ValidationError(
-            "Connection couldn't be established: " + " / ".join(errors)
-        )
+        raise ValidationError("Connection couldn't be established: " + " / ".join(errors))
 
-    imported_observations = parser_instance.get_observations(data)
+    imported_observations = parser_instance.get_observations(
+        data,
+        api_import_parameters.api_configuration.product,
+        api_import_parameters.branch,
+    )
 
     import_parameters = ImportParameters(
         product=api_import_parameters.api_configuration.product,
@@ -207,11 +192,12 @@ def api_import_observations(
         imported_observations=imported_observations,
     )
 
-    numbers: Tuple[int, int, int, str] = _process_data(import_parameters)
+    numbers: Tuple[int, int, int, str] = _process_data(import_parameters, Settings.load())
 
     Vulnerability_Check.objects.update_or_create(
         product=import_parameters.product,
         branch=import_parameters.branch,
+        filename="",
         api_configuration_name=import_parameters.api_configuration_name,
         defaults={
             "last_import_observations_new": numbers[0],
@@ -237,7 +223,7 @@ def api_check_connection(
     return format_valid, errors
 
 
-def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, str]:
+def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tuple[int, int, int, str]:
     observations_new = 0
     observations_updated = 0
 
@@ -254,9 +240,7 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
         import_parameters.filename,
         import_parameters.api_configuration_name,
     ):
-        observations_before[observation_before_for_dict.identity_hash] = (
-            observation_before_for_dict
-        )
+        observations_before[observation_before_for_dict.identity_hash] = observation_before_for_dict
         scanner = observation_before_for_dict.scanner
 
     observations_this_run: set[str] = set()
@@ -274,9 +258,7 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
         # Only process observation if it hasn't been processed in this run before
         if imported_observation.identity_hash not in observations_this_run:
             # Check if new observation is already there in the same check
-            observation_before = observations_before.get(
-                imported_observation.identity_hash
-            )
+            observation_before = observations_before.get(imported_observation.identity_hash)
             if observation_before:
                 # Only update the observation if it hasn't been assessed manually or is in review
                 if (
@@ -291,9 +273,7 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
                     rule_engine.apply_rules_for_observation(observation_before)
                     vex_engine.apply_vex_statements_for_observation(observation_before)
 
-                    if observation_before.current_status == _get_initial_status(
-                        observation_before.product
-                    ):
+                    if observation_before.current_status == _get_initial_status(observation_before.product):
                         observations_updated += 1
 
                 # Remove observation from list of current observations because it is still part of the check
@@ -322,16 +302,13 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
                         f"{imported_observation.origin_docker_image_tag}"
                     )
                 else:
-                    _process_new_observation(imported_observation)
+                    _process_new_observation(imported_observation, settings)
 
                     rule_engine.apply_rules_for_observation(imported_observation)
                     vex_engine.apply_vex_statements_for_observation(
                         imported_observation
                     )
-
-                    if imported_observation.current_status == _get_initial_status(
-                        imported_observation.product
-                    ):
+                    if imported_observation.current_status == _get_initial_status(imported_observation.product):
                         observations_new += 1
 
                     # Add identity_hash to set of observations in this run to detect duplicates in this run
@@ -346,58 +323,43 @@ def _process_data(import_parameters: ImportParameters) -> Tuple[int, int, int, s
     if import_parameters.branch:
         import_parameters.branch.last_import = timezone.now()
         import_parameters.branch.save()
-    push_observations_to_issue_tracker(
-        import_parameters.product, vulnerability_check_observations
-    )
-    find_potential_duplicates(
-        import_parameters.product, import_parameters.branch, import_parameters.service
-    )
+    push_observations_to_issue_tracker(import_parameters.product, vulnerability_check_observations)
+    find_potential_duplicates(import_parameters.product, import_parameters.branch, import_parameters.service)
 
     return observations_new, observations_updated, len(observations_resolved), scanner
 
 
-def _prepare_imported_observation(
-    import_parameters: ImportParameters, imported_observation: Observation
-) -> None:
+def _prepare_imported_observation(import_parameters: ImportParameters, imported_observation: Observation) -> None:
     imported_observation.product = import_parameters.product
     imported_observation.branch = import_parameters.branch
     imported_observation.parser = import_parameters.parser
     if not imported_observation.scanner:
         imported_observation.scanner = import_parameters.parser.name
     imported_observation.upload_filename = import_parameters.filename
-    imported_observation.api_configuration_name = (
-        import_parameters.api_configuration_name
-    )
+    imported_observation.api_configuration_name = import_parameters.api_configuration_name
     imported_observation.import_last_seen = timezone.now()
     if import_parameters.service:
         imported_observation.origin_service_name = import_parameters.service
-        service = Service.objects.get_or_create(
-            product=import_parameters.product, name=import_parameters.service
-        )[0]
+        service = Service.objects.get_or_create(product=import_parameters.product, name=import_parameters.service)[0]
         imported_observation.origin_service = service
     if import_parameters.docker_image_name_tag:
-        imported_observation.origin_docker_image_name_tag = (
-            import_parameters.docker_image_name_tag
-        )
+        imported_observation.origin_docker_image_name_tag = import_parameters.docker_image_name_tag
     if import_parameters.endpoint_url:
         imported_observation.origin_endpoint_url = import_parameters.endpoint_url
     if import_parameters.kubernetes_cluster:
-        imported_observation.origin_kubernetes_cluster = (
-            import_parameters.kubernetes_cluster
-        )
+        imported_observation.origin_kubernetes_cluster = import_parameters.kubernetes_cluster
 
 
 def _process_current_observation(
-    imported_observation: Observation, observation_before: Observation
+    imported_observation: Observation, observation_before: Observation, settings: Settings
 ) -> None:
     # Set data in the current observation from the new observation
     observation_before.title = imported_observation.title
     observation_before.description = imported_observation.description
     observation_before.recommendation = imported_observation.recommendation
-    observation_before.scanner_observation_id = (
-        imported_observation.scanner_observation_id
-    )
+    observation_before.scanner_observation_id = imported_observation.scanner_observation_id
     observation_before.vulnerability_id = imported_observation.vulnerability_id
+    observation_before.vulnerability_id_aliases = imported_observation.vulnerability_id_aliases
     observation_before.cvss3_score = imported_observation.cvss3_score
     observation_before.cvss3_vector = imported_observation.cvss3_vector
     observation_before.cvss4_score = imported_observation.cvss4_score
@@ -409,9 +371,7 @@ def _process_current_observation(
         imported_observation.origin_component_location
     )
 
-    observation_before.origin_component_dependencies = (
-        imported_observation.origin_component_dependencies
-    )
+    observation_before.origin_component_dependencies = imported_observation.origin_component_dependencies
 
     previous_severity = observation_before.current_severity
     observation_before.parser_severity = imported_observation.parser_severity
@@ -424,59 +384,49 @@ def _process_current_observation(
         # Reopen the current observation if it is resolved,
         # leave the status as is otherwise.
         if observation_before.parser_status == Status.STATUS_RESOLVED:
-            observation_before.parser_status = _get_initial_status(
-                observation_before.product
-            )
+            observation_before.parser_status = _get_initial_status(observation_before.product)
     observation_before.current_status = get_current_status(observation_before)
 
     if observation_before.current_status == Status.STATUS_RISK_ACCEPTED:
         if previous_status != Status.STATUS_RISK_ACCEPTED:
-            observation_before.risk_acceptance_expiry_date = (
-                calculate_risk_acceptance_expiry_date(observation_before.product)
+            observation_before.risk_acceptance_expiry_date = calculate_risk_acceptance_expiry_date(
+                observation_before.product
             )
     else:
         observation_before.risk_acceptance_expiry_date = None
 
-    epss_apply_observation(observation_before)
+    apply_epss(observation_before)
+    apply_exploit_information(observation_before, settings)
     observation_before.import_last_seen = timezone.now()
     observation_before.save()
 
     observation_before.references.all().delete()
     if imported_observation.unsaved_references:
-        for reference in imported_observation.unsaved_references:
+        for unsaved_reference in imported_observation.unsaved_references:
             reference = Reference(
                 observation=observation_before,
-                url=reference,
+                url=unsaved_reference,
             )
             clip_fields("core", "Reference", reference)
             reference.save()
 
     observation_before.evidences.all().delete()
     if imported_observation.unsaved_evidences:
-        for evidence in imported_observation.unsaved_evidences:
+        for unsaved_evidence in imported_observation.unsaved_evidences:
             evidence = Evidence(
                 observation=observation_before,
-                name=evidence[0],
-                evidence=evidence[1],
+                name=unsaved_evidence[0],
+                evidence=unsaved_evidence[1],
             )
             clip_fields("core", "Evidence", evidence)
             evidence.save()
 
             # Write observation log if status or severity has been changed
-    if (
-        previous_status != observation_before.current_status
-        or previous_severity != observation_before.current_severity
-    ):
-        status = (
-            observation_before.current_status
-            if previous_status != observation_before.current_status
-            else ""
-        )
+    if previous_status != observation_before.current_status or previous_severity != observation_before.current_severity:
+        status = observation_before.current_status if previous_status != observation_before.current_status else ""
 
         severity = (
-            imported_observation.current_severity
-            if previous_severity != observation_before.current_severity
-            else ""
+            imported_observation.current_severity if previous_severity != observation_before.current_severity else ""
         )
 
         create_observation_log(
@@ -491,13 +441,11 @@ def _process_current_observation(
         )
 
 
-def _process_new_observation(imported_observation: Observation) -> None:
+def _process_new_observation(imported_observation: Observation, settings: Settings) -> None:
     imported_observation.current_severity = get_current_severity(imported_observation)
 
     if not imported_observation.parser_status:
-        imported_observation.parser_status = _get_initial_status(
-            imported_observation.product
-        )
+        imported_observation.parser_status = _get_initial_status(imported_observation.product)
 
     imported_observation.current_status = get_current_status(imported_observation)
 
@@ -511,24 +459,25 @@ def _process_new_observation(imported_observation: Observation) -> None:
     if issue_id:
         imported_observation.issue_tracker_issue_id = issue_id
     # Observation has not been imported before, so it is a new one
-    epss_apply_observation(imported_observation)
+    apply_epss(imported_observation)
+    apply_exploit_information(imported_observation, settings)
     imported_observation.save()
 
     if imported_observation.unsaved_references:
-        for reference in imported_observation.unsaved_references:
+        for unsaved_reference in imported_observation.unsaved_references:
             reference = Reference(
                 observation=imported_observation,
-                url=reference,
+                url=unsaved_reference,
             )
             clip_fields("core", "Reference", reference)
             reference.save()
 
     if imported_observation.unsaved_evidences:
-        for evidence in imported_observation.unsaved_evidences:
+        for unsaved_evidence in imported_observation.unsaved_evidences:
             evidence = Evidence(
                 observation=imported_observation,
-                name=evidence[0],
-                evidence=evidence[1],
+                name=unsaved_evidence[0],
+                evidence=unsaved_evidence[1],
             )
             clip_fields("core", "Evidence", evidence)
             evidence.save()
@@ -546,7 +495,7 @@ def _process_new_observation(imported_observation: Observation) -> None:
 
 
 def _resolve_unimported_observations(
-    observations_before: dict[str, Observation]
+    observations_before: dict[str, Observation],
 ) -> set[Observation]:
     # All observations that are still in observations_before are not in the imported scan
     # and seem to have been resolved.

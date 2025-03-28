@@ -1,7 +1,7 @@
 from json import dumps
-from typing import Any
+from typing import Any, Optional
 
-from application.core.models import Observation
+from application.core.models import Branch, Observation, Product
 from application.core.types import Severity
 from application.import_observations.parsers.base_parser import (
     BaseFileParser,
@@ -34,17 +34,15 @@ class ProwlerParser(BaseParser, BaseFileParser):
             return True
         return False
 
-    def get_observations(self, data: list[dict]) -> list[Observation]:
+    def get_observations(  # pylint: disable=too-many-locals
+        self, data: list[dict], product: Product, branch: Optional[Branch]
+    ) -> list[Observation]:
         observations = []
 
         for prowler_observation in data:
             if prowler_observation.get("Status", "").lower() == "fail":
-                status_extended = prowler_observation.get(
-                    "StatusExtended", "No StatusExtended found"
-                )
-                severity = prowler_observation.get(
-                    "Severity", Severity.SEVERITY_UNKNOWN
-                ).capitalize()
+                status_extended = prowler_observation.get("StatusExtended", "No StatusExtended found")
+                severity = prowler_observation.get("Severity", Severity.SEVERITY_UNKNOWN).capitalize()
                 if severity == "Informational":
                     severity = Severity.SEVERITY_NONE
 
@@ -115,16 +113,8 @@ class ProwlerParser(BaseParser, BaseFileParser):
         return description
 
     def get_recommendation(self, prowler_observation: dict) -> str:
-        recommendation_text = (
-            prowler_observation.get("Remediation", {})
-            .get("Recommendation", {})
-            .get("Text")
-        )
-        recommendation_url = (
-            prowler_observation.get("Remediation", {})
-            .get("Recommendation", {})
-            .get("Url")
-        )
+        recommendation_text = prowler_observation.get("Remediation", {}).get("Recommendation", {}).get("Text")
+        recommendation_url = prowler_observation.get("Remediation", {}).get("Recommendation", {}).get("Url")
         recommendation_code = prowler_observation.get("Remediation", {}).get("Code")
         recommendation = ""
         if recommendation_text:

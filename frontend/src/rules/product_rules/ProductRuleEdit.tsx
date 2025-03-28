@@ -13,6 +13,7 @@ import {
     useRecordContext,
 } from "react-admin";
 
+import product_rules from ".";
 import { PERMISSION_PRODUCT_RULE_DELETE } from "../../access_control/types";
 import {
     validate_255,
@@ -107,8 +108,9 @@ const ProductRuleEditForm = () => {
 
     return (
         <SimpleForm warnWhenUnsavedChanges toolbar={<CustomToolbar />} validate={validateRuleForm}>
-            <Typography variant="h6" sx={{ marginBottom: 1 }}>
-                Product Rule
+            <Typography variant="h6" alignItems="center" display={"flex"} sx={{ marginBottom: 1 }}>
+                <product_rules.icon />
+                &nbsp;&nbsp;Product Rule
             </Typography>
             <Stack>
                 <TextInputWide source="product_data.name" disabled />

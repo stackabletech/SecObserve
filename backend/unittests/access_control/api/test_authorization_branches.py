@@ -16,12 +16,10 @@ class TestAuthorizationBranches(TestAuthorizationBase):
         self._test_authorization_branches()
 
     def _test_authorization_branches(self):
-        expected_data = "{'count': 3, 'next': None, 'previous': None, 'results': [{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}, {'id': 2, 'name_with_product': 'db_branch_internal_main (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_main', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}, {'id': 3, 'name_with_product': 'db_branch_external (db_product_external)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_external', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 2}]}"
-        self._test_api(
-            APITest("db_admin", "get", "/api/branches/", None, 200, expected_data)
-        )
+        expected_data = "{'count': 3, 'next': None, 'previous': None, 'results': [{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}, {'id': 2, 'name_with_product': 'db_branch_internal_main (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_main', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}, {'id': 3, 'name_with_product': 'db_branch_external (db_product_external)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_external', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 2}]}"
+        self._test_api(APITest("db_admin", "get", "/api/branches/", None, 200, expected_data))
 
-        expected_data = "{'count': 2, 'next': None, 'previous': None, 'results': [{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}, {'id': 2, 'name_with_product': 'db_branch_internal_main (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_main', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}]}"
+        expected_data = "{'count': 2, 'next': None, 'previous': None, 'results': [{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}, {'id': 2, 'name_with_product': 'db_branch_internal_main (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_main', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}]}"
         self._test_api(
             APITest(
                 "db_internal_write",
@@ -33,7 +31,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
             )
         )
 
-        expected_data = "{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}"
+        expected_data = "{'id': 1, 'name_with_product': 'db_branch_internal_dev (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'db_branch_internal_dev', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}"
         self._test_api(
             APITest(
                 "db_internal_write",
@@ -69,9 +67,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
         )
 
         post_data = {"name": "string", "product": 1}
-        expected_data = (
-            "{'message': 'You do not have permission to perform this action.'}"
-        )
+        expected_data = "{'message': 'You do not have permission to perform this action.'}"
         self._test_api(
             APITest(
                 "db_internal_read",
@@ -83,7 +79,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
             )
         )
 
-        expected_data = "{'id': 4, 'name_with_product': 'string (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'string', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}"
+        expected_data = "{'id': 4, 'name_with_product': 'string (db_product_internal)', 'is_default_branch': False, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'string', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}"
         self._test_api(
             APITest(
                 "db_internal_write",
@@ -96,9 +92,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
         )
 
         post_data = {"name": "changed"}
-        expected_data = (
-            "{'message': 'You do not have permission to perform this action.'}"
-        )
+        expected_data = "{'message': 'You do not have permission to perform this action.'}"
         self._test_api(
             APITest(
                 "db_internal_read",
@@ -110,7 +104,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
             )
         )
 
-        expected_data = "{'id': 1, 'name_with_product': 'changed (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'changed', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'product': 1}"
+        expected_data = "{'id': 1, 'name_with_product': 'changed (db_product_internal)', 'is_default_branch': True, 'open_critical_observation_count': 0, 'open_high_observation_count': 0, 'open_medium_observation_count': 0, 'open_low_observation_count': 0, 'open_none_observation_count': 0, 'open_unknown_observation_count': 0, 'forbidden_licenses_count': 0, 'review_required_licenses_count': 0, 'unknown_licenses_count': 0, 'allowed_licenses_count': 0, 'ignored_licenses_count': 0, 'name': 'changed', 'last_import': None, 'housekeeping_protect': False, 'purl': '', 'cpe23': '', 'osv_linux_distribution': '', 'osv_linux_release': '', 'product': 1}"
         self._test_api(
             APITest(
                 "db_internal_write",
@@ -122,9 +116,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
             )
         )
 
-        expected_data = (
-            "{'message': 'You do not have permission to perform this action.'}"
-        )
+        expected_data = "{'message': 'You do not have permission to perform this action.'}"
         self._test_api(
             APITest(
                 "db_internal_read",
@@ -136,9 +128,7 @@ class TestAuthorizationBranches(TestAuthorizationBase):
             )
         )
 
-        expected_data = (
-            "{'message': 'You cannot delete the default branch of a product.'}"
-        )
+        expected_data = "{'message': 'You cannot delete the default branch of a product.'}"
         self._test_api(
             APITest(
                 "db_internal_write",

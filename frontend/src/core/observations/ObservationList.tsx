@@ -22,6 +22,7 @@ import observations from ".";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { humanReadableDate } from "../../commons/functions";
+import { feature_exploit_information } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
 import { AutocompleteInputMedium, NullableBooleanInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
@@ -75,6 +76,7 @@ const listFilters = () => [
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" />,
     <NullableBooleanInputWide source="patch_available" label="Patch available" alwaysOn />,
     <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
+    <NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />,
     <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <AutocompleteInput
         source="origin_component_purl_type"
@@ -101,7 +103,6 @@ const ObservationList = () => {
         disableSyncWithLocation: false,
         debounce: 700,
     });
-
     if (listContext.isLoading) {
         return <div>Loading...</div>;
     }

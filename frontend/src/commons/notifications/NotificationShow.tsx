@@ -1,7 +1,7 @@
-import { Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import { useEffect } from "react";
 import {
     DateField,
-    DeleteWithConfirmButton,
     PrevNextButtons,
     ReferenceField,
     Show,
@@ -9,30 +9,46 @@ import {
     TextField,
     TopToolbar,
     WithRecord,
+    useGetRecordId,
 } from "react-admin";
+
+import notifications from ".";
+import { httpClient } from "../ra-data-django-rest-framework";
+import { update_notification_count } from "./notification_count";
 
 const ShowActions = () => {
     return (
         <TopToolbar>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-                <PrevNextButtons
-                    linkType="show"
-                    sort={{ field: "created", order: "DESC" }}
-                    storeKey="notifications.list"
-                />
-                <DeleteWithConfirmButton />
-            </Stack>
+            <PrevNextButtons linkType="show" sort={{ field: "created", order: "DESC" }} storeKey="notifications.list" />
         </TopToolbar>
     );
 };
 
 const NotificationShow = () => {
+    const recordId = useGetRecordId();
+
+    useEffect(() => {
+        const url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/notifications/" + recordId + "/mark_as_viewed/";
+        httpClient(url, {
+            method: "POST",
+        })
+            .then(() => {
+                update_notification_count();
+            })
+            .catch((error) => {
+                console.warn("Cannot mark notification as viewed: ", error.message);
+            });
+    }, [recordId]);
+
     return (
         <Show actions={<ShowActions />}>
             <WithRecord
                 render={(notification) => (
                     <SimpleShowLayout>
-                        <Typography variant="h6">Notification</Typography>
+                        <Typography variant="h6" alignItems="center" display={"flex"} sx={{ marginBottom: 1 }}>
+                            <notifications.icon />
+                            &nbsp;&nbsp;Notification
+                        </Typography>
                         <TextField source="type" />
                         <TextField source="name" />
                         <DateField locales="de-DE" source="created" showTime={true} />
@@ -56,7 +72,9 @@ const NotificationShow = () => {
                                 sx={{ "& a": { textDecoration: "none" } }}
                             />
                         )}
-                        <TextField source="user_full_name" label="User" />
+                        {notification && notification.user_full_name && (
+                            <TextField source="user_full_name" label="User" />
+                        )}
                     </SimpleShowLayout>
                 )}
             />

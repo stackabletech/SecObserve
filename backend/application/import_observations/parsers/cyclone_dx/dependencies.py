@@ -1,4 +1,3 @@
-import logging
 from collections import defaultdict
 
 from application.import_observations.parsers.cyclone_dx.types import Component

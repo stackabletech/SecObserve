@@ -30,11 +30,13 @@
 | [Import from many SAST, SCA, DAST, infrastructure and secrets scanners](../integrations/supported_scanners.md) | :material-plus-circle-outline: |
 | [GitLab CI integration of scanners with predefined templates](../integrations/github_actions_and_templates.md#examplary-pipeline-for-gitlab-ci-templates)<br />[GitHub integration of scanners with predefined actions](../integrations/github_actions_and_templates.md#examplary-workflow-for-github-actions) | :material-plus-circle-outline: |
 | [Data enrichment from Exploit Prediction Scoring System (EPSS)](../integrations/epss.md) | :material-plus-circle-outline: |
+| [Data enrichment with exploit information](../integrations/exploits.md) | :material-plus-circle-outline: |
 | [Always up-to-date SPDX licenses](../integrations/license_data.md#spdx-licenses) | :material-plus-circle-outline: |
 | [License groups generated from ScanCode LicenseDB data](../integrations/license_data.md#scancode-licensedb) | :material-plus-circle-outline: |
 | [Direct link to source code](../integrations/source_code_repositories.md) | :material-plus-circle-outline: |
 | [Export vulnerabilities to issue trackers (Jira, GitLab, GitHub)](../integrations/issue_trackers.md) | :material-plus-circle-outline: |
 | [Import/export vulnerabilities from/to VEX documents (CSAF, OpenVEX)](../integrations/vex.md) | :material-plus-circle-outline: |
+| [Vulnerability scanning from OSV database](../integrations/osv_scan.md) | :material-plus-circle-outline: |
 | [Export of data to Microsoft Excel and CSV](../integrations/observations_export.md) | :material-plus-circle-outline: |
 | [Export metrics to CodeCharta](../integrations/codecharta.md) | :material-plus-circle-outline: |
 | [Notifications to Microsoft Teams, Slack and email](../integrations/notifications.md) | :material-plus-circle-outline: |

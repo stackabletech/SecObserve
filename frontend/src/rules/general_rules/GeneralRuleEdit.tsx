@@ -13,6 +13,7 @@ import {
     useRecordContext,
 } from "react-admin";
 
+import general_rules from ".";
 import {
     validate_255,
     validate_513,
@@ -99,8 +100,9 @@ const GeneralRuleEditForm = () => {
 
     return (
         <SimpleForm warnWhenUnsavedChanges toolbar={<CustomToolbar />} validate={validateRuleForm}>
-            <Typography variant="h6" sx={{ marginBottom: 1 }}>
-                General Rule
+            <Typography variant="h6" alignItems="center" display={"flex"} sx={{ marginBottom: 1 }}>
+                <general_rules.icon />
+                &nbsp;&nbsp;General Rule
             </Typography>
             <Stack>
                 <TextInputWide autoFocus source="name" validate={validate_required_255} />
