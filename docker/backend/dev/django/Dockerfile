@@ -21,8 +21,7 @@ ENV POETRY_NO_INTERACTION=1 \
 WORKDIR /
 
 COPY backend/pyproject.toml backend/poetry.lock ./
-RUN poetry install --extras "dev" --no-root && rm -rf $POETRY_CACHE_DIR
-
+RUN poetry install --extras "code_quality dev" --no-root && rm -rf $POETRY_CACHE_DIR
 
 ARG BUILD_ENVIRONMENT=dev
 ARG APP_HOME=/app

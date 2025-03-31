@@ -188,18 +188,13 @@ class BranchFilter(FilterSet):
     )
 
     def filter_branch_name_with_product(
-        self, queryset, field_name, value
-    ):  # pylint: disable=unused-argument
+        self, queryset: QuerySet, field_name: Any, value: Any
+    ) -> QuerySet:  # pylint: disable=unused-argument
         # field_name is used as a positional argument
 
         # check if branch or product name matches the search value
         return queryset.filter(
-            Q(name__icontains=value)
-            | Q(
-                product_id__in=Product.objects.filter(name__icontains=value).values(
-                    "id"
-                )
-            )
+            Q(name__icontains=value) | Q(product_id__in=Product.objects.filter(name__icontains=value).values("id"))
         )
 
     class Meta:

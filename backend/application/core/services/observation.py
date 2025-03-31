@@ -141,7 +141,7 @@ def get_current_vex_justification(observation: Observation) -> str:
     return ""
 
 
-def get_current_vex_remediations(observation) -> str:
+def get_current_vex_remediations(observation: Observation) -> str:
     if observation.assessment_vex_remediations:
         return observation.assessment_vex_remediations
 
@@ -464,7 +464,7 @@ def normalize_vex_justification(observation: Observation) -> None:
     observation.current_vex_justification = get_current_vex_justification(observation)
 
 
-def normalize_vex_remediations(observation):
+def normalize_vex_remediations(observation: Observation) -> None:
     if observation.current_vex_remediations is None:
         observation.current_vex_remediations = ""
     if observation.assessment_vex_remediations is None:

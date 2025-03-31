@@ -43,8 +43,7 @@ def save_assessment(
     )
     log_vex_remediations = (
         new_vex_remediations
-        if new_vex_remediations
-        and new_vex_remediations != observation.current_vex_remediations
+        if new_vex_remediations and new_vex_remediations != observation.current_vex_remediations
         else ""
     )
     log_risk_acceptance_expiry_date = (
@@ -61,7 +60,7 @@ def save_assessment(
             (log_severity and log_severity != observation.current_severity)
             or (log_status and log_status != observation.current_status)
             or (log_vex_justification and log_vex_justification != observation.current_vex_justification)
-            or (log_vex_remediation and log_vex_remediation != observation.current_vex_remediation)
+            or (log_vex_remediations and log_vex_remediations != observation.current_vex_remediations)
         )
         and new_status != Status.STATUS_IN_REVIEW
         else Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED
@@ -134,10 +133,7 @@ def _update_observation(
 
     previous_current_vex_remediations = observation.current_vex_remediations
     previous_assessment_vex_remediations = observation.assessment_vex_remediations
-    if (
-        new_vex_remediations
-        and new_vex_remediations != observation.current_vex_remediations
-    ):
+    if new_vex_remediations and new_vex_remediations != observation.current_vex_remediations:
         observation.assessment_vex_remediations = new_vex_remediations
         observation.current_vex_remediations = get_current_vex_remediations(observation)
 

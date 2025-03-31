@@ -25,14 +25,8 @@ from django.utils import timezone
 from application.access_control.models import Authorization_Group, User
 from application.core.types import (
     Assessment_Status,
-    OSVLinuxDistribution,
-    Severity,
-    Status,
-    VexJustification,
-)
-from application.core.types import (
-    Assessment_Status,
     ExploitSource,
+    OSVLinuxDistribution,
     Severity,
     Status,
     VexJustification,
@@ -500,9 +494,7 @@ class Observation(Model):
     assessment_vex_justification = CharField(
         max_length=64, choices=VexJustification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
-    duplicate_of = ForeignKey(
-        "self", related_name="duplicates", on_delete=PROTECT, null=True
-    )
+    duplicate_of = ForeignKey("self", related_name="duplicates", on_delete=PROTECT, null=True)
     current_vex_remediations = JSONField(blank=True, null=True)
     rule_vex_remediations = JSONField(blank=True, null=True)
     vex_vex_remediations = JSONField(blank=True, null=True)
@@ -518,9 +510,7 @@ class Observation(Model):
     )
 
     risk_acceptance_expiry_date = DateField(null=True)
-    upgrade_impact_score = IntegerField(
-        null=True, validators=[MinValueValidator(0), MaxValueValidator(999999)]
-    )
+    upgrade_impact_score = IntegerField(null=True, validators=[MinValueValidator(0), MaxValueValidator(999999)])
 
     class Meta:
         indexes = [

@@ -1,5 +1,5 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from application.import_observations.parsers.cyclone_dx.parser import Component
 
@@ -21,9 +21,7 @@ def get_component_dependencies(
     )
     translated_component_dependencies = []
     if component_dependencies:
-        translated_component_dependencies = _translate_component_dependencies(
-            component_dependencies, components
-        )
+        translated_component_dependencies = _translate_component_dependencies(component_dependencies, components)
 
     observation_component_dependencies = ""
 
@@ -32,9 +30,7 @@ def get_component_dependencies(
         observation_component_dependencies += f"{edge}\n"
 
     if len(observation_component_dependencies) > 32768:
-        observation_component_dependencies = (
-            observation_component_dependencies[:32764] + " ..."
-        )
+        observation_component_dependencies = observation_component_dependencies[:32764] + " ..."
 
     return observation_component_dependencies, translated_component_dependencies
 
@@ -50,9 +46,7 @@ def _filter_component_dependencies(
         depends_on = dependency.get("dependsOn", [])
         if bom_ref in depends_on:
             component_dependencies.append(dependency)
-            _filter_component_dependencies(
-                str(dependency.get("ref")), dependencies, component_dependencies
-            )
+            _filter_component_dependencies(str(dependency.get("ref")), dependencies, component_dependencies)
 
 
 def _translate_component_dependencies(
@@ -64,19 +58,13 @@ def _translate_component_dependencies(
     for component_dependency in component_dependencies:
         translated_component_dependency: dict[str, str | list[str]] = {}
 
-        translated_component_dependency["ref"] = _translate_component(
-            str(component_dependency.get("ref")), components
-        )
+        translated_component_dependency["ref"] = _translate_component(str(component_dependency.get("ref")), components)
 
         translated_component_dependencies_inner: list[str] = []
         for dependency in component_dependency.get("dependsOn", []):
-            translated_component_dependencies_inner.append(
-                _translate_component(dependency, components)
-            )
+            translated_component_dependencies_inner.append(_translate_component(dependency, components))
         translated_component_dependencies_inner.sort()
-        translated_component_dependency["dependsOn"] = (
-            translated_component_dependencies_inner
-        )
+        translated_component_dependency["dependsOn"] = translated_component_dependencies_inner
 
         translated_component_dependencies.append(translated_component_dependency)
 

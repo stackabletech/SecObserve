@@ -21,10 +21,10 @@ import {
 } from "../../access_control/types";
 import CVEFoundInField from "../../commons/custom_fields/CVEFoundInField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
+import VulnerabilityIdField from "../../commons/custom_fields/VulnerabilityIdField";
 import { get_cvss3_url, get_cvss4_url, get_cwe_url } from "../../commons/functions";
 import { useLinkStyles } from "../../commons/layout/themes";
 import { getSettingTheme } from "../../commons/user_settings/functions";
-import VulnerabilityIdField from "../../commons/custom_fields/VulnerabilityIdField";
 import AssessmentApproval from "../observation_logs/AssessmentApproval";
 import ObservationLogEmbeddedList from "../observation_logs/ObservationLogEmbeddedList";
 import { OBSERVATION_STATUS_IN_REVIEW, OBSERVATION_STATUS_OPEN } from "../types";

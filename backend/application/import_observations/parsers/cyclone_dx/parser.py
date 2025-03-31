@@ -1,9 +1,8 @@
 import base64
 import json
+import logging
 import re
 import subprocess
-from collections import defaultdict
-import logging
 from dataclasses import dataclass
 from json import dumps
 from typing import Any, Optional
@@ -68,12 +67,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         self.metadata = self._get_metadata(data)
         sbom_data = None
 
-        image_location = (
-            "oci.stackable.tech/sdp/"
-            + self.metadata.container_name
-            + ":"
-            + self.metadata.container_tag
-        )
+        image_location = "oci.stackable.tech/sdp/" + self.metadata.container_name + ":" + self.metadata.container_tag
         extract_sbom_cmd = [
             "cosign",
             "verify-attestation",
@@ -150,9 +144,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         evidence.append(dumps(component.json))
         license_component.unsaved_evidences.append(evidence)
 
-    def _get_components(
-        self, data: dict, sbom_data: Optional[dict]
-    ) -> dict[str, Component]:
+    def _get_components(self, data: dict, sbom_data: Optional[dict]) -> dict[str, Component]:
         components_dict = {}
         components_list: list[Component] = []
 
@@ -274,19 +266,15 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
                         component_location = self._get_component_location(component.json)
 
-                        patched_versions = self._get_patched_versions(
-                            component, recommendation
-                        )
+                        patched_versions = self._get_patched_versions(component, recommendation)
 
                         upgrade_impact_score = 0
                         if patched_versions:
 
-                            def parse_version(version: str):
+                            def parse_version(version: str) -> tuple[int, ...]:
                                 version = version.split("-")[0]
                                 # Remove everything that is not a number or a dot
-                                version = "".join(
-                                    [c for c in version if c.isdigit() or c == "."]
-                                )
+                                version = "".join([c for c in version if c.isdigit() or c == "."])
                                 rettuple = tuple(map(int, version.split(".")[:3]))
                                 for _ in range(3 - len(rettuple)):
                                     rettuple += (0,)
@@ -300,9 +288,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                                 major_diff = abs(v2[0] - v1[0])
                                 minor_diff = abs(v2[1] - v1[1])
                                 patch_diff = abs(v2[2] - v1[2])
-                                upgrade_impact_score = (
-                                    major_diff * 100 + minor_diff * 10 + patch_diff
-                                )
+                                upgrade_impact_score = major_diff * 100 + minor_diff * 10 + patch_diff
                                 if upgrade_impact_score < lowest_impact_score:
                                     lowest_impact_score = upgrade_impact_score
                             upgrade_impact_score = lowest_impact_score
@@ -460,9 +446,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
     def _get_component_location(self, component_json: dict[str, Any]) -> str:
         properties = component_json.get("properties", [])
-        if isinstance(properties, list) and all(
-            isinstance(prop, dict) for prop in properties
-        ):
+        if isinstance(properties, list) and all(isinstance(prop, dict) for prop in properties):
             for prop in properties:
                 if prop.get("name") == "syft:location:0:path":
                     return prop.get("value", "")
@@ -476,15 +460,14 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         component_name = re.sub(r":\d+", "", component.name)
 
         group = re.search(
-            r"Upgrade (\S+:)?"
-            + component_name
-            + r" to version (\d+:)?([a-z0-9\.\-_\s,]+)",
+            r"Upgrade (\S+:)?" + component_name + r" to version (\d+:)?([a-z0-9\.\-_\s,]+)",
             recommendation,
         )
         if group:
             return group.group(3)
 
         return ""
+
     def _get_dependencies(self, data: dict) -> dict[str, list[str]]:
         dependency_dict: dict[str, list[str]] = {}
 

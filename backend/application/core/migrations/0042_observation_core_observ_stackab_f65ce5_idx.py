@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="observation",
-            index=models.Index(
-                fields=["stackable_score"], name="core_observ_stackab_f65ce5_idx"
-            ),
+            index=models.Index(fields=["stackable_score"], name="core_observ_stackab_f65ce5_idx"),
         ),
     ]

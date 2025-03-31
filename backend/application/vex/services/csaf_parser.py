@@ -91,9 +91,7 @@ def _find_products_in_full_product_names(full_product_names: list, products: dic
         _process_product(product, products)
 
 
-def _find_products_in_relationships(
-    relationships: list, products: dict[str, str]
-) -> None:
+def _find_products_in_relationships(relationships: list, products: dict[str, str]) -> None:
     for relationship in relationships:
         full_product_name = relationship.get("full_product_name")
         if full_product_name:

@@ -143,10 +143,7 @@ class ApiImportObservationsByName(APIView):
             if not branch:
                 branch = Branch.objects.create(product=product, name=branch_name)
                 digest = subprocess.check_output(
-                    "crane digest docker.stackable.tech/stackable/"
-                    + branch.product.name
-                    + ":"
-                    + branch.name,
+                    "crane digest docker.stackable.tech/stackable/" + branch.product.name + ":" + branch.name,
                     shell=True,
                 ).rstrip()
                 arch = branch.name.split("-")[-1]
@@ -287,10 +284,7 @@ class FileUploadObservationsByName(APIView):
             if not branch:
                 branch = Branch.objects.create(product=product, name=branch_name)
                 digest = subprocess.check_output(
-                    "crane digest docker.stackable.tech/stackable/"
-                    + branch.product.name
-                    + ":"
-                    + branch.name,
+                    "crane digest docker.stackable.tech/stackable/" + branch.product.name + ":" + branch.name,
                     shell=True,
                 ).rstrip()
                 arch = branch.name.split("-")[-1]

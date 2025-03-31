@@ -380,7 +380,7 @@ class ObservationUpdateSerializer(ModelSerializer):
                 status=log_status,
                 comment="Observation changed manually",
                 vex_justification=actual_vex_justification,
-                vex_remediations=actual_vex_remediations,
+                vex_remediations=str(actual_vex_remediations) if actual_vex_remediations is not None else "",
                 assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
                 risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
             )
@@ -475,7 +475,9 @@ class ObservationCreateSerializer(ModelSerializer):
             status=observation.current_status,
             comment="Observation created manually",
             vex_justification=observation.current_vex_justification,
-            vex_remediations=observation.current_vex_remediations,
+            vex_remediations=(
+                str(observation.current_vex_remediations) if observation.current_vex_remediations is not None else ""
+            ),
             assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
             risk_acceptance_expiry_date=observation.risk_acceptance_expiry_date,
         )

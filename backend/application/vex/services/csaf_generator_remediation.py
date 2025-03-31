@@ -17,9 +17,7 @@ def set_remediation(vulnerability: CSAFVulnerability, observation: Observation) 
                 category = remediation["category"]
                 details = remediation["text"]
 
-                found = _check_and_append_remediation(
-                    vulnerability, product_or_relationship_id, category, details
-                )
+                found = _check_and_append_remediation(vulnerability, product_or_relationship_id, category, details)
 
                 if not found:
                     remediation = CSAFRemediation(

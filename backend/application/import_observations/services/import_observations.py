@@ -266,9 +266,7 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
                     and not observation_before.assessment_status
                     and not observation_before.assessment_severity
                 ):
-                    _process_current_observation(
-                        imported_observation, observation_before
-                    )
+                    _process_current_observation(imported_observation, observation_before, settings)
 
                     rule_engine.apply_rules_for_observation(observation_before)
                     vex_engine.apply_vex_statements_for_observation(observation_before)
@@ -305,9 +303,7 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
                     _process_new_observation(imported_observation, settings)
 
                     rule_engine.apply_rules_for_observation(imported_observation)
-                    vex_engine.apply_vex_statements_for_observation(
-                        imported_observation
-                    )
+                    vex_engine.apply_vex_statements_for_observation(imported_observation)
                     if imported_observation.current_status == _get_initial_status(imported_observation.product):
                         observations_new += 1
 
@@ -367,9 +363,7 @@ def _process_current_observation(
     observation_before.cwe = imported_observation.cwe
     observation_before.found = imported_observation.found
     observation_before.scanner = imported_observation.scanner
-    observation_before.origin_component_location = (
-        imported_observation.origin_component_location
-    )
+    observation_before.origin_component_location = imported_observation.origin_component_location
 
     observation_before.origin_component_dependencies = imported_observation.origin_component_dependencies
 
@@ -542,9 +536,7 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
 
     # Find observation with the same title and "issue_tracker_issue_id" set
     issue_number = (
-        Observation.objects.filter(
-            title=observation.title, issue_tracker_issue_id__isnull=False
-        )
+        Observation.objects.filter(title=observation.title, issue_tracker_issue_id__isnull=False)
         .values_list("issue_tracker_issue_id", flat=True)
         .first()
     )

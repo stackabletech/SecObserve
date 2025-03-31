@@ -16,8 +16,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="observation",
-            index=models.Index(
-                fields=["patch_available"], name="core_observ_patch_a_6e4989_idx"
-            ),
+            index=models.Index(fields=["patch_available"], name="core_observ_patch_a_6e4989_idx"),
         ),
     ]

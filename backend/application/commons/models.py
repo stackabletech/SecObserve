@@ -166,13 +166,9 @@ class Settings(Model):
     feature_disable_user_login = BooleanField(default=False, help_text="Disable user login")
     feature_general_rules_need_approval = BooleanField(default=False, help_text="General rules need approval")
 
-    exploits_last_sync_vulncheck_kev = DateTimeField(
-        null=True, help_text="Last sync date of Vulncheck KEV data"
-    )
+    exploits_last_sync_vulncheck_kev = DateTimeField(null=True, help_text="Last sync date of Vulncheck KEV data")
 
-    exploits_last_sync_github_poc = DateTimeField(
-        null=True, help_text="Last sync date of GitHub PoC data"
-    )
+    exploits_last_sync_github_poc = DateTimeField(null=True, help_text="Last sync date of GitHub PoC data")
 
     background_exploits_import_crontab_minutes = IntegerField(
         default=0,

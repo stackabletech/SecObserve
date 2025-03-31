@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="observation",
-            index=models.Index(
-                fields=["upgrade_impact_score"], name="core_observ_upgrade_f3aeed_idx"
-            ),
+            index=models.Index(fields=["upgrade_impact_score"], name="core_observ_upgrade_f3aeed_idx"),
         ),
     ]

@@ -189,7 +189,7 @@ class Rule_Engine:
         previous_severity: str,
         previous_status: str,
         previous_vex_justification: str,
-        previous_vex_remediations: str,
+        previous_vex_remediations: Optional[str],
         previous_risk_acceptance_expiry_date: Optional[date],
     ) -> None:
         if previous_status != observation.current_status:
@@ -205,7 +205,7 @@ class Rule_Engine:
         else:
             vex_justification = ""
         if previous_vex_remediations != observation.current_vex_remediations:
-            vex_remediations = observation.current_vex_remediations
+            vex_remediations = observation.current_vex_remediations or ""
         else:
             vex_remediations = ""
         if previous_risk_acceptance_expiry_date != observation.risk_acceptance_expiry_date:

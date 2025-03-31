@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0061_observation_cve_found_in_and_more'),
-        ('core', '0069_merge_20250120_2305'),
+        ("core", "0061_observation_cve_found_in_and_more"),
+        ("core", "0069_merge_20250120_2305"),
     ]
 
-    operations = [
-    ]
+    operations = []
