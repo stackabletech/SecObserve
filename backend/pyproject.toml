@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "SecObserve"
-version = "1.29.1"
+version = "1.29.2"
 description = "SecObserve is an open source vulnerability management system for software development and cloud environments."
 license = "BSD-3-Clause"
 authors = [
@@ -22,7 +22,7 @@ argon2-cffi = "23.1.0"  # https://github.com/hynek/argon2_cffi
 whitenoise = "6.9.0"  # https://github.com/evansd/whitenoise
 # Django REST Framework
 # ------------------------------------------------------------------------------
-djangorestframework = "3.15.2"  # https://github.com/encode/django-rest-framework
+djangorestframework = "3.16.0"  # https://github.com/encode/django-rest-framework
 django-cors-headers = "4.7.0" # https://github.com/adamchainz/django-cors-headers
 # OpenAPI 3
 # ------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ psycopg = { version = "3.2.6", extras = ["binary"] }  # https://github.com/psyco
 # ------------------------------------------------------------------------------
 defusedcsv = "2.0.0"  # https://github.com/raphaelm/defusedcsv
 openpyxl = "3.1.5"  # https://foss.heptapod.net/openpyxl/openpyxl
-jsonpickle = "4.0.2"  # https://github.com/jsonpickle/jsonpickle
+jsonpickle = "4.0.5"  # https://github.com/jsonpickle/jsonpickle
 pyyaml = "6.0.2"  # https://github.com/yaml/pyyaml
 # Field specifications
 # ------------------------------------------------------------------------------
@@ -73,12 +73,12 @@ django-extensions = { version = "3.2.3", optional = true }  # https://github.com
 
 # Unittest dependencies
 # ------------------------------------------------------------------------------
-coverage = { version = "7.7.1", optional = true }  # https://github.com/nedbat/coveragepy
+coverage = { version = "7.8.0", optional = true }  # https://github.com/nedbat/coveragepy
 django-coverage-plugin = { version = "3.1.0", optional = true }  # https://github.com/nedbat/django_coverage_plugin
 
 # Code quality dependencies
 # ------------------------------------------------------------------------------
-flake8 = { version = "7.1.2", optional = true }  # https://github.com/PyCQA/flake8
+flake8 = { version = "7.2.0", optional = true }  # https://github.com/PyCQA/flake8
 flake8-isort = { version = "6.1.2", optional = true }  # https://github.com/gforcada/flake8-isort
 black = { version = "25.1.0", optional = true }  # https://github.com/psf/black
 pylint = { version = "3.3.6", optional = true }  # https://github.com/pylint-dev/pylint

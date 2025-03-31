@@ -13,6 +13,7 @@ from django_filters import (
     OrderingFilter,
 )
 
+from application.commons.api.extended_ordering_filter import ExtendedOrderingFilter
 from application.commons.types import Age_Choices
 from application.core.models import (
     Branch,
@@ -236,7 +237,7 @@ class ObservationFilter(FilterSet):
     branch_name = CharFilter(field_name="branch__name", lookup_expr="icontains")
     cve_known_exploited = BooleanFilter(field_name="cve_known_exploited", method="get_cve_known_exploited")
 
-    ordering = OrderingFilter(
+    ordering = ExtendedOrderingFilter(
         # tuple-mapping retains order
         fields=(
             ("id", "id"),
@@ -244,7 +245,7 @@ class ObservationFilter(FilterSet):
             ("product__product_group__name", "product_data.product_group_name"),
             ("branch__name", "branch_name"),
             ("title", "title"),
-            ("numerical_severity", "current_severity"),
+            (("numerical_severity", "id"), "current_severity"),
             ("current_status", "current_status"),
             ("origin_component_name_version", "origin_component_name_version"),
             (
