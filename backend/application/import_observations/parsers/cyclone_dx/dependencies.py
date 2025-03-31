@@ -1,6 +1,7 @@
 from collections import defaultdict
+import logging
 
-from application.import_observations.parsers.cyclone_dx.types import Component
+from application.import_observations.parsers.cyclone_dx.parser import Component
 
 logger = logging.getLogger("secobserve.import_observations.cyclone_dx.dependencies")
 

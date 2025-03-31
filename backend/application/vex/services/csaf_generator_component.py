@@ -95,6 +95,7 @@ def _create_component(component_name_version: str, purl: Optional[str], cpe: Opt
     product_identification_helper = None
     if purl:  # or cpe:
         purl = purl if purl else None
+        # Temporary disabled, because Rust crate for CSAF export does not support CPE
         # cpe = cpe if cpe else None
         product_identification_helper = CSAFProductIdentificationHelper(purl=purl, cpe=cpe)
 

@@ -1,16 +1,14 @@
 FROM python:3.12-alpine@sha256:28b8a72c4e0704dd2048b79830e692e94ac2d43d30c914d54def6abf74448a4e AS python-base
 
-# Python build stage
-FROM python-base AS python-build-stage
+FROM python-base
 
 ARG BUILD_ENVIRONMENT=dev
 
 # Install packages
 # kics-scan ignore-block
 # versions of dependencies from distribution are ok
-RUN apk add --no-cache --virtual .build-deps \
-    ca-certificates gcc postgresql-dev linux-headers musl-dev libffi-dev mariadb-dev
-
+RUN apk add --no-cache --virtual postgresql postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign \
+    crane ca-certificates gcc postgresql-dev linux-headers musl-dev libffi-dev mariadb-dev
 # install dependencies with poetry
 COPY ./backend/poetry_requirements.txt ./
 RUN pip install --no-cache -r ./poetry_requirements.txt
@@ -26,9 +24,6 @@ COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry install --extras "dev" --no-root && rm -rf $POETRY_CACHE_DIR
 
 
-# Python 'run' stage
-FROM python-base AS python-run-stage
-
 ARG BUILD_ENVIRONMENT=dev
 ARG APP_HOME=/app
 ARG COMMIT_ID=undefined
@@ -43,15 +38,9 @@ WORKDIR ${APP_HOME}
 ARG user=django
 ARG group=django
 
-# Install binaries and libs for PostgreSQL
-# kics-scan ignore-block
-# versions of dependencies from distribution are ok
-RUN apk add --no-cache --virtual postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign crane
-
 # copy dependencies from build stage
 ENV VIRTUAL_ENV=/.venv \
     PATH="/.venv/bin:$PATH"
-COPY --from=python-build-stage ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 # copy startup scripts
 COPY ./docker/backend/dev/django/entrypoint /entrypoint

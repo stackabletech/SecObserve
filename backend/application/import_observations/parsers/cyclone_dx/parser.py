@@ -64,7 +64,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             return True
         return False
 
-    def get_observations(self, data: dict) -> list[Observation]:
+    def get_observations(self, data: dict, product: Product, branch: Optional[Branch]) -> list[Observation]:
         self.metadata = self._get_metadata(data)
         sbom_data = None
 
@@ -236,48 +236,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         if not sbom_data:
             sbom_data = data
 
-        dependencies = sbom_data.get("dependencies", [])
-
-        reverse_dep_map = defaultdict(list)
-        for entry in dependencies:
-            for dep in entry.get("dependsOn", []):
-                reverse_dep_map[dep].append(
-                    entry["ref"]
-                )  # Add a relation from the dependency it's "parent"
-
-        relevant_components = set()
-        for vulnerability in data.get("vulnerabilities", []):
-            for affected in vulnerability.get("affects", []):
-                ref = affected.get("ref")
-                if ref:
-                    component = self.components.get(ref)
-                    if component:
-                        relevant_components.add(component.bom_ref)
-
-        dependency_paths: dict[str, list[str]] = defaultdict(list)
-
-        # Get all paths from the root components in the dependency tree to the relevant components
-        for relevant_component in relevant_components:
-            stack: list[tuple[str, Optional[str]]] = [(relevant_component, None)]
-            visited = set()
-            if relevant_component not in dependency_paths:
-                dependency_paths[relevant_component] = []
-            while stack:
-                current, previous = stack.pop()
-                if not current:
-                    continue
-
-                if previous:
-                    path = f"{self._translate_component(current)} --> {self._translate_component(previous)}"
-                    if path not in dependency_paths[relevant_component]:
-                        dependency_paths[relevant_component].append(path)
-                if current in visited:
-                    continue
-                visited.add(current)
-                if current in reverse_dep_map:
-                    for parent in reverse_dep_map[current]:
-                        stack.append((parent, current))
-
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
             cvss3_score, cvss3_vector = self._get_cvss(vulnerability, 3)
@@ -309,7 +267,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             #     dependency_paths,
                             #     self.dependencies
                             # )
-                            self._get_component_dependencies(
+                            observation_component_dependencies = self._get_component_dependencies(
                                 component.bom_ref, self.components, self.dependencies
                             )
                             component_dependencies_cache[component.bom_ref] = observation_component_dependencies
