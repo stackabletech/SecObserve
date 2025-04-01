@@ -25,7 +25,6 @@ from django.utils import timezone
 from application.access_control.models import Authorization_Group, User
 from application.core.types import (
     Assessment_Status,
-    ExploitSource,
     OSVLinuxDistribution,
     Severity,
     Status,
@@ -449,11 +448,6 @@ class Observation(Model):
         null=True,
         validators=[MinValueValidator(Decimal(0)), MaxValueValidator(Decimal(100))],
     )
-    stackable_score = DecimalField(
-        max_digits=12,
-        decimal_places=3,
-        null=True,
-    )
     found = DateField(null=True)
     scanner = CharField(max_length=255, blank=True)
     upload_filename = CharField(max_length=255, blank=True)
@@ -527,7 +521,6 @@ class Observation(Model):
             Index(fields=["origin_kubernetes_qualified_resource"]),
             Index(fields=["last_observation_log"]),
             Index(fields=["epss_score"]),
-            Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
             Index(fields=["patch_available"]),
             Index(fields=["upgrade_impact_score"]),
@@ -630,18 +623,3 @@ class Potential_Duplicate(Model):
             "observation",
             "potential_duplicate_observation",
         )
-
-
-class Exploit(Model):
-    vulnerability_id = CharField(max_length=255, blank=True)
-    url = CharField(max_length=2048)
-    source = CharField(max_length=16, choices=ExploitSource.EXPLOIT_SOURCE_CHOICES)
-    source_id = CharField(max_length=255, blank=True)
-    created = DateTimeField(auto_now_add=True)
-
-    class Meta:
-        indexes = [
-            Index(fields=["vulnerability_id", "-created"]),
-            Index(fields=["-created"]),
-        ]
-        ordering = ["vulnerability_id", "-created"]

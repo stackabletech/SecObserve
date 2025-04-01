@@ -265,7 +265,6 @@ class ObservationFilter(FilterSet):
             ("scanner", "scanner_name"),
             ("last_observation_log", "last_observation_log"),
             ("epss_score", "epss_score"),
-            ("stackable_score", "stackable_score"),
             ("upgrade_impact_score", "upgrade_impact_score"),
             ("origin_component_location", "origin_component_location"),
             ("has_potential_duplicates", "has_potential_duplicates"),

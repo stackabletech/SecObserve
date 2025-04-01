@@ -116,8 +116,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         if licenses_exist:
             for component in self.components.values():
-                # observation_component_dependencies, _ = get_component_dependencies(
-                #     data, self.components, component, defaultdict(list)
                 observation_component_dependencies = self._get_component_dependencies(
                     component.bom_ref, self.components, self.dependencies
                 )
@@ -260,13 +258,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                         if component.bom_ref in component_dependencies_cache:
                             observation_component_dependencies = component_dependencies_cache[component.bom_ref]
                         else:
-                            # observation_component_dependencies = get_component_dependencies(
-                            #     sbom_data,
-                            #     self.components,
-                            #     component,
-                            #     dependency_paths,
-                            #     self.dependencies
-                            # )
                             observation_component_dependencies = self._get_component_dependencies(
                                 component.bom_ref, self.components, self.dependencies
                             )

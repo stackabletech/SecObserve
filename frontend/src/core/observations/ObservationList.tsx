@@ -121,7 +121,7 @@ const ObservationList = () => {
                     </TopToolbar>
                     <DatagridConfigurable
                         size={getSettingListSize()}
-                        omit={["scanner_name", "stackable_score", "has_potential_duplicates"]}
+                        omit={["scanner_name", "has_potential_duplicates"]}
                         rowClick="show"
                         bulkActionButtons={<BulkActionButtons />}
                         preferenceKey="observations.list"
@@ -135,7 +135,6 @@ const ObservationList = () => {
                         <SeverityField source="current_severity" label="Severity" />
                         <ChipField source="current_status" label="Status" />
                         <NumberField source="epss_score" label="EPSS" />
-                        <NumberField source="stackable_score" label="Stackable Score" />
                         <NumberField source="upgrade_impact_score" label="Upgrade Impact Score" />
                         {/* <TextField source="origin_service_name" label="Service" /> */}
                         <TextField

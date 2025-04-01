@@ -200,7 +200,7 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                         size={getSettingListSize()}
                         sx={{ width: "100%" }}
                         rowClick={ShowObservations}
-                        omit={["scanner_name", "stackable_score", "has_potential_duplicates"]}
+                        omit={["scanner_name", "has_potential_duplicates"]}
                         bulkActionButtons={
                             product &&
                             (product.permissions.includes(PERMISSION_OBSERVATION_ASSESSMENT) ||

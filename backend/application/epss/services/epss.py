@@ -87,29 +87,3 @@ def apply_epss(observation: Observation) -> bool:
             return True
 
     return False
-
-
-def stackable_score_apply_observations() -> None:
-    observations = Observation.objects.exclude(current_status=Status.STATUS_RESOLVED).order_by("id")
-    number_of_observations = observations.count()
-
-    paginator = Paginator(observations, 1000)
-
-    for page_number in paginator.page_range:
-        page = paginator.page(page_number)
-        updates = []
-
-        for observation in page.object_list:
-            number_of_observations_with_this_vulnerability_id = Observation.objects.filter(
-                vulnerability_id=observation.vulnerability_id
-            ).count()
-            percentage_of_total_observations = (
-                100 * number_of_observations_with_this_vulnerability_id / number_of_observations
-            )
-            observation.stackable_score = round(
-                float(observation.epss_score or 0) + (percentage_of_total_observations * 10),
-                3,
-            )
-            updates.append(observation)
-
-        Observation.objects.bulk_update(updates, ["stackable_score"])

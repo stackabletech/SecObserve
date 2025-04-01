@@ -35,7 +35,6 @@ from application.core.api.serializers_product import (
 from application.core.models import (
     Branch,
     Evidence,
-    Exploit,
     Observation,
     Observation_Log,
     Potential_Duplicate,
@@ -79,12 +78,6 @@ class EvidenceSerializer(ModelSerializer):
         return evidence.observation.product.pk
 
 
-class ExploitSerializer(ModelSerializer):
-    class Meta:
-        model = Exploit
-        fields = "__all__"
-
-
 class NestedObservationIdSerializer(ModelSerializer):
     class Meta:
         model = Observation
@@ -97,7 +90,6 @@ class ObservationSerializer(ModelSerializer):
     parser_data = ParserSerializer(source="parser")
     references = NestedReferenceSerializer(many=True)
     evidences = NestedEvidenceSerializer(many=True)
-    exploits = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
     origin_component_purl_namespace = SerializerMethodField()
     issue_tracker_issue_url = SerializerMethodField()
@@ -154,19 +146,6 @@ class ObservationSerializer(ModelSerializer):
             raise ValidationError("Product must not be a product group")
 
         return product
-
-    def get_exploits(self, observation: Observation) -> ReturnDict[Any, Any]:
-        # multiple exploits with the same url can be present, so we need to filter them to have only one exploit per url
-        exploits = (
-            Exploit.objects.filter(vulnerability_id=observation.vulnerability_id)
-            .order_by("url", "-created")
-            .distinct("url")
-        )
-
-        return ExploitSerializer(
-            exploits,
-            many=True,
-        ).data
 
     def get_origin_component_name_version(self, observation: Observation) -> str:
         return get_origin_component_name_version(observation)

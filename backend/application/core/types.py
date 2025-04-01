@@ -108,16 +108,6 @@ class VexRemediationCategory:
     ]
 
 
-class ExploitSource:
-    POC_IN_GITHUB = "PoC in GitHub"
-    VULNCHECK = "VulnCheck"
-
-    EXPLOIT_SOURCE_CHOICES = [
-        (POC_IN_GITHUB, POC_IN_GITHUB),
-        (VULNCHECK, VULNCHECK),
-    ]
-
-
 class PURL_Type:
     PURL_TYPE_CHOICES = {
         "alpm": "alpm",

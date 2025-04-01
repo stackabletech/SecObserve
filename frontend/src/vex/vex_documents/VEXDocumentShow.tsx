@@ -59,10 +59,10 @@ const VEXDocumentComponent = () => {
                                 <TextField source="version" />
                             </Labeled>
                             <Labeled label="Current release date">
-                                <DateField locales="de-DE" source="current_release_date" showTime />
+                                <DateField source="current_release_date" showTime />
                             </Labeled>
                             <Labeled label="Initial release date">
-                                <DateField locales="de-DE" source="initial_release_date" showTime />
+                                <DateField source="initial_release_date" showTime />
                             </Labeled>
                             <Labeled label="Author">
                                 <TextField source="author" />
