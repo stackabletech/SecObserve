@@ -454,8 +454,6 @@ class Observation(Model):
         decimal_places=3,
         null=True,
     )
-    in_vulncheck_kev = BooleanField(default=False)
-    exploit_available = BooleanField(default=False)
     found = DateField(null=True)
     scanner = CharField(max_length=255, blank=True)
     upload_filename = CharField(max_length=255, blank=True)
@@ -532,8 +530,6 @@ class Observation(Model):
             Index(fields=["stackable_score"]),
             Index(fields=["scanner"]),
             Index(fields=["patch_available"]),
-            Index(fields=["in_vulncheck_kev"]),
-            Index(fields=["exploit_available"]),
             Index(fields=["upgrade_impact_score"]),
         ]
 

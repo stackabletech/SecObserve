@@ -53,14 +53,6 @@ const SettingsShowComponent = () => {
                                 <NumberField source="background_epss_import_crontab_minute" />
                             </Labeled>
                         </Stack>
-                        <Stack direction="row" spacing={2}>
-                            <Labeled label="Exploit data import crontab (minutes)">
-                                <NumberField source="background_exploits_import_crontab_minutes" />
-                            </Labeled>
-                            <Labeled label="Exploit data import crontab (hours)">
-                                <NumberField source="background_exploits_import_crontab_hours" />
-                            </Labeled>
-                        </Stack>
                     </Paper>
 
                     <Paper sx={{ marginBottom: 2, padding: 2 }}>

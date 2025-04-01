@@ -9,7 +9,6 @@ import {
     PrevNextButtons,
     Show,
     TopToolbar,
-    UrlField,
     WithRecord,
     useRecordContext,
 } from "react-admin";
@@ -23,8 +22,6 @@ import CVEFoundInField from "../../commons/custom_fields/CVEFoundInField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import VulnerabilityIdField from "../../commons/custom_fields/VulnerabilityIdField";
 import { get_cvss3_url, get_cvss4_url, get_cwe_url } from "../../commons/functions";
-import { useLinkStyles } from "../../commons/layout/themes";
-import { getSettingTheme } from "../../commons/user_settings/functions";
 import AssessmentApproval from "../observation_logs/AssessmentApproval";
 import ObservationLogEmbeddedList from "../observation_logs/ObservationLogEmbeddedList";
 import { OBSERVATION_STATUS_IN_REVIEW, OBSERVATION_STATUS_OPEN } from "../types";
@@ -110,8 +107,6 @@ const ShowActions = () => {
 const EmptyDatagridHeader = () => <TableHead />;
 
 const ObservationShowComponent = () => {
-    const linkStyles = useLinkStyles({ setting_theme: getSettingTheme() });
-
     return (
         <WithRecord
             render={(observation) => (
@@ -252,24 +247,6 @@ const ObservationShowComponent = () => {
                     )}
 
                     <ObservationShowOrigins showDependencies={true} elevated={true} />
-
-                    {observation && observation.exploit_available && (
-                        <Paper sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2, paddingRight: 2 }}>
-                            <Typography variant="h6" sx={{ paddingBottom: 1 }}>
-                                PoC exploits
-                            </Typography>
-                            <ArrayField source="exploits" label={false}>
-                                <Datagrid bulkActionButtons={false} sx={{ paddingBottom: 2 }}>
-                                    <UrlField
-                                        source="url"
-                                        label={false}
-                                        target="_blank"
-                                        className={linkStyles.classes.link}
-                                    />
-                                </Datagrid>
-                            </ArrayField>
-                        </Paper>
-                    )}
 
                     <Paper sx={{ marginBottom: 2, padding: 2 }}>
                         <Typography variant="h6" sx={{ paddingBottom: 1, marginBottom: 1 }}>

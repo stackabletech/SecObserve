@@ -74,9 +74,7 @@ const listFilters = () => [
     <AutocompleteInputMedium source="age" choices={AGE_CHOICES} />,
     <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" />,
     <NullableBooleanInputWide source="patch_available" label="Patch available" alwaysOn />,
-    <NullableBooleanInputWide source="exploit_available" label="Exploit available" alwaysOn />,
     <NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />,
-    <NullableBooleanInputWide source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />,
     <AutocompleteInput
         source="origin_component_purl_type"
         label="Component type"

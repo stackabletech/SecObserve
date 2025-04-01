@@ -125,8 +125,6 @@ function listFilters(product: Product) {
     }
     // filters.push(<TextInput source="origin_component_location" label="Component location" />);
     filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
-    filters.push(<NullableBooleanInput source="exploit_available" label="Exploit available" alwaysOn />);
-    filters.push(<NullableBooleanInput source="in_vulncheck_kev" label="Listed in Vulncheck KEV" alwaysOn />);
 
     return filters;
 }

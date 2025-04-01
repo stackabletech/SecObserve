@@ -172,26 +172,6 @@ const SettingsEdit = () => {
                             sx={{ marginBottom: 2 }}
                         />
                     </Stack>
-                    <Stack direction="row" spacing={2}>
-                        <NumberInput
-                            source="background_exploits_import_crontab_hours"
-                            label="Exploit data import crontab (hours)"
-                            min={0}
-                            step={1}
-                            validate={validate_0_23}
-                            helperText="Hours crontab expression for exploit data import (UTC)"
-                            sx={{ marginBottom: 2 }}
-                        />
-                        <NumberInput
-                            source="background_exploits_import_crontab_minutes"
-                            label="Exploit data import crontab (minutes)"
-                            min={0}
-                            step={1}
-                            validate={validate_0_59}
-                            helperText="Minutes crontab expression for exploit data import"
-                            sx={{ marginBottom: 2 }}
-                        />
-                    </Stack>
 
                     <Divider flexItem sx={{ marginTop: 2, marginBottom: 2 }} />
                     <Typography variant="h6" sx={{ marginBottom: 2 }}>

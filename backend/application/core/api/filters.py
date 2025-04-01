@@ -270,8 +270,6 @@ class ObservationFilter(FilterSet):
             ("origin_component_location", "origin_component_location"),
             ("has_potential_duplicates", "has_potential_duplicates"),
             ("patch_available", "patch_available"),
-            ("in_vulncheck_kev", "in_vulncheck_kev"),
-            ("exploit_available", "exploit_available"),
             ("origin_component_purl_type", "origin_component_purl_type"),
         ),
     )
@@ -291,8 +289,6 @@ class ObservationFilter(FilterSet):
             "origin_service",
             "has_potential_duplicates",
             "patch_available",
-            "in_vulncheck_kev",
-            "exploit_available",
             "origin_component_purl_type",
         ]
 
