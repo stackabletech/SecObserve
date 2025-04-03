@@ -192,6 +192,11 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                     options={{
                         scales: {
                             y: {
+                                min: 0,
+                                suggestedMax: 5,
+                                ticks: {
+                                    precision: 0,
+                                },
                                 stacked: true,
                                 grid: {
                                     color: getGridColor(),

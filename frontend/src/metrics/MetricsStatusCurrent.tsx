@@ -125,7 +125,10 @@ const MetricsStatusCurrent = (props: MetricsStatusCurrentProps) => {
                                     circular: true,
                                     color: getGridColor(),
                                 },
+                                min: 0,
+                                suggestedMax: 5,
                                 ticks: {
+                                    precision: 0,
                                     backdropColor: getBackgroundColor(),
                                     color: getFontColor(),
                                 },
