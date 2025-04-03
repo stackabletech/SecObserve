@@ -12,7 +12,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from application.access_control.models import Authorization_Group, User
-from application.access_control.queries.user import get_user_by_username
+from application.access_control.queries.user import get_user_by_email
 from application.commons.models import Settings
 
 OIDC_PREFIX = "Bearer"
@@ -71,12 +71,12 @@ class OIDCAuthentication(BaseAuthentication):
                 algorithms=ALGORITHMS,
                 audience=os.environ["OIDC_CLIENT_ID"],
             )
-            username = payload.get(os.environ["OIDC_USERNAME"])
-            user = get_user_by_username(username)
+            email = payload.get(os.environ["OIDC_EMAIL"])
+            user = get_user_by_email(email)
             if user:
                 user = self._check_user_change(user, payload)
                 return user
-            return self._create_user(username, payload)
+            return self._create_user(email, payload)
         except jwt.PyJWTError as e:
             raise AuthenticationFailed(str(e)) from e
 
@@ -94,10 +94,10 @@ class OIDCAuthentication(BaseAuthentication):
 
         return jwks_uri
 
-    def _create_user(self, username: str, payload: dict) -> User:
-        user = User(username=username, first_name="", last_name="", email="")
-        if os.environ.get("OIDC_EMAIL"):
-            user.email = payload[os.environ["OIDC_EMAIL"]]
+    def _create_user(self, email: str, payload: dict) -> User:
+        user = User(email=email, first_name="", last_name="", username="")
+        if os.environ.get("OIDC_USERNAME"):
+            user.username = payload[os.environ["OIDC_USERNAME"]]
         if os.environ.get("OIDC_FULL_NAME"):
             user.full_name = payload[os.environ["OIDC_FULL_NAME"]]
         if os.environ.get("OIDC_FIRST_NAME"):
@@ -126,15 +126,15 @@ class OIDCAuthentication(BaseAuthentication):
             return user
         except IntegrityError as e:
             # User was most likely created by another request
-            existing_user = get_user_by_username(username)
+            existing_user = get_user_by_email(email)
             if not existing_user:
                 raise e
             return existing_user
 
     def _check_user_change(self, user: User, payload: dict) -> User:
         user_changed = False
-        if os.environ.get("OIDC_EMAIL") and user.email != payload[os.environ["OIDC_EMAIL"]]:
-            user.email = payload[os.environ["OIDC_EMAIL"]]
+        if os.environ.get("OIDC_USERNAME") and user.username != payload[os.environ["OIDC_USERNAME"]]:
+            user.username = payload[os.environ["OIDC_USERNAME"]]
             user_changed = True
         if os.environ.get("OIDC_FULL_NAME") and user.full_name != payload[os.environ["OIDC_FULL_NAME"]]:
             user.full_name = payload[os.environ["OIDC_FULL_NAME"]]
