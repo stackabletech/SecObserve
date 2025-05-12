@@ -5,7 +5,6 @@ import {
     ArrayInput,
     DateInput,
     FormDataConsumer,
-    SaveButton,
     SimpleForm,
     SimpleFormIterator,
     useNotify,
@@ -13,9 +12,8 @@ import {
     useRefresh,
 } from "react-admin";
 
-import CancelButton from "../../commons/custom_fields/CancelButton";
 import SmallButton from "../../commons/custom_fields/SmallButton";
-import Toolbar from "../../commons/custom_fields/Toolbar";
+import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
 import { validate_after_today, validate_required } from "../../commons/custom_validators";
 import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
@@ -73,19 +71,13 @@ const ObservationAssessment = () => {
     const handleCancel = () => setOpen(false);
     const handleOpen = () => setOpen(true);
 
-    const CustomToolbar = () => (
-        <Toolbar>
-            <CancelButton onClick={handleCancel} />
-            <SaveButton />
-        </Toolbar>
-    );
     return (
         <Fragment>
             <SmallButton title="Assessment" onClick={handleOpen} icon={<PlaylistAddCheckIcon />} />
             <Dialog open={open} onClose={handleClose} maxWidth="xl">
                 <DialogTitle>Observation Assessment</DialogTitle>
                 <DialogContent>
-                    <SimpleForm onSubmit={observationUpdate} toolbar={<CustomToolbar />}>
+                    <SimpleForm onSubmit={observationUpdate} toolbar={<ToolbarCancelSave onClick={handleCancel} />}>
                         <AutocompleteInputMedium
                             source="current_severity"
                             choices={OBSERVATION_SEVERITY_CHOICES}

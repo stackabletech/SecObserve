@@ -23,7 +23,7 @@ import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { humanReadableDate } from "../../commons/functions";
 import { feature_exploit_information } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
-import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
+import { AutocompleteInputMedium } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import {
     AGE_CHOICES,
@@ -155,7 +155,7 @@ const ObservationList = () => {
                     />
                     <TextField
                         source="origin_docker_image_name_tag_short"
-                        label="Container"
+                        label="Cont."
                         sx={{ wordBreak: "break-word" }}
                     />
                     {/* <TextField source="origin_endpoint_hostname" label="Host" sx={{ wordBreak: "break-word" }} />

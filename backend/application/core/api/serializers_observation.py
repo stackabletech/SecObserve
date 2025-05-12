@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 from urllib.parse import urlparse
 
 import validators
@@ -16,10 +16,9 @@ from rest_framework.serializers import (
     SerializerMethodField,
     ValidationError,
 )
-from rest_framework.utils.serializer_helpers import ReturnDict
 
+from application.access_control.services.current_user import get_current_user
 from application.commons.services.functions import get_comma_separated_as_list
-from application.commons.services.global_request import get_current_user
 from application.core.api.serializers_helpers import (
     get_branch_name,
     get_origin_component_name_version,
@@ -163,6 +162,7 @@ class ObservationListSerializer(ModelSerializer):
     parser_data = ParserSerializer(source="parser")
     scanner_name = SerializerMethodField()
     origin_component_name_version = SerializerMethodField()
+    origin_source_file = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
     origin_component_purl_namespace = SerializerMethodField()
     vulnerability_id_aliases = SerializerMethodField()
@@ -184,6 +184,13 @@ class ObservationListSerializer(ModelSerializer):
 
     def get_origin_component_name_version(self, observation: Observation) -> str:
         return get_origin_component_name_version(observation)
+
+    def get_origin_source_file(self, observation: Observation) -> Optional[str]:
+        if observation.origin_source_file:
+            source_file_parts = observation.origin_source_file.split("/")
+            if len(source_file_parts) > 2:
+                return f"{source_file_parts[0]}/.../{source_file_parts[-1]}"
+        return observation.origin_source_file
 
     def get_origin_source_file_url(self, observation: Observation) -> Optional[str]:
         return _get_origin_source_file_url(observation)

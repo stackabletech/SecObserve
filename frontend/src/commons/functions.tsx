@@ -54,9 +54,9 @@ export function get_severity_color(severity: string): string {
     return backgroundColor;
 }
 
-export function get_evaluation_result_color(record: any | null, evaluation_result: string | null): string {
+export function get_evaluation_result_color(record: any, evaluation_result: string | null): string {
     if (!evaluation_result) {
-        if (record && record.component_license_data) {
+        if (record?.component_license_data) {
             evaluation_result = record.component_license_data.evaluation_result;
         } else {
             evaluation_result = record.evaluation_result;
@@ -130,11 +130,7 @@ export function get_component_purl_url(
     }
 
     let component_purl_url = "https://deps.dev/" + deps_dev_type + "/";
-    if (
-        !component_name.includes(":") &&
-        component_purl_namespace !== null &&
-        !component_name.startsWith(component_purl_namespace)
-    ) {
+    if (component_purl_namespace !== null && !component_name.startsWith(component_purl_namespace)) {
         component_purl_url =
             component_purl_url + encodeURIComponent(component_purl_namespace) + encodeURIComponent(namespace_separator);
     }

@@ -7,7 +7,7 @@ import queryString from "query-string";
 import { DataProvider, Identifier, fetchUtils } from "react-admin";
 
 import { jwt_signed_in } from "../../access_control/auth_provider/authProvider";
-import { get_oidc_id_token, oidc_signed_in } from "../../access_control/auth_provider/oidc";
+import { get_oidc_id_token, oidc_signed_in, updateRefreshToken } from "../../access_control/auth_provider/oidc";
 
 const base_url = window.__RUNTIME_CONFIG__.API_BASE_URL;
 
@@ -62,11 +62,17 @@ function createOptionsFromTokenOIDC() {
 
 export function httpClient(url: string, options?: fetchUtils.Options | undefined) {
     if (oidc_signed_in()) {
-        return fetchUtils.fetchJson(url, Object.assign(createOptionsFromTokenOIDC(), options));
+        return updateRefreshToken()
+            .then(() => {
+                return fetchUtils.fetchJson(url, Object.assign(createOptionsFromTokenOIDC(), options));
+            })
+            .catch((error: Error) => {
+                return Promise.reject(error);
+            });
     } else if (jwt_signed_in()) {
         return fetchUtils.fetchJson(url, Object.assign(createOptionsFromTokenJWT(), options));
     } else {
-        return Promise.reject();
+        return Promise.reject(Error("Not authenticated"));
     }
 }
 
@@ -80,7 +86,7 @@ export default (): DataProvider => {
     return {
         getList: async (resource, params) => {
             let api_resource = resource;
-            if (params.meta && params.meta.api_resource) {
+            if (params?.meta?.api_resource) {
                 api_resource = params.meta.api_resource;
             }
 
@@ -109,7 +115,7 @@ export default (): DataProvider => {
 
         getMany: (resource, params) => {
             let api_resource = resource;
-            if (params.meta && params.meta.api_resource) {
+            if (params?.meta?.api_resource) {
                 api_resource = params.meta.api_resource;
             }
 

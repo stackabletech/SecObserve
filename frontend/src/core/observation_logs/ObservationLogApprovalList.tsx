@@ -17,15 +17,14 @@ import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types"
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
-import { ASSESSMENT_STATUS_NEEDS_APPROVAL } from "../types";
-import { OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
+import { ASSESSMENT_STATUS_NEEDS_APPROVAL, OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
 import AssessmentBulkApproval from "./AssessmentBulkApproval";
 import AssessmentDeleteApproval from "./AssessmentDeleteApproval";
 
 const BulkActionButtons = ({ product }: any) => {
     return (
         <Fragment>
-            {(!product || (product && product.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL))) && (
+            {(!product || product?.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL)) && (
                 <Stack direction="row" spacing={2} alignItems="center">
                     <AssessmentBulkApproval />
                     <AssessmentDeleteApproval />
@@ -47,11 +46,7 @@ function listFilters(product: any) {
                 alwaysOn
             >
                 <AutocompleteInputMedium optionText="name" />
-            </ReferenceInput>
-        );
-    }
-    if (!product) {
-        filters.push(
+            </ReferenceInput>,
             <ReferenceInput
                 source="product_group"
                 reference="product_groups"
@@ -60,11 +55,7 @@ function listFilters(product: any) {
                 alwaysOn
             >
                 <AutocompleteInputMedium optionText="name" />
-            </ReferenceInput>
-        );
-    }
-    if (!product) {
-        filters.push(
+            </ReferenceInput>,
             <ReferenceInput
                 source="branch"
                 reference="branches"
@@ -78,7 +69,7 @@ function listFilters(product: any) {
         );
     }
 
-    if (product && product.has_branches) {
+    if (product?.has_branches) {
         filters.push(
             <ReferenceInput
                 source="branch"
@@ -96,7 +87,7 @@ function listFilters(product: any) {
 
     filters.push(<TextInput source="observation_title" label="Observation title" alwaysOn />);
 
-    if (!product || (product && product.has_component)) {
+    if (!product || product?.has_component) {
         filters.push(<TextInput source="origin_component_name_version" label="Component" alwaysOn />);
     }
 
@@ -159,8 +150,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                         size={getSettingListSize()}
                         sx={{ width: "100%" }}
                         bulkActionButtons={
-                            !product ||
-                            (product && product.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL)) ? (
+                            !product || product?.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL) ? (
                                 <BulkActionButtons product={product} />
                             ) : (
                                 false
@@ -171,8 +161,11 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                     >
                         <DateField locales="de-DE" source="created" showTime />
                         {!product && <TextField source="observation_data.product_data.name" label="Product" />}
-                        {!product && <TextField source="observation_data.branch_name" label="Branch / Version" />}
-                        {(!product || (product && product.has_component)) && (
+                        {(!product || product?.has_branches) && (
+                            <TextField source="observation_data.branch_name" label="Branch / Version" />
+                        )}
+                        <TextField source="observation_data.title" label="Observation" />
+                        {(!product || product?.has_component) && (
                             <TextField
                                 source="observation_data.origin_component_name_version"
                                 label="Component"

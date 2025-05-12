@@ -58,6 +58,10 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     def get_type(cls) -> str:
         return Parser_Type.TYPE_SCA
 
+    @classmethod
+    def sbom(cls) -> bool:
+        return True
+
     def check_format(self, data: Any) -> bool:
         if isinstance(data, dict) and data.get("bomFormat") == "CycloneDX":
             return True
@@ -108,27 +112,20 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         components = []
 
-        licenses_exist = False
         for component in self.components.values():
-            if component.unsaved_license:
-                licenses_exist = True
-                break
-
-        if licenses_exist:
-            for component in self.components.values():
-                observation_component_dependencies = self._get_component_dependencies(
-                    component.bom_ref, self.components, self.dependencies
-                )
-                model_component = License_Component(
-                    component_name=component.name,
-                    component_version=component.version,
-                    component_purl=component.purl,
-                    component_cpe=component.cpe,
-                    component_dependencies=observation_component_dependencies,
-                )
-                model_component.unsaved_license = component.unsaved_license
-                self._add_license_component_evidence(component, model_component)
-                components.append(model_component)
+            observation_component_dependencies = self._get_component_dependencies(
+                component.bom_ref, self.components, self.dependencies
+            )
+            model_component = License_Component(
+                component_name=component.name,
+                component_version=component.version,
+                component_purl=component.purl,
+                component_cpe=component.cpe,
+                component_dependencies=observation_component_dependencies,
+            )
+            model_component.unsaved_license = component.unsaved_license
+            self._add_license_component_evidence(component, model_component)
+            components.append(model_component)
 
         return components
 

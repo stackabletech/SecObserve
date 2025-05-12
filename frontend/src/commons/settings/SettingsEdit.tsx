@@ -1,5 +1,4 @@
-import { Divider, Stack, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import { Divider, Grid, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
 import { BooleanInput, Edit, FormDataConsumer, NumberInput, SaveButton, SimpleForm, Toolbar } from "react-admin";
 
@@ -24,27 +23,13 @@ const CustomToolbar = () => {
 
 const SettingsEdit = () => {
     const transform = (data: any) => {
-        if (!data.internal_users) {
-            data.internal_users = "";
-        }
-        if (!data.branch_housekeeping_exempt_branches) {
-            data.branch_housekeeping_exempt_branches = "";
-        }
-        if (!data.base_url_frontend) {
-            data.base_url_frontend = "";
-        }
-        if (!data.email_from) {
-            data.email_from = "";
-        }
-        if (!data.exception_email_to) {
-            data.exception_email_to = "";
-        }
-        if (!data.exception_ms_teams_webhook) {
-            data.exception_ms_teams_webhook = "";
-        }
-        if (!data.exception_slack_webhook) {
-            data.exception_slack_webhook = "";
-        }
+        data.internal_users ??= "";
+        data.branch_housekeeping_exempt_branches ??= "";
+        data.base_url_frontend ??= "";
+        data.email_from ??= "";
+        data.exception_email_to ??= "";
+        data.exception_ms_teams_webhook ??= "";
+        data.exception_slack_webhook ??= "";
         return data;
     };
 
