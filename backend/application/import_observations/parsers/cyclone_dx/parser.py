@@ -96,15 +96,15 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
             sbom_data = json.loads(payload)["predicate"]
 
-        self.components = self._get_components(data, sbom_data)
-        self.dependencies = self._get_dependencies(data)
-        observations = self._create_observations(data, sbom_data)
+        self.components = self._get_components(sbom_data or data)
+        self.dependencies = self._get_dependencies(sbom_data or data)
+        observations = self._create_observations(data)
 
         return observations
 
     def get_license_components(self, data: dict) -> list[License_Component]:
         if not self.components:
-            self.components = self._get_components(data, None)
+            self.components = self._get_components(data)
         if not self.metadata:
             self.metadata = self._get_metadata(data)
         if not self.dependencies:
@@ -139,7 +139,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         evidence.append(dumps(component.json))
         license_component.unsaved_evidences.append(evidence)
 
-    def _get_components(self, data: dict, sbom_data: Optional[dict]) -> dict[str, Component]:
+    def _get_components(self, data: dict) -> dict[str, Component]:
         components_dict = {}
         components_list: list[Component] = []
 
@@ -150,15 +150,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         for sbom_component in sbom_components:
             components = self._get_sbom_component_with_subs(sbom_component)
             components_list.extend(components)
-
-        if sbom_data:
-            root_components = self._get_root_component_with_subs(sbom_data)
-            components_list.extend(root_components)
-
-            sbom_components = sbom_data.get("components", [])
-            for sbom_component in sbom_components:
-                components = self._get_sbom_component_with_subs(sbom_component)
-                components_list.extend(components)
 
         for component in components_list:
             components_dict[component.bom_ref] = component
@@ -223,13 +214,9 @@ class CycloneDXParser(BaseParser, BaseFileParser):
     def _create_observations(  # pylint: disable=too-many-locals
         self,
         data: dict,
-        sbom_data: Optional[dict],
     ) -> list[Observation]:
         observations = []
         component_dependencies_cache: dict[str, str] = {}
-
-        if not sbom_data:
-            sbom_data = data
 
         for vulnerability in data.get("vulnerabilities", []):
             vulnerability_id = vulnerability.get("id")
