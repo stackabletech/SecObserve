@@ -75,6 +75,7 @@ from application.core.api.serializers_product import (
     ProductSerializer,
     PURLTypeElementSerializer,
     PURLTypeSerializer,
+    ServiceNameSerializer,
     ServiceSerializer,
 )
 from application.core.models import (
@@ -461,6 +462,18 @@ class BranchNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
 
 class ServiceViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin, DestroyModelMixin):
     serializer_class = ServiceSerializer
+    filterset_class = ServiceFilter
+    permission_classes = (IsAuthenticated, UserHasServicePermission)
+    queryset = Service.objects.none()
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ["name"]
+
+    def get_queryset(self) -> QuerySet[Service]:
+        return get_services().select_related("product")
+
+
+class ServiceNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = ServiceNameSerializer
     filterset_class = ServiceFilter
     permission_classes = (IsAuthenticated, UserHasServicePermission)
     queryset = Service.objects.none()

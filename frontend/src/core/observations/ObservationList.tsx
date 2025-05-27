@@ -70,6 +70,7 @@ function listFilters() {
         // <ReferenceInput
         //     label="Service"
         //     source="origin_service"
+        //     queryOptions={{ meta: { api_resource: "service_names" } }}
         //     reference="services"
         //     sort={{ field: "name", order: "ASC" }}
         // >

@@ -72,6 +72,7 @@ function listFilters(product: Product) {
             <ReferenceInput
                 source="origin_service"
                 reference="services"
+                queryOptions={{ meta: { api_resource: "service_names" } }}
                 sort={{ field: "name", order: "ASC" }}
                 filter={{ product: product.id }}
                 alwaysOn
