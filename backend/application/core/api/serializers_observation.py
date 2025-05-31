@@ -100,7 +100,7 @@ class ObservationSerializer(ModelSerializer):
 
     class Meta:
         model = Observation
-        exclude = ["numerical_severity", "issue_tracker_jira_initial_status"]
+        exclude = ["numerical_severity", "issue_tracker_jira_initial_status", "origin_source_file_link"]
 
     def to_representation(self, instance: Observation) -> dict:
         response = super().to_representation(instance)
@@ -174,6 +174,7 @@ class ObservationListSerializer(ModelSerializer):
             "numerical_severity",
             "issue_tracker_jira_initial_status",
             "origin_component_dependencies",
+            "origin_source_file_link",
         ]
 
     def get_branch_name(self, observation: Observation) -> str:
@@ -207,6 +208,9 @@ class ObservationListSerializer(ModelSerializer):
 
 def _get_origin_source_file_url(observation: Observation) -> Optional[str]:
     origin_source_file_url = None
+
+    if observation.origin_source_file_link:
+        return observation.origin_source_file_link
 
     if observation.product.repository_prefix and observation.origin_source_file:
         if not validators.url(observation.product.repository_prefix):
@@ -567,7 +571,7 @@ class NestedObservationSerializer(ModelSerializer):
 
     class Meta:
         model = Observation
-        exclude = ["numerical_severity", "issue_tracker_jira_initial_status"]
+        exclude = ["numerical_severity", "issue_tracker_jira_initial_status", "origin_source_file_link"]
 
     def get_scanner_name(self, observation: Observation) -> str:
         return get_scanner_name(observation)
