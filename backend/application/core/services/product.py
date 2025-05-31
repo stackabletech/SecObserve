@@ -16,7 +16,7 @@ def set_repository_default_branch(product: Product) -> None:
         else:
             # find branches matching 0.0.0-dev and sort them alphabetically descending, then pick the first one
             sorted_branches = sorted(
-                filter(lambda branch: branch.name.endswith("0.0.0-dev"), branches),
+                filter(lambda branch: branch.name.endswith("0.0.0-dev-amd64"), branches),
                 key=lambda branch: branch.name,
                 reverse=True,
             )
