@@ -1,4 +1,4 @@
-FROM python:3.12-alpine@sha256:4f8413872608a70b0b4d5f43a8011e8a884ba00a73ad3fb1e6e41f175ba00efb AS python-base
+FROM python:3.12-alpine@sha256:c610e4a94a0e8b888b4b225bfc0e6b59dee607b1e61fb63ff3926083ff617216 AS python-base
 
 FROM python-base
 
@@ -7,8 +7,9 @@ ARG BUILD_ENVIRONMENT=dev
 # Install packages
 # kics-scan ignore-block
 # versions of dependencies from distribution are ok
-RUN apk add --no-cache --virtual postgresql postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign \
+RUN apk add --no-cache --virtual .build-deps postgresql postgresql-libs postgresql-client mariadb-dev mysql-client bash git cosign \
     crane ca-certificates gcc postgresql-dev linux-headers musl-dev libffi-dev mariadb-dev
+
 # install dependencies with poetry
 COPY ./backend/poetry_requirements.txt ./
 RUN pip install --no-cache -r ./poetry_requirements.txt
@@ -43,7 +44,6 @@ ENV VIRTUAL_ENV=/.venv \
 
 # copy startup scripts
 COPY ./docker/backend/dev/django/entrypoint /entrypoint
-COPY ./docker/backend/dev/django/start /start
 COPY ./docker/backend/dev/django/wait-for-it.sh /wait-for-it.sh
 
 # copy application code to WORKDIR
@@ -55,7 +55,6 @@ RUN addgroup -g 1001 -S ${group} \
     && adduser -u 1001 -S ${user} -G ${group} \
     # make startup scripts executable
     && chmod +x /entrypoint \
-    && chmod +x /start \
     && chmod +x /wait-for-it.sh \
     # insert commit id for status endpoint
     && sed -i 's/placeholder/'"${COMMIT_ID}"'/g' ${APP_HOME}/application/commons/api/views.py \
