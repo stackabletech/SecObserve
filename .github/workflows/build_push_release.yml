@@ -98,13 +98,13 @@ jobs:
           ref: 'v${{ github.event.inputs.release }}'
       - 
         name: Run vulnerability scanners for images
-        uses: MaibornWolff/secobserve_actions_templates/actions/vulnerability_scanner@03881bede1d05a40887bf26d8dfd7a1a37be892d # main
+        uses: MaibornWolff/secobserve_actions_templates/actions/vulnerability_scanner@cb3b9f31138f41824db1bd738bfbbf22bc491144 # main
         with:
           so_configuration: 'so_configuration_sca_current.yml'
           SO_API_TOKEN: ${{ secrets.SO_API_TOKEN }}
       - 
         name: Run vulnerability scanners for endpoints
-        uses: MaibornWolff/secobserve_actions_templates/actions/vulnerability_scanner@03881bede1d05a40887bf26d8dfd7a1a37be892d # main
+        uses: MaibornWolff/secobserve_actions_templates/actions/vulnerability_scanner@cb3b9f31138f41824db1bd738bfbbf22bc491144 # main
         with:
           so_configuration: 'so_configuration_endpoints.yml'
           SO_API_TOKEN: ${{ secrets.SO_API_TOKEN }}
@@ -117,7 +117,7 @@ jobs:
     steps:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 20
+          node-version: 24
       -
         name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -214,44 +214,44 @@ jobs:
           commit_message: "chore: generate SBOMs for release ${{ github.event.inputs.release }}"
           branch: "chore/sboms_release_${{ github.event.inputs.release }}"
           file_pattern: "sbom/sbom*.json"
-      -
-        name: Merge SBOM branch into main and delete branch
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        env:
-          VERSION: ${{ github.event.inputs.release }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const sbomBranch = `chore/sboms_release_${process.env.VERSION}`;
-            const targetBranch = 'main';
+      # -
+      #   name: Merge SBOM branch into main and delete branch
+      #   uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      #   env:
+      #     VERSION: ${{ github.event.inputs.release }}
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const sbomBranch = `chore/sboms_release_${process.env.VERSION}`;
+      #       const targetBranch = 'main';
             
-            console.log(`Merging branch ${sbomBranch} into ${targetBranch}`);
+      #       console.log(`Merging branch ${sbomBranch} into ${targetBranch}`);
             
-            try {
-              // Merge the SBOM branch into main
-              await github.rest.repos.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                base: targetBranch,
-                head: sbomBranch,
-                commit_message: `chore: merge SBOM files for release ${process.env.VERSION}`
-              });
+      #       try {
+      #         // Merge the SBOM branch into main
+      #         await github.rest.repos.merge({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           base: targetBranch,
+      #           head: sbomBranch,
+      #           commit_message: `chore: merge SBOM files for release ${process.env.VERSION}`
+      #         });
               
-              console.log(`Successfully merged ${sbomBranch} into ${targetBranch}`);
+      #         console.log(`Successfully merged ${sbomBranch} into ${targetBranch}`);
               
-              // Delete the SBOM branch after successful merge
-              console.log(`Deleting branch ${sbomBranch}`);
-              await github.rest.git.deleteRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `heads/${sbomBranch}`
-              });
+      #         // Delete the SBOM branch after successful merge
+      #         console.log(`Deleting branch ${sbomBranch}`);
+      #         await github.rest.git.deleteRef({
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           ref: `heads/${sbomBranch}`
+      #         });
               
-              console.log(`Successfully deleted branch ${sbomBranch}`);
-            } catch (error) {
-              console.error(`Error during merge or branch deletion: ${error.message}`);
-              core.setFailed(error.message);
-            }
+      #         console.log(`Successfully deleted branch ${sbomBranch}`);
+      #       } catch (error) {
+      #         console.error(`Error during merge or branch deletion: ${error.message}`);
+      #         core.setFailed(error.message);
+      #       }
       -
         name: Add SBOMs to GitHub Release
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1

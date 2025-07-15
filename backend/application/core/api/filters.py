@@ -35,7 +35,7 @@ class ProductGroupFilter(FilterSet):
 
     ordering = OrderingFilter(
         # tuple-mapping retains order
-        fields=(("name", "name")),
+        fields=(("name", "name"),),
     )
 
     class Meta:
@@ -206,7 +206,7 @@ class BranchFilter(FilterSet):
 class ServiceFilter(FilterSet):
     ordering = OrderingFilter(
         # tuple-mapping retains order
-        fields=(("name", "name")),
+        fields=(("name", "name"),),
     )
 
     class Meta:
@@ -255,6 +255,7 @@ class ObservationFilter(FilterSet):
             ("origin_service_name", "origin_service_name"),
             ("origin_endpoint_hostname", "origin_endpoint_hostname"),
             ("origin_source_file", "origin_source_file"),
+            ("origin_source_file", "origin_source_file_short"),
             ("origin_cloud_qualified_resource", "origin_cloud_qualified_resource"),
             (
                 "origin_kubernetes_qualified_resource",

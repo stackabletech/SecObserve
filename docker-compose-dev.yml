@@ -49,7 +49,8 @@ services:
     ports:
       - "8000:8000"
     command: /start
-      #command: ["sleep","999"]
+    #entrypoint: "/bin/bash"
+    #command: ["-c", "sleep 999"]
 
   postgres:
     image: postgres:15.13-alpine

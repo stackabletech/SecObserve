@@ -1,6 +1,6 @@
 import PlaylistAddCheckIcon from "@mui/icons-material/PlaylistAddCheck";
 import { Backdrop, CircularProgress, Dialog, DialogContent, DialogTitle } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import {
     ArrayInput,
     DateInput,
@@ -37,6 +37,7 @@ type ObservationBulkAssessmentButtonProps = {
 };
 
 const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) => {
+    const dialogRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
@@ -62,7 +63,6 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
         const assessment_data = {
             severity: data.current_severity,
             status: data.current_status,
-            comment: data.comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
             observations: selectedIds,
@@ -103,10 +103,13 @@ const ObservationBulkAssessment = (props: ObservationBulkAssessmentButtonProps) 
     return (
         <Fragment>
             <SmallButton title="Assessment" onClick={handleOpen} icon={<PlaylistAddCheckIcon />} />
-            <Dialog open={open && !loading} onClose={handleClose} maxWidth="xl">
+            <Dialog ref={dialogRef} open={open && !loading} onClose={handleClose} maxWidth={"xl"}>
                 <DialogTitle>Bulk Observation Assessment</DialogTitle>
                 <DialogContent>
-                    <SimpleForm onSubmit={observationUpdate} toolbar={<ToolbarCancelSave onClick={handleCancel} />}>
+                    <SimpleForm
+                        onSubmit={observationUpdate}
+                        toolbar={<ToolbarCancelSave onClick={handleCancel} alwaysEnable={true} />}
+                    >
                         <AutocompleteInputMedium
                             source="current_severity"
                             label="Severity"
