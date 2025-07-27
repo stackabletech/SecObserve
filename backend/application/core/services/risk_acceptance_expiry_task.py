@@ -5,7 +5,7 @@ from application.core.services.assessment import remove_assessment, save_assessm
 from application.core.types import Status
 
 
-def expire_risk_acceptances() -> None:
+def expire_risk_acceptances() -> str:
     observations = Observation.objects.filter(
         current_status=Status.STATUS_RISK_ACCEPTED,
         risk_acceptance_expiry_date__lte=date.today(),
@@ -24,3 +24,5 @@ def expire_risk_acceptances() -> None:
                 new_vex_remediations="",
                 new_risk_acceptance_expiry_date=None,
             )
+
+    return f"Expired risk acceptances for {observations.count()} observations."
