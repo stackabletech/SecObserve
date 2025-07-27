@@ -271,8 +271,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                                 minor_diff = abs(v2[1] - v1[1])
                                 patch_diff = abs(v2[2] - v1[2])
                                 upgrade_impact_score = major_diff * 100 + minor_diff * 10 + patch_diff
-                                if upgrade_impact_score < lowest_impact_score:
-                                    lowest_impact_score = upgrade_impact_score
+                                lowest_impact_score = min(lowest_impact_score, upgrade_impact_score)
                             upgrade_impact_score = lowest_impact_score
 
                         observation = Observation(

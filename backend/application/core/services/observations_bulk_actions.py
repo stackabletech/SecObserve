@@ -27,7 +27,7 @@ from application.issue_tracker.services.issue_tracker import (
 )
 
 
-def observations_bulk_assessment(
+def observations_bulk_assessment(  # pylint: disable=too-many-arguments
     *,
     product: Optional[Product],
     new_severity: str,

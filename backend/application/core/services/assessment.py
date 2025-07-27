@@ -71,12 +71,12 @@ def save_assessment(
         Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
     ):
         _update_observation(
-            observation,
-            new_severity,
-            new_status,
-            new_vex_justification,
-            new_vex_remediations,
-            new_risk_acceptance_expiry_date,
+            observation=observation,
+            new_severity=new_severity,
+            new_status=new_status,
+            new_vex_justification=new_vex_justification,
+            new_vex_remediations=new_vex_remediations,
+            new_risk_acceptance_expiry_date=new_risk_acceptance_expiry_date,
         )
 
         create_observation_log(
@@ -106,6 +106,7 @@ def save_assessment(
 
 
 def _update_observation(
+    *,
     observation: Observation,
     new_severity: Optional[str],
     new_status: Optional[str],
@@ -212,12 +213,12 @@ def assessment_approval(observation_log: Observation_Log, assessment_status: str
         Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
     ):
         _update_observation(
-            observation_log.observation,
-            observation_log.severity,
-            observation_log.status,
-            observation_log.vex_justification,
-            observation_log.vex_remediations,
-            observation_log.risk_acceptance_expiry_date,
+            observation=observation_log.observation,
+            new_severity=observation_log.severity,
+            new_status=observation_log.status,
+            new_vex_justification=observation_log.vex_justification,
+            new_vex_remediations=observation_log.vex_remediations,
+            new_risk_acceptance_expiry_date=observation_log.risk_acceptance_expiry_date,
         )
 
         check_security_gate(observation_log.observation.product)

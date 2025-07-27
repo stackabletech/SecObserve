@@ -54,7 +54,7 @@ class Rule_Engine:
 
         self.product = product
 
-    def apply_rules_for_observation(self, observation: Observation) -> None:
+    def apply_rules_for_observation(self, observation: Observation) -> None:  # pylint: disable=too-many-branches
         if observation.current_status != Status.STATUS_OPEN:
             return
 
@@ -181,7 +181,7 @@ class Rule_Engine:
         compiled_pattern = re.compile(pattern, re.IGNORECASE)
         return compiled_pattern.match(value) is not None
 
-    def _write_observation_log(
+    def _write_observation_log(  # pylint: disable=too-many-arguments,too-many-branches
         self,
         *,
         observation: Observation,
