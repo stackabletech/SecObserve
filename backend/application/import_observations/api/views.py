@@ -124,13 +124,13 @@ class ApiImportObservationsByName(APIView):
             if not branch:
                 branch = Branch.objects.create(product=product, name=branch_name)
                 digest = subprocess.check_output(
-                    "crane digest docker.stackable.tech/stackable/" + branch.product.name + ":" + branch.name,
+                    "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
                     shell=True,
                 ).rstrip()
                 arch = branch.name.split("-")[-1]
                 branch.purl = (
                     f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
-                    f"?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                    f"?arch={arch}&repository_url=oci.stackable.tech%2Fsdp%2F{branch.product.name}"
                 )
                 branch.save()
 
@@ -271,13 +271,13 @@ def _get_product_branch_by_name(request_serializer: Serializer) -> tuple[Product
         if not branch:
             branch = Branch.objects.create(product=product, name=branch_name)
             digest = subprocess.check_output(
-                "crane digest docker.stackable.tech/stackable/" + branch.product.name + ":" + branch.name,
+                "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
                 shell=True,
             ).rstrip()
             arch = branch.name.split("-")[-1]
             branch.purl = (
                 f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
-                f"?arch={arch}&repository_url=docker.stackable.tech%2Fstackable%2F{branch.product.name}"
+                f"?arch={arch}&repository_url=oci.stackable.tech%2Fsdp%2F{branch.product.name}"
             )
             branch.save()
     return product, branch
