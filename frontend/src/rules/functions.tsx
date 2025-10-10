@@ -29,12 +29,11 @@ import {
     settings_vex_justification_style,
 } from "../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide, useStyles } from "../commons/layout/themes";
-import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../commons/types";
+import { VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../commons/types";
 import {
     OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
-    OBSERVATION_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../core/types";
 import general_rules from "./general_rules";

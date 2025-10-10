@@ -358,8 +358,10 @@ export const justificationIsEnabledForStatus = (status: string) => {
 
 export const remediationsAreEnabledForStatus = (status: string) => {
     const vex_enabled = feature_vex_enabled();
-    const remediations_recommended_for_status =
-        [OBSERVATION_STATUS_RISK_ACCEPTED, OBSERVATION_STATUS_AFFECTED].indexOf(status) >= 0;
+    const remediations_recommended_for_status = [
+        OBSERVATION_STATUS_RISK_ACCEPTED,
+        OBSERVATION_STATUS_AFFECTED,
+    ].includes(status);
     return vex_enabled && remediations_recommended_for_status;
 };
 export const is_superuser = () => {

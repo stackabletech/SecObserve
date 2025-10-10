@@ -22,7 +22,7 @@ import {
     settings_risk_acceptance_expiry_date,
     settings_vex_justification_style,
 } from "../../commons/functions";
-import { AutocompleteInputMedium, TextInputWide, AutocompleteInputWide } from "../../commons/layout/themes";
+import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../../commons/types";
 import {

@@ -15,7 +15,11 @@ import {
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
 import { validate_after_today, validate_required } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus, settings_vex_justification_style } from "../../commons/functions";
+import {
+    justificationIsEnabledForStatus,
+    remediationsAreEnabledForStatus,
+    settings_vex_justification_style,
+} from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../../commons/types";

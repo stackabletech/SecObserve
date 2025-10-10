@@ -18,10 +18,10 @@ const ObservationShowDescriptionRecommendation = () => {
                     <MarkdownField content={observation.recommendation} label="Recommendation" />
                 </Labeled>
             )}
-            {observation && observation.duplicates && observation.duplicates.length > 0 && (
+            {observation?.duplicates?.length > 0 && (
                 <Labeled label="Duplicates">
                     <Stack direction="row" spacing={2}>
-                        {observation.duplicates.map((duplicate: any) => (
+                        {observation!.duplicates.map((duplicate: any) => (
                             <TextUrlField
                                 label="Duplicate"
                                 text={duplicate.id}
