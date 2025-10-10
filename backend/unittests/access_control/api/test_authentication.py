@@ -230,8 +230,8 @@ class TestAuthentication(BaseTestCase):
         self._check_authentication(["get"], "/api/branch_names/")
         self._check_authentication(["get"], "/api/branch_names/1/")
 
-        self._check_authentication(["get"], "/api/services/")
-        self._check_authentication(["delete", "get"], "/api/services/1/")
+        self._check_authentication(["get", "post"], "/api/services/")
+        self._check_authentication(["delete", "get", "put", "patch"], "/api/services/1/")
 
         self._check_authentication(["get"], "/api/service_names/")
         self._check_authentication(["get"], "/api/service_names/1/")
@@ -268,6 +268,9 @@ class TestAuthentication(BaseTestCase):
         self._check_authentication(["get"], "/api/product_names/1/")
 
         self._check_authentication(["get"], "/api/evidences/1/")
+
+        self._check_authentication(["get"], "/api/components/")
+        self._check_authentication(["get"], "/api/components/1/")
 
         self._check_authentication(["get"], "/api/status/version/")
 
@@ -326,6 +329,9 @@ class TestAuthentication(BaseTestCase):
             ["delete", "get", "put", "patch"],
             "/api/license_policy_authorization_group_members/1001/",
         )
+
+        self._check_authentication(["get"], "/api/concluded_licenses/")
+        self._check_authentication(["delete", "get"], "/api/concluded_licenses/1/")
 
         self._check_authentication(["get"], "/api/periodic_tasks/")
         self._check_authentication(["get"], "/api/periodic_tasks/1/")

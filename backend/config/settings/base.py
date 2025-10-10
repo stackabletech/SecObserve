@@ -3,6 +3,7 @@ Base settings to build other settings files upon.
 """
 
 from pathlib import Path
+from socket import gethostbyname, gethostname
 
 import environ
 from csp.constants import NONE, SELF
@@ -26,7 +27,9 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"] + [x.strip() for x in env("ALLOWED_HOSTS").split(",")]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", gethostbyname(gethostname())] + [
+    x.strip() for x in env("ALLOWED_HOSTS").split(",")
+]
 
 # Local time zone. Choices are
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -85,7 +88,7 @@ else:
         if env("MYSQL_AZURE", default="false") == "single":
             DATABASES["default"]["OPTIONS"]["ssl"] = {"ca": "/app/BaltimoreCyberTrustRoot_combined.crt.pem"}
         if env("MYSQL_AZURE", default="false") == "flexible":
-            DATABASES["default"]["OPTIONS"]["ssl"] = {"ca": "/app/DigiCertGlobalRootCA.crt.pem"}
+            DATABASES["default"]["OPTIONS"]["ssl"] = {"ca": "/app/combined-ca-certificates.pem"}
 
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

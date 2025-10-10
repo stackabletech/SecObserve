@@ -40,6 +40,19 @@ import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
 function listFilters() {
     const filters = [];
     filters.push(
+        <TextInput source="title" alwaysOn />,
+        <AutocompleteInput
+            source="current_severity"
+            label="Severity"
+            choices={OBSERVATION_SEVERITY_CHOICES}
+            alwaysOn
+        />,
+        <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />
+    );
+    if (feature_exploit_information()) {
+        filters.push(<NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />);
+    }
+    filters.push(
         <ReferenceInput
             source="product"
             reference="products"
@@ -137,12 +150,9 @@ const ObservationList = () => {
                     size={getSettingListSize()}
                     rowClick="show"
                     bulkActionButtons={<BulkActionButtons />}
-                    expand={<ObservationExpand />}
+                    expand={<ObservationExpand showComponent={true} />}
                     expandSingle
                 >
-                    <TextField source="product_data.name" label="Product" />
-                    <TextField source="product_data.product_group_name" label="Group" />
-                    <TextField source="branch_name" label="Branch / Version" />
                     <TextField source="title" />
                     <SeverityField label="Severity" source="current_severity" />
                     <ChipField source="current_status" label="Status" />

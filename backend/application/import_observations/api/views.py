@@ -24,6 +24,7 @@ from application.authorization.services.roles_permissions import Permissions
 from application.core.models import Branch, Product
 from application.core.queries.branch import get_branch_by_id, get_branch_by_name
 from application.core.queries.product import get_product_by_id, get_product_by_name
+from application.core.queries.service import get_service_by_id
 from application.import_observations.api.filters import (
     ApiConfigurationFilter,
     ParserFilter,
@@ -148,7 +149,7 @@ class ApiImportObservationsByName(APIView):
 def _api_import_observations(
     request_serializer: Serializer, api_configuration: Api_Configuration, branch: Optional[Branch]
 ) -> dict[str, int]:
-    service = request_serializer.validated_data.get("service")
+    service_name = _get_service_name(api_configuration.product, request_serializer)
     docker_image_name_tag = request_serializer.validated_data.get("docker_image_name_tag")
     endpoint_url = request_serializer.validated_data.get("endpoint_url")
     kubernetes_cluster = request_serializer.validated_data.get("kubernetes_cluster")
@@ -156,7 +157,7 @@ def _api_import_observations(
     api_import_parameters = ApiImportParameters(
         api_configuration=api_configuration,
         branch=branch,
-        service=service,
+        service_name=service_name,
         docker_image_name_tag=docker_image_name_tag,
         endpoint_url=endpoint_url,
         kubernetes_cluster=kubernetes_cluster,
@@ -187,7 +188,8 @@ class FileUploadObservationsById(APIView):
     def post(self, request: Request) -> Response:
         request_serializer = FileUploadObservationsByIdRequestSerializer(data=request.data)
         product, branch = _get_product_branch_by_id(request_serializer)
-        response_data = _file_upload_observations(request_serializer, product, branch)
+        service_name = _get_service_name(product, request_serializer)
+        response_data = _file_upload_observations(request_serializer, product, branch, service_name)
         return Response(response_data)
 
 
@@ -201,7 +203,9 @@ class FileUploadObservationsByName(APIView):
     def post(self, request: Request) -> Response:
         request_serializer = FileUploadObservationsByNameRequestSerializer(data=request.data)
         product, branch = _get_product_branch_by_name(request_serializer)
-        response_data = _file_upload_observations(request_serializer, product, branch)
+        service_name = request_serializer.validated_data.get("service", "")
+        response_data = _file_upload_observations(request_serializer, product, branch, service_name)
+
         return Response(response_data)
 
 
@@ -215,7 +219,8 @@ class FileUploadSBOMById(APIView):
     def post(self, request: Request) -> Response:
         request_serializer = FileUploadSBOMByIdRequestSerializer(data=request.data)
         product, branch = _get_product_branch_by_id(request_serializer)
-        response_data = _file_upload_sbom(request_serializer, product, branch)
+        service_name = _get_service_name(product, request_serializer)
+        response_data = _file_upload_sbom(request_serializer, product, branch, service_name)
         return Response(response_data)
 
 
@@ -229,7 +234,8 @@ class FileUploadSBOMByName(APIView):
     def post(self, request: Request) -> Response:
         request_serializer = FileUploadSBOMByNameRequestSerializer(data=request.data)
         product, branch = _get_product_branch_by_name(request_serializer)
-        response_data = _file_upload_sbom(request_serializer, product, branch)
+        service_name = request_serializer.validated_data.get("service", "")
+        response_data = _file_upload_sbom(request_serializer, product, branch, service_name)
         return Response(response_data)
 
 
@@ -283,11 +289,26 @@ def _get_product_branch_by_name(request_serializer: Serializer) -> tuple[Product
     return product, branch
 
 
+def _get_service_name(product: Product, request_serializer: Serializer) -> str:
+    service_name = request_serializer.validated_data.get("service", "")
+    service_id = request_serializer.validated_data.get("service_id")
+
+    if service_name and service_id:
+        raise ValidationError("Only one of the fields service and service_id may be set")
+
+    if service_id:
+        service = get_service_by_id(product, service_id)
+        if not service:
+            raise ValidationError(f"Service {service_id} does not exist for product {product.name}")
+        service_name = service.name
+
+    return service_name
+
+
 def _file_upload_observations(
-    request_serializer: Serializer, product: Product, branch: Optional[Branch]
+    request_serializer: Serializer, product: Product, branch: Optional[Branch], service_name: str
 ) -> dict[str, int]:
     file = request_serializer.validated_data.get("file")
-    service = request_serializer.validated_data.get("service")
     docker_image_name_tag = request_serializer.validated_data.get("docker_image_name_tag")
     endpoint_url = request_serializer.validated_data.get("endpoint_url")
     kubernetes_cluster = request_serializer.validated_data.get("kubernetes_cluster")
@@ -297,7 +318,7 @@ def _file_upload_observations(
         product=product,
         branch=branch,
         file=file,
-        service=service,
+        service_name=service_name,
         docker_image_name_tag=docker_image_name_tag,
         endpoint_url=endpoint_url,
         kubernetes_cluster=kubernetes_cluster,
@@ -329,15 +350,16 @@ def _file_upload_observations(
     return response_data
 
 
-def _file_upload_sbom(request_serializer: Serializer, product: Product, branch: Optional[Branch]) -> dict[str, int]:
+def _file_upload_sbom(
+    request_serializer: Serializer, product: Product, branch: Optional[Branch], service_name: str
+) -> dict[str, int]:
     file = request_serializer.validated_data.get("file")
-    service = request_serializer.validated_data.get("service")
 
     file_upload_parameters = FileUploadParameters(
         product=product,
         branch=branch,
         file=file,
-        service=service,
+        service_name=service_name,
         docker_image_name_tag="",
         endpoint_url="",
         kubernetes_cluster="",

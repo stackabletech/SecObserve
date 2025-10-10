@@ -98,6 +98,13 @@ export const darkTheme = {
                 variant: "outlined" as const,
             },
         },
+        RaToolbar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: "#ffffff1f",
+                },
+            },
+        },
     },
 };
 

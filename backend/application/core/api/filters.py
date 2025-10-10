@@ -17,6 +17,7 @@ from application.commons.api.extended_ordering_filter import ExtendedOrderingFil
 from application.commons.types import Age_Choices
 from application.core.models import (
     Branch,
+    Component,
     Evidence,
     Observation,
     Observation_Log,
@@ -290,6 +291,9 @@ class ObservationFilter(FilterSet):
             "has_potential_duplicates",
             "patch_available",
             "origin_component_purl_type",
+            "origin_component_purl",
+            "origin_component_cpe",
+            "origin_component_cyclonedx_bom_link",
         ]
 
     def get_age(
@@ -499,3 +503,38 @@ class PotentialDuplicateFilter(FilterSet):
     class Meta:
         model = Potential_Duplicate
         fields = ["observation"]
+
+
+class ComponentFilter(FilterSet):
+    component_name_version = CharFilter(field_name="component_name_version", lookup_expr="icontains")
+    product_group = ModelChoiceFilter(
+        field_name="product__product_group",
+        queryset=Product.objects.filter(is_product_group=True),
+    )
+
+    ordering = ExtendedOrderingFilter(
+        # tuple-mapping retains order
+        fields=(
+            ("id", "id"),
+            (("product__name", "branch__name", "component_name_version"), "product_name"),
+            (("product__product_group__name", "branch__name", "component_name_version"), "product_group_name"),
+            (("branch__name", "product__name", "component_name_version"), "branch_name"),
+            (("component_name_version", "product__name", "branch__name"), "component_name_version_type"),
+            (
+                ("origin_service__name", "product__name", "branch__name", "component_name_version"),
+                "origin_service_name",
+            ),
+            (("has_observations", "product__name", "branch__name", "component_name_version"), "has_observations"),
+        ),
+    )
+
+    class Meta:  # pylint: disable=duplicate-code
+        model = Component
+        fields = [
+            "product",
+            "branch",
+            "component_name_version",
+            "component_purl_type",
+            "origin_service",
+            "has_observations",
+        ]

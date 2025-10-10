@@ -49,7 +49,9 @@ class Permissions(IntEnum):
     Branch_Create = 1404
 
     Service_View = 1501
+    Serice_Edit = 1502
     Service_Delete = 1503
+    Service_Create = 1504
 
     Product_Authorization_Group_Member_View = 1601
     Product_Authorization_Group_Member_Edit = 1602
@@ -77,7 +79,13 @@ class Permissions(IntEnum):
     VEX_Delete = 5003
     VEX_Create = 5004
 
+    License_Component_Edit = 6002
     License_Component_Delete = 6003
+
+    Concluded_License_View = 7001
+    Concluded_License_Edit = 7002
+    Concluded_License_Delete = 7003
+    Concluded_License_Create = 7004
 
     @classmethod
     def has_value(cls, value: int) -> bool:
@@ -152,7 +160,9 @@ class Permissions(IntEnum):
     def get_service_permissions(cls) -> set["Permissions"]:
         return {
             Permissions.Service_View,
+            Permissions.Serice_Edit,
             Permissions.Service_Delete,
+            Permissions.Service_Create,
         }
 
     @classmethod
@@ -182,7 +192,17 @@ class Permissions(IntEnum):
     @classmethod
     def get_component_license_permissions(cls) -> set["Permissions"]:
         return {
+            Permissions.License_Component_Edit,
             Permissions.License_Component_Delete,
+        }
+
+    @classmethod
+    def get_concluded_license_permissions(cls) -> set["Permissions"]:
+        return {
+            Permissions.Concluded_License_View,
+            Permissions.Concluded_License_Edit,
+            Permissions.Concluded_License_Delete,
+            Permissions.Concluded_License_Create,
         }
 
 
@@ -199,6 +219,7 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.Observation_View,
             Permissions.Api_Configuration_View,
             Permissions.VEX_View,
+            Permissions.Concluded_License_View,
         },
         Roles.Upload: {
             Permissions.Product_Import_Observations,
@@ -220,6 +241,10 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.Observation_Assessment,
             Permissions.Api_Configuration_View,
             Permissions.VEX_View,
+            Permissions.License_Component_Edit,
+            Permissions.Concluded_License_View,
+            Permissions.Concluded_License_Edit,
+            Permissions.Concluded_License_Create,
         },
         Roles.Maintainer: {
             Permissions.Product_Group_View,
@@ -247,7 +272,9 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.Branch_Delete,
             Permissions.Branch_Create,
             Permissions.Service_View,
+            Permissions.Serice_Edit,
             Permissions.Service_Delete,
+            Permissions.Service_Create,
             Permissions.Observation_View,
             Permissions.Observation_Edit,
             Permissions.Observation_Create,
@@ -261,7 +288,12 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.VEX_Edit,
             Permissions.VEX_Create,
             Permissions.VEX_Delete,
+            Permissions.License_Component_Edit,
             Permissions.License_Component_Delete,
+            Permissions.Concluded_License_View,
+            Permissions.Concluded_License_Edit,
+            Permissions.Concluded_License_Create,
+            Permissions.Concluded_License_Delete,
         },
         Roles.Owner: {
             Permissions.Product_Group_View,
@@ -291,7 +323,9 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.Branch_Delete,
             Permissions.Branch_Create,
             Permissions.Service_View,
+            Permissions.Serice_Edit,
             Permissions.Service_Delete,
+            Permissions.Service_Create,
             Permissions.Observation_View,
             Permissions.Observation_Edit,
             Permissions.Observation_Create,
@@ -308,7 +342,12 @@ def get_roles_with_permissions() -> dict[Roles, set[Permissions]]:
             Permissions.VEX_Edit,
             Permissions.VEX_Create,
             Permissions.VEX_Delete,
+            Permissions.License_Component_Edit,
             Permissions.License_Component_Delete,
+            Permissions.Concluded_License_View,
+            Permissions.Concluded_License_Edit,
+            Permissions.Concluded_License_Create,
+            Permissions.Concluded_License_Delete,
         },
     }
 

@@ -1,9 +1,7 @@
 from typing import Optional
 from urllib.parse import urlparse
 
-import validators
 from django.utils import timezone
-from packageurl import PackageURL
 from rest_framework.serializers import (
     CharField,
     ChoiceField,
@@ -26,6 +24,7 @@ from application.core.api.serializers_helpers import (
     validate_cvss3_vector,
     validate_cvss4_vector,
     validate_cvss_and_severity,
+    validate_url,
 )
 from application.core.api.serializers_product import (
     NestedProductListSerializer,
@@ -44,7 +43,12 @@ from application.core.models import (
 from application.core.queries.observation import get_current_observation_log
 from application.core.services.observation_log import create_observation_log
 from application.core.services.security_gate import check_security_gate
-from application.core.types import Assessment_Status, Severity, Status, VexJustification
+from application.core.types import (
+    Assessment_Status,
+    Severity,
+    Status,
+    VEX_Justification,
+)
 from application.import_observations.api.serializers import ParserSerializer
 from application.import_observations.models import Parser
 from application.import_observations.types import Parser_Type
@@ -90,7 +94,6 @@ class ObservationSerializer(ModelSerializer):
     references = NestedReferenceSerializer(many=True)
     evidences = NestedEvidenceSerializer(many=True)
     origin_source_file_url = SerializerMethodField()
-    origin_component_purl_namespace = SerializerMethodField()
     issue_tracker_issue_url = SerializerMethodField()
     duplicates = NestedObservationIdSerializer(many=True)
     assessment_needs_approval = SerializerMethodField()
@@ -112,9 +115,6 @@ class ObservationSerializer(ModelSerializer):
 
     def get_origin_source_file_url(self, observation: Observation) -> Optional[str]:
         return _get_origin_source_file_url(observation)
-
-    def get_origin_component_purl_namespace(self, observation: Observation) -> Optional[str]:
-        return _get_origin_component_purl_namespace(observation)
 
     def get_issue_tracker_issue_url(self, observation: Observation) -> Optional[str]:
         issue_url = None
@@ -164,7 +164,6 @@ class ObservationListSerializer(ModelSerializer):
     origin_component_name_version = SerializerMethodField()
     origin_source_file_short = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
-    origin_component_purl_namespace = SerializerMethodField()
     vulnerability_id_aliases = SerializerMethodField()
     cve_found_in = SerializerMethodField()
 
@@ -196,9 +195,6 @@ class ObservationListSerializer(ModelSerializer):
     def get_origin_source_file_url(self, observation: Observation) -> Optional[str]:
         return _get_origin_source_file_url(observation)
 
-    def get_origin_component_purl_namespace(self, observation: Observation) -> Optional[str]:
-        return _get_origin_component_purl_namespace(observation)
-
     def get_vulnerability_id_aliases(self, observation: Observation) -> list[dict[str, str]]:
         return _get_vulnerability_id_aliases(observation)
 
@@ -213,12 +209,10 @@ def _get_origin_source_file_url(observation: Observation) -> Optional[str]:
         return observation.origin_source_file_link
 
     if observation.product.repository_prefix and observation.origin_source_file:
-        if not validators.url(observation.product.repository_prefix):
+        if not validate_url(observation.product.repository_prefix):
             return None
 
         parsed_url = urlparse(observation.product.repository_prefix)
-        if parsed_url.scheme not in ["http", "https"]:
-            return None
 
         origin_source_file_url = observation.product.repository_prefix
         if origin_source_file_url.endswith("/"):
@@ -252,20 +246,13 @@ def _create_common_url(observation: Observation, origin_source_file_url: str) ->
     origin_source_file_url += f"/{observation.origin_source_file}"
     if observation.origin_source_line_start:
         origin_source_file_url += "#L" + str(observation.origin_source_line_start)
-    if observation.origin_source_line_end:
-        origin_source_file_url += "-" + str(observation.origin_source_line_end)
+        if (
+            observation.origin_source_line_end
+            and observation.origin_source_line_start != observation.origin_source_line_end
+        ):
+            origin_source_file_url += "-L" + str(observation.origin_source_line_end)
 
     return origin_source_file_url
-
-
-def _get_origin_component_purl_namespace(observation: Observation) -> Optional[str]:
-    if observation.origin_component_purl:
-        try:
-            purl = PackageURL.from_string(observation.origin_component_purl)
-            return purl.namespace
-        except ValueError:
-            return ""
-    return ""
 
 
 def _get_vulnerability_id_aliases(observation: Observation) -> list[dict[str, str]]:
@@ -526,7 +513,7 @@ class ObservationAssessmentSerializer(Serializer):
     severity = ChoiceField(choices=Severity.SEVERITY_CHOICES, required=False)
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
     vex_justification = ChoiceField(
-        choices=VexJustification.VEX_JUSTIFICATION_CHOICES,
+        choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES,
         required=False,
         allow_blank=True,
     )
@@ -549,7 +536,7 @@ class ObservationBulkAssessmentSerializer(Serializer):
     comment = CharField(max_length=4096, required=False)
     observations = ListField(child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True)
     vex_justification = ChoiceField(
-        choices=VexJustification.VEX_JUSTIFICATION_CHOICES,
+        choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES,
         required=False,
         allow_blank=True,
     )

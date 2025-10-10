@@ -17,3 +17,12 @@ keycloak/h2/keycloakdb.mv.db
 backend/application/import_observations/parsers/trivy_operator_prometheus_file
 coverage.xml
 docker-compose-dev-metabase.yml
+__pycache__
+# PyCharm
+/.idea/
+# Virtual environment
+/.venv/
+# Generated content
+/site/
+charts/secobserve/charts/postgresql-16.7.27.tgz
+charts/secobserve/my_values.yaml

@@ -10,6 +10,8 @@ from application.background_tasks.api.views import PeriodicTaskViewSet
 from application.core.api.views import (
     BranchNameViewSet,
     BranchViewSet,
+    ComponentNameViewSet,
+    ComponentViewSet,
     EvidenceViewSet,
     ObservationLogViewSet,
     ObservationTitleViewSet,
@@ -31,6 +33,7 @@ from application.import_observations.api.views import (
     VulnerabilityCheckViewSet,
 )
 from application.licenses.api.views import (
+    ConcludedLicenseViewSet,
     LicenseComponentEvidenceViewSet,
     LicenseComponentIdViewSet,
     LicenseComponentViewSet,
@@ -49,6 +52,9 @@ from application.vex.api.views import (
     CSAFBranchViewSet,
     CSAFViewSet,
     CSAFVulnerabilityViewSet,
+    CycloneDXBranchViewSet,
+    CycloneDXViewSet,
+    CycloneDXVulnerabilityViewSet,
     OpenVEXBranchViewSet,
     OpenVEXViewSet,
     OpenVEXVulnerabilityViewSet,
@@ -86,6 +92,8 @@ router.register("parsers", ParserViewSet, basename="parsers")
 router.register("observations", ObservationViewSet, basename="observations")
 router.register("observation_titles", ObservationTitleViewSet, basename="observation_titles")
 router.register("observation_logs", ObservationLogViewSet, basename="observation_logs")
+router.register("components", ComponentViewSet, basename="components")
+router.register("component_names", ComponentNameViewSet, basename="component_names")
 router.register("general_rules", GeneralRuleViewSet, basename="general_rules")
 router.register("api_configurations", ApiConfigurationViewSet, basename="api_configurations")
 router.register("product_rules", ProductRuleViewSet, basename="product_rules")
@@ -107,10 +115,18 @@ router.register(
     basename="openvex_vulnerabilities",
 )
 router.register("vex/openvex_branches", OpenVEXBranchViewSet, basename="openvex_branches")
+router.register("vex/cyclonedx", CycloneDXViewSet, basename="cyclonedx")
+router.register(
+    "vex/cyclonedx_vulnerabilities",
+    CycloneDXVulnerabilityViewSet,
+    basename="cyclonedx_vulnerabilities",
+)
+router.register("vex/cyclonedx_branches", CycloneDXBranchViewSet, basename="cyclonedx_branches")
 router.register("vex/vex_counters", VEXCounterViewSet, basename="vex_counters")
 router.register("vex/vex_documents", VEXDocumentViewSet, basename="vex_documents")
 router.register("vex/vex_statements", VEXStatementViewSet, basename="vex_statements")
 
+router.register("concluded_licenses", ConcludedLicenseViewSet, basename="concluded_licenses")
 router.register("license_components", LicenseComponentViewSet, basename="license_components")
 router.register("license_component_ids", LicenseComponentIdViewSet, basename="license_component_ids")
 router.register(

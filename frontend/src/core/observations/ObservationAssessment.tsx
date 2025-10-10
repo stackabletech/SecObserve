@@ -15,10 +15,12 @@ import {
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
 import { validate_after_today, validate_required } from "../../commons/custom_validators";
-import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus } from "../../commons/functions";
-import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
+import { justificationIsEnabledForStatus, remediationsAreEnabledForStatus, settings_vex_justification_style } from "../../commons/functions";
+import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
+import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../../commons/types";
 import {
+    OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_STATUS_RISK_ACCEPTED,
@@ -95,14 +97,6 @@ const ObservationAssessment = () => {
                             label="Status"
                             onChange={(e) => setStatus(e)}
                         />
-                        {justificationEnabled && (
-                            <AutocompleteInputMedium
-                                source="current_vex_justification"
-                                label="VEX justification"
-                                sx={{ minWidth: "450px" }}
-                                choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
-                            />
-                        )}
                         {remediationsEnabled && (
                             <ArrayInput source="current_vex_remediations" defaultValue={""} label="VEX remediations">
                                 <SimpleFormIterator disableReordering inline>
@@ -115,6 +109,22 @@ const ObservationAssessment = () => {
                                 </SimpleFormIterator>
                             </ArrayInput>
                         )}
+                        {justificationEnabled &&
+                            settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX && (
+                                <AutocompleteInputWide
+                                    source="current_vex_justification"
+                                    label="VEX justification"
+                                    choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
+                                />
+                            )}
+                        {justificationEnabled &&
+                            settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CYCLONEDX && (
+                                <AutocompleteInputWide
+                                    source="current_vex_justification"
+                                    label="VEX justification"
+                                    choices={OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES}
+                                />
+                            )}
                         <FormDataConsumer>
                             {({ formData }) =>
                                 formData.current_status &&

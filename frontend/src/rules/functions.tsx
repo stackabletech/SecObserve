@@ -1,4 +1,5 @@
 import { Box, Divider, Paper, Stack, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { RefObject } from "react";
 import { Fragment, useState } from "react";
 import {
     ArrayField,
@@ -25,9 +26,12 @@ import {
     feature_vex_enabled,
     justificationIsEnabledForStatus,
     remediationsAreEnabledForStatus,
+    settings_vex_justification_style,
 } from "../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide, TextInputWide, useStyles } from "../commons/layout/themes";
+import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../commons/types";
 import {
+    OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
@@ -310,7 +314,7 @@ interface RuleCreateEditComponentProps {
     initialStatus: string;
     initialDescription: string;
     setDescription: (value: string) => void;
-    dialogRef?: React.RefObject<HTMLDivElement | null> | null;
+    dialogRef?: RefObject<HTMLDivElement | null> | null;
 }
 
 export const RuleCreateEditComponent = ({
@@ -356,13 +360,6 @@ export const RuleCreateEditComponent = ({
                     choices={OBSERVATION_STATUS_CHOICES}
                     onChange={(e) => setStatus(e)}
                 />
-                {justificationEnabled && (
-                    <AutocompleteInputMedium
-                        label="New VEX justification"
-                        source="new_vex_justification"
-                        choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
-                    />
-                )}
                 {remediationsEnabled && (
                     <ArrayInput source="new_vex_remediations" defaultValue={""} label="New VEX remediations">
                         <SimpleFormIterator disableReordering inline>
@@ -374,6 +371,13 @@ export const RuleCreateEditComponent = ({
                             <TextInputWide source="text" />
                         </SimpleFormIterator>
                     </ArrayInput>
+                )}
+                {justificationEnabled && settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CYCLONEDX && (
+                    <AutocompleteInputWide
+                        source="new_vex_justification"
+                        label="New VEX justification"
+                        choices={OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES}
+                    />
                 )}
                 <BooleanInput source="enabled" defaultValue={true} />
             </Stack>

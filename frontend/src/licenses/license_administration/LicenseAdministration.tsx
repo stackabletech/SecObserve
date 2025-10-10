@@ -1,9 +1,12 @@
 import { Box, Divider, Paper, Tab, Tabs } from "@mui/material";
+import { ReactNode } from "react";
 import { Fragment } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 
 import administration from ".";
 import ListHeader from "../../commons/layout/ListHeader";
+import concluded_licenses from "../concluded_licenses";
+import ConcludedLicenseEmbeddedList from "../concluded_licenses/ConcludedLicenseEmbeddedList";
 import license_groups from "../license_groups";
 import LicenseGroupEmbeddedList from "../license_groups/LicenseGroupEmbeddedList";
 import license_policies from "../license_policies";
@@ -24,7 +27,7 @@ function useRouteMatch(patterns: readonly string[]) {
 }
 
 interface TabPanelProps {
-    children?: React.ReactNode;
+    children?: ReactNode;
     index: number;
     value: number;
 }
@@ -53,8 +56,15 @@ function a11yProps(index: number) {
 }
 
 export default function LicenseAdministration() {
-    const routeMatch = useRouteMatch(["/license/licenses", "/license/license_groups", "/license/license_policies"]);
+    const routeMatch = useRouteMatch([
+        "/license/licenses",
+        "/license/license_groups",
+        "/license/license_policies",
+        "/license/concluded_licenses",
+    ]);
     function currentTab(): number {
+        console.log(routeMatch?.pattern?.path);
+
         switch (routeMatch?.pattern?.path) {
             case "/license/licenses": {
                 return 0;
@@ -64,6 +74,11 @@ export default function LicenseAdministration() {
             }
             case "/license/license_policies": {
                 return 2;
+            }
+            case "/license/concluded_licenses": {
+                console.log("3");
+
+                return 3;
             }
             default: {
                 return 0;
@@ -100,6 +115,14 @@ export default function LicenseAdministration() {
                         {...a11yProps(2)} // nosemgrep: typescript.react.best-practice.react-props-spreading.react-props-spreading
                         // nosemgrep because the props are well defined in the import
                     />
+                    <Tab
+                        label="Concluded Licenses"
+                        icon={<concluded_licenses.icon />}
+                        to="/license/concluded_licenses"
+                        component={Link}
+                        {...a11yProps(3)} // nosemgrep: typescript.react.best-practice.react-props-spreading.react-props-spreading
+                        // nosemgrep because the props are well defined in the import
+                    />
                 </Tabs>
                 <Divider />
                 <CustomTabPanel value={currentTab()} index={0}>
@@ -110,6 +133,9 @@ export default function LicenseAdministration() {
                 </CustomTabPanel>
                 <CustomTabPanel value={currentTab()} index={2}>
                     <LicensePolicyEmbeddedList license={null} license_group={null} />
+                </CustomTabPanel>
+                <CustomTabPanel value={currentTab()} index={3}>
+                    <ConcludedLicenseEmbeddedList />
                 </CustomTabPanel>
             </Paper>
         </Fragment>

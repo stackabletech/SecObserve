@@ -28,6 +28,7 @@ class FileUploadObservationsByIdRequestSerializer(Serializer):
     product = IntegerField(validators=[MinValueValidator(0)])
     branch = IntegerField(validators=[MinValueValidator(0)], required=False)
     service = CharField(max_length=255, required=False)
+    service_id = IntegerField(validators=[MinValueValidator(0)], required=False)
     docker_image_name_tag = CharField(max_length=513, required=False)
     endpoint_url = CharField(max_length=2048, required=False)
     kubernetes_cluster = CharField(max_length=255, required=False)
@@ -50,6 +51,7 @@ class FileUploadSBOMByIdRequestSerializer(Serializer):
     product = IntegerField(validators=[MinValueValidator(0)])
     branch = IntegerField(validators=[MinValueValidator(0)], required=False)
     service = CharField(max_length=255, required=False)
+    service_id = IntegerField(validators=[MinValueValidator(0)], required=False)
 
 
 class FileUploadSBOMByNameRequestSerializer(Serializer):
@@ -63,6 +65,7 @@ class ApiImportObservationsByIdRequestSerializer(Serializer):
     api_configuration = IntegerField(validators=[MinValueValidator(0)])
     branch = IntegerField(validators=[MinValueValidator(0)], required=False)
     service = CharField(max_length=255, required=False, allow_blank=True)
+    service_id = IntegerField(validators=[MinValueValidator(0)], required=False)
     docker_image_name_tag = CharField(max_length=513, required=False, allow_blank=True)
     endpoint_url = CharField(max_length=2048, required=False, allow_blank=True)
     kubernetes_cluster = CharField(max_length=255, required=False)
@@ -104,7 +107,7 @@ class ApiConfigurationSerializer(ModelSerializer):
 
     class Meta:
         model = Api_Configuration
-        fields = "__all__"
+        exclude = ["automatic_import_service_legacy"]
 
     def to_representation(self, instance: Api_Configuration) -> dict:
         # Only users who can edit an API Configuration are allowed to see the API key
@@ -177,6 +180,7 @@ class ApiConfigurationSerializer(ModelSerializer):
 
 class VulnerabilityCheckSerializer(ModelSerializer):
     branch_name = SerializerMethodField()
+    service_name = SerializerMethodField()
     scanner_name = SerializerMethodField()
 
     def get_branch_name(self, vulnerability_check: Vulnerability_Check) -> str:
@@ -184,6 +188,12 @@ class VulnerabilityCheckSerializer(ModelSerializer):
             return ""
 
         return vulnerability_check.branch.name
+
+    def get_service_name(self, vulnerability_check: Vulnerability_Check) -> str:
+        if not vulnerability_check.service:
+            return ""
+
+        return vulnerability_check.service.name
 
     def get_scanner_name(self, vulnerability_check: Vulnerability_Check) -> str:
         if not vulnerability_check.scanner:

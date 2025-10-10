@@ -14,14 +14,12 @@ test.describe("SecObserve", async () => {
     test("Login", async () => {
 
         if (process.env.SO_PW_DOCKER) {
-            await delay(40000);
+            await delay(50000);
         }
 
         await page.goto(process.env.SO_PW_FRONTEND_BASE_URL);
 
         await expect(page).toHaveURL(process.env.SO_PW_FRONTEND_BASE_URL + "/#/login");
-
-        page.on('console', msg => console.log(msg.text()));
 
         await page.getByLabel("Username *").click();
         await page.getByLabel("Username *").fill(process.env.SO_PW_USERNAME);
@@ -29,7 +27,6 @@ test.describe("SecObserve", async () => {
         await page.getByLabel("Password *").fill(process.env.SO_PW_PASSWORD);
         await page.getByRole("button", { name: "Sign in with user" }).click();
 
-        page.on('console', msg => console.log(msg.text()));
         await expect(page).toHaveURL(process.env.SO_PW_FRONTEND_BASE_URL + "/#/");
 
         await page.getByRole("menuitem", { name: "Product Groups" }).click();

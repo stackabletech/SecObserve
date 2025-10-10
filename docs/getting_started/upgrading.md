@@ -10,6 +10,24 @@
 
 * There will be specific upgrade instructions if necessary, e.g. when there are new configuration parameters.
 
+## Release 1.40.0
+
+**Breaking changes**
+
+* The field `[origin_]component_purl_namespace` has been removed from the APIs for `observations`, `license_components` and `components`. Users of the API shall parse the `[origin_]component_purl` if they need any of its attributes.
+
+## Release 1.38.0
+
+**Noteable change**
+
+* Microsoft is rotating the root certificate for the flexible Azure Database for MySQL see [https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-root-certificate-rotation](https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-root-certificate-rotation). This release contains the new certificates.
+
+## Release 1.37.0
+
+**Breaking changes**
+
+* The API for `license_components` has been changed, due to the rename of the existing license fields to `imported_declared_license_...` in [https://github.com/MaibornWolff/SecObserve/pull/3229](https://github.com/MaibornWolff/SecObserve/pull/3229).
+
 ## Release 1.30.0
 
 **Noteable change**
