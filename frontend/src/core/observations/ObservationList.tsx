@@ -20,8 +20,7 @@ import {
 import observations from ".";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
-import { humanReadableDate } from "../../commons/functions";
-import { feature_exploit_information } from "../../commons/functions";
+import { feature_exploit_information, humanReadableDate } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
 import { AutocompleteInputMedium } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
@@ -123,11 +122,7 @@ const ListActions = () => (
     </TopToolbar>
 );
 
-const BulkActionButtons = () => (
-    <Fragment>
-        <ObservationBulkAssessment product={null} />
-    </Fragment>
-);
+const BulkActionButtons = () => <ObservationBulkAssessment product={null} storeKey="observations.list" />;
 
 const ObservationList = () => {
     setListIdentifier(IDENTIFIER_OBSERVATION_LIST);

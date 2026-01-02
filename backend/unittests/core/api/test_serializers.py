@@ -4,6 +4,7 @@ from rest_framework.serializers import ValidationError
 
 from application.access_control.models import Authorization_Group
 from application.authorization.services.roles_permissions import Permissions, Roles
+from application.commons.models import Settings
 from application.core.api.serializers_product import (
     BranchSerializer,
     ProductAuthorizationGroupMemberSerializer,
@@ -16,83 +17,6 @@ from unittests.base_test_case import BaseTestCase
 
 
 class TestBranchSerializer(BaseTestCase):
-    def test_is_default_branch_true(self):
-        branch_serializer = BranchSerializer()
-        self.assertTrue(branch_serializer.get_is_default_branch(obj=self.branch_1))
-
-    def test_is_default_branch_false(self):
-        branch_serializer = BranchSerializer()
-        self.assertFalse(branch_serializer.get_is_default_branch(obj=self.branch_2))
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_critical_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(
-            99,
-            branch_serializer.get_open_critical_observation_count(obj=self.branch_1),
-        )
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_CRITICAL,
-            current_status=Status.STATUS_OPEN,
-        )
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_high_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(99, branch_serializer.get_open_high_observation_count(obj=self.branch_1))
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_HIGH,
-            current_status=Status.STATUS_OPEN,
-        )
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_medium_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(99, branch_serializer.get_open_medium_observation_count(obj=self.branch_1))
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_MEDIUM,
-            current_status=Status.STATUS_OPEN,
-        )
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_low_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(99, branch_serializer.get_open_low_observation_count(obj=self.branch_1))
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_LOW,
-            current_status=Status.STATUS_OPEN,
-        )
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_none_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(99, branch_serializer.get_open_none_observation_count(obj=self.branch_1))
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_NONE,
-            current_status=Status.STATUS_OPEN,
-        )
-
-    @patch("application.core.models.Observation.objects.filter")
-    def test_get_open_unknown_observation_count(self, mock_filter):
-        mock_filter.return_value.count.return_value = 99
-        branch_serializer = BranchSerializer()
-        self.assertEqual(99, branch_serializer.get_open_unknown_observation_count(obj=self.branch_1))
-        mock_filter.assert_called_with(
-            branch=self.branch_1,
-            current_severity=Severity.SEVERITY_UNKNOWN,
-            current_status=Status.STATUS_OPEN,
-        )
-
     @patch("application.core.api.serializers_product.get_current_user")
     @patch("application.core.api.serializers_product.get_highest_user_role")
     @patch("application.core.api.serializers_product.get_permissions_for_role")
@@ -123,12 +47,13 @@ class TestBranchSerializer(BaseTestCase):
         product_serializer = ProductSerializer(product)
         data = product_serializer.validate(product_serializer.data)
 
-        self.assertEqual(0, data["security_gate_threshold_critical"])
-        self.assertEqual(0, data["security_gate_threshold_high"])
-        self.assertEqual(0, data["security_gate_threshold_medium"])
-        self.assertEqual(0, data["security_gate_threshold_low"])
-        self.assertEqual(0, data["security_gate_threshold_none"])
-        self.assertEqual(0, data["security_gate_threshold_unknown"])
+        settings = Settings.load()
+        self.assertEqual(settings.security_gate_threshold_critical, data["security_gate_threshold_critical"])
+        self.assertEqual(settings.security_gate_threshold_high, data["security_gate_threshold_high"])
+        self.assertEqual(settings.security_gate_threshold_medium, data["security_gate_threshold_medium"])
+        self.assertEqual(settings.security_gate_threshold_low, data["security_gate_threshold_low"])
+        self.assertEqual(settings.security_gate_threshold_none, data["security_gate_threshold_none"])
+        self.assertEqual(settings.security_gate_threshold_unknown, data["security_gate_threshold_unknown"])
 
     @patch("application.core.api.serializers_product.get_product_member")
     def test_validate_security_gate_active_full(self, mock_product_member):

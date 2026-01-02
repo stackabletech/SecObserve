@@ -123,7 +123,9 @@ class ApiImportObservationsByName(APIView):
         if branch_name:
             branch = get_branch_by_name(product, branch_name)
             if not branch:
-                branch = Branch.objects.create(product=product, name=branch_name)
+                branch = Branch.objects.create(
+                    product=product, name=branch_name, is_default_branch=branch_name.endswith("0.0.0-dev-amd64")
+                )
                 digest = subprocess.check_output(
                     "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
                     shell=True,
@@ -275,7 +277,9 @@ def _get_product_branch_by_name(request_serializer: Serializer) -> tuple[Product
     if branch_name:
         branch = get_branch_by_name(product, branch_name)
         if not branch:
-            branch = Branch.objects.create(product=product, name=branch_name)
+            branch = Branch.objects.create(
+                product=product, name=branch_name, is_default_branch=branch_name.endswith("0.0.0-dev-amd64")
+            )
             digest = subprocess.check_output(
                 "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
                 shell=True,
@@ -286,6 +290,7 @@ def _get_product_branch_by_name(request_serializer: Serializer) -> tuple[Product
                 f"?arch={arch}&repository_url=oci.stackable.tech%2Fsdp%2F{branch.product.name}"
             )
             branch.save()
+
     return product, branch
 
 
@@ -395,7 +400,7 @@ class ApiConfigurationViewSet(ModelViewSet):
     search_fields = ["name"]
 
     def get_queryset(self) -> QuerySet[Api_Configuration]:
-        return get_api_configurations()
+        return get_api_configurations().select_related("product").select_related("product__product_group")
 
 
 class VulnerabilityCheckViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -406,7 +411,7 @@ class VulnerabilityCheckViewSet(GenericViewSet, ListModelMixin, RetrieveModelMix
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self) -> QuerySet[Vulnerability_Check]:
-        return get_vulnerability_checks()
+        return get_vulnerability_checks().select_related("branch").select_related("service")
 
 
 class ParserViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):

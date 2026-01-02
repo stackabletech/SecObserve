@@ -1,4 +1,4 @@
-FROM python:3.13-alpine@sha256:e5fa639e49b85986c4481e28faa2564b45aa8021413f31026c3856e5911618b1 AS python-base
+FROM python:3.14-alpine@sha256:7af51ebeb83610fb69d633d5c61a2efb87efa4caf66b59862d624bb6ef788345 AS python-base
 
 # Python build stage
 FROM python-base AS python-build-stage
@@ -39,16 +39,15 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV BUILD_ENV=${BUILD_ENVIRONMENT}
 
-LABEL org.opencontainers.image.authors="stefan.fleckenstein@maibornwolff.de"
 LABEL org.opencontainers.image.created=${CREATED}
 LABEL org.opencontainers.image.description="SecObserve is an open source vulnerability management system for software development and cloud environments."
-LABEL org.opencontainers.image.documentation="https://maibornwolff.github.io/SecObserve"
+LABEL org.opencontainers.image.documentation="https://secobserve.github.io/SecObserve"
 LABEL org.opencontainers.image.licenses="BSD3-Clause"
 LABEL org.opencontainers.image.revision=${REVISION}
-LABEL org.opencontainers.image.source="https://github.com/MaibornWolff/SecObserve"
+LABEL org.opencontainers.image.source="https://github.com/SecObserve/SecObserve"
 LABEL org.opencontainers.image.title="SecObserve backend"
-LABEL org.opencontainers.image.url="https://github.com/MaibornWolff/SecObserve"
-LABEL org.opencontainers.image.vendor="MaibornWolff GmbH"
+LABEL org.opencontainers.image.url="https://github.com/SecObserve/SecObserve"
+LABEL org.opencontainers.image.vendor="SecObserve"
 LABEL org.opencontainers.image.version=${VERSION}
 
 WORKDIR ${APP_HOME}

@@ -5,7 +5,7 @@ from django_filters import CharFilter, FilterSet, NumberFilter, OrderingFilter
 from rest_framework.request import Request
 
 from application.access_control.models import (
-    API_Token,
+    API_Token_Multiple,
     Authorization_Group,
     Authorization_Group_Member,
     User,
@@ -191,13 +191,18 @@ class AuthorizationGroupMemberFilter(FilterSet):
 
 
 class ApiTokenFilter(FilterSet):
-    name = CharFilter(field_name="user__username", lookup_expr="icontains")
+    username = CharFilter(field_name="user__username", lookup_expr="icontains")
 
     ordering = OrderingFilter(
         # tuple-mapping retains order
-        fields=(("user__username", "name"), ("user", "user")),
+        fields=(
+            ("user__username", "username"),
+            ("user", "user"),
+            ("name", "name"),
+            ("expiration_date", "expiration_date"),
+        )
     )
 
     class Meta:
-        model = API_Token
-        fields = ["name", "user"]
+        model = API_Token_Multiple
+        fields = ["username", "user"]

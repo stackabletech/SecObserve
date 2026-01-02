@@ -10,7 +10,31 @@
 
 * There will be specific upgrade instructions if necessary, e.g. when there are new configuration parameters.
 
-## Release 1.41.0
+## Release 1.46.0
+
+**Breaking changes**
+
+* The results of API list endpoints for `products/`, `license_components/`, `licences/`, `license_groups/` and `license_policies/` contained some attributes that were used to streamline the user interface for single instances but are not necessary for list views and needed a lot of interactions with the database. These attributes have been removed from the result sets for performance optimization.
+
+
+## Release 1.42.0
+
+!!! warning
+    The database migration in version 1.42.0 did not work on some installations with MySQL databases and aborted with an error message. MySQL users should skip this version and update directly to 1.43.0.
+
+
+**Breaking changes**
+
+!!! info
+    The location of the Docker images has been changed with release 1.42.0, they are now stored in a GitHub container registry:
+
+    * **ghcr.io/secobserve/secobserve-backend**
+    * **ghcr.io/secobserve/secobserve-frontend**
+
+    Please adjust your pull statements accordingly.
+
+
+## Release 1.40.0
 
 **Breaking changes**
 
@@ -26,7 +50,7 @@
 
 **Breaking changes**
 
-* The API for `license_components` has been changed, due to the rename of the existing license fields to `imported_declared_license_...` in [https://github.com/MaibornWolff/SecObserve/pull/3229](https://github.com/MaibornWolff/SecObserve/pull/3229).
+* The API for `license_components` has been changed, due to the rename of the existing license fields to `imported_declared_license_...` in [https://github.com/SecObserve/SecObserve/pull/3229](https://github.com/SecObserve/SecObserve/pull/3229).
 
 ## Release 1.30.0
 

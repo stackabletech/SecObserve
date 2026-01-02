@@ -8,6 +8,7 @@ from django.db.models import (
     Model,
 )
 
+from application.commons.services.request_cache import cache_for_request
 from application.commons.types import VEX_Justification_Styles
 
 
@@ -208,6 +209,12 @@ class Settings(Model):
         help_text="Maximum number of entries to keep per periodic task",
     )
 
+    oidc_clock_skew = IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(999999)],
+        help_text="Time margin in seconds for checks of issued at, not before and expiration of OIDC tokens",
+    )
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         """
         Save object to the database. Removes all other entries if there
@@ -217,6 +224,7 @@ class Settings(Model):
         super().save(*args, **kwargs)
 
     @classmethod
+    @cache_for_request
     def load(cls) -> "Settings":
         """
         Load object from the database. Failing that, create a new empty

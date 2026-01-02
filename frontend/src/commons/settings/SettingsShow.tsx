@@ -53,6 +53,11 @@ const SettingsShowComponent = () => {
                                 <NumberField source="background_epss_import_crontab_minute" />
                             </Labeled>
                         </Stack>
+                        {settings.oidc_clock_skew > 0 && (
+                            <Labeled label="OIDC clock skew (seconds)">
+                                <NumberField source="oidc_clock_skew" />
+                            </Labeled>
+                        )}
                     </Paper>
 
                     <Paper sx={{ marginBottom: 2, padding: 2 }}>

@@ -1,4 +1,5 @@
 import logging
+import re
 from tempfile import NamedTemporaryFile
 from typing import Any
 
@@ -25,8 +26,9 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ViewSet
 
 from application.access_control.api.serializers import (
-    CreateApiTokenResponseSerializer,
+    ApiTokenCreateResponseSerializer,
 )
+from application.access_control.queries.api_token import get_api_token_by_id
 from application.access_control.services.current_user import get_current_user
 from application.authorization.services.authorization import (
     user_has_permission,
@@ -86,6 +88,7 @@ from application.core.api.serializers_product import (
     ProductApiTokenSerializer,
     ProductAuthorizationGroupMemberSerializer,
     ProductGroupSerializer,
+    ProductListSerializer,
     ProductMemberSerializer,
     ProductNameSerializer,
     ProductSerializer,
@@ -175,7 +178,7 @@ class ProductGroupViewSet(ModelViewSet):
     search_fields = ["name"]
 
     def get_queryset(self) -> QuerySet[Product]:
-        return get_products(is_product_group=True)
+        return get_products(is_product_group=True, with_annotations=True)
 
 
 class ProductGroupNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -202,8 +205,15 @@ class ProductViewSet(ModelViewSet):
         return (
             get_products(is_product_group=False, with_annotations=True)
             .select_related("product_group")
+            .select_related("product_group__license_policy")
             .select_related("repository_default_branch")
         )
+
+    def get_serializer_class(self) -> type[BaseSerializer[Any]]:
+        if self.action == "list":
+            return ProductListSerializer
+
+        return super().get_serializer_class()
 
     @extend_schema(
         methods=["GET"],
@@ -463,11 +473,11 @@ class BranchViewSet(ModelViewSet):
     search_fields = ["name"]
 
     def get_queryset(self) -> QuerySet[Branch]:
-        return get_branches().select_related("product")
+        return get_branches(with_annotations=True).select_related("product")
 
     def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         instance: Branch = self.get_object()
-        if instance == instance.product.repository_default_branch:
+        if instance.is_default_branch:
             raise ValidationError("You cannot delete the default branch of a product.")
 
         return super().destroy(request, *args, **kwargs)
@@ -494,7 +504,7 @@ class ServiceViewSet(ModelViewSet):
     search_fields = ["name"]
 
     def get_queryset(self) -> QuerySet[Service]:
-        return get_services().select_related("product")
+        return get_services(with_annotations=True).select_related("product")
 
 
 class ServiceNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -549,9 +559,10 @@ class ObservationViewSet(ModelViewSet):
     def perform_destroy(self, instance: Observation) -> None:
         product = instance.product
         issue_id = instance.issue_tracker_issue_id
-        observation_branch = instance.branch
         super().perform_destroy(instance)
-        if observation_branch == product.repository_default_branch:
+        if (instance.branch and instance.branch.is_default_branch) or (
+            not instance.branch and not instance.product.repository_default_branch
+        ):
             check_security_gate(product)
         push_deleted_observation_to_issue_tracker(product, issue_id, get_current_user())
         product.last_observation_change = timezone.now()
@@ -693,7 +704,14 @@ class ObservationLogViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         return super().get_serializer_class()
 
     def get_queryset(self) -> QuerySet[Observation_Log]:
-        return get_observation_logs().select_related("observation").select_related("user")
+        return (
+            get_observation_logs()
+            .select_related("observation")
+            .select_related("observation__product")
+            .select_related("observation__branch")
+            .select_related("observation__parser")
+            .select_related("user")
+        )
 
     @extend_schema(
         methods=["PATCH"],
@@ -861,18 +879,23 @@ class ProductApiTokenViewset(ViewSet):
 
     @extend_schema(
         request=ProductApiTokenSerializer,
-        responses={HTTP_200_OK: CreateApiTokenResponseSerializer},
+        responses={HTTP_200_OK: ApiTokenCreateResponseSerializer},
     )
     def create(self, request: Request) -> Response:
         request_serializer = ProductApiTokenSerializer(data=request.data)
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
-        product = _get_product(request_serializer.validated_data.get("id"))
+        product = _get_product(request_serializer.validated_data.get("product"))
 
         user_has_permission_or_403(product, Permissions.Product_Api_Token_Create)
 
-        token = create_product_api_token(product, request_serializer.validated_data.get("role"))
+        token = create_product_api_token(
+            product,
+            request_serializer.validated_data.get("role"),
+            request_serializer.validated_data.get("name"),
+            request_serializer.validated_data.get("expiration_date"),
+        )
 
         response = Response({"token": token}, status=HTTP_201_CREATED)
         logger.info(format_log_message(message="Product API token created", response=response))
@@ -882,10 +905,23 @@ class ProductApiTokenViewset(ViewSet):
         responses={HTTP_204_NO_CONTENT: None},
     )
     def destroy(self, request: Request, pk: int) -> Response:
-        product = _get_product(pk)
+        API_TOKEN_NOT_VALID = "API token not valid"
+
+        api_token = get_api_token_by_id(pk)
+        if not api_token:
+            raise ValidationError(API_TOKEN_NOT_VALID)
+
+        if not re.match("-product-(\\d)*(-.*)?-api_token-", api_token.user.username):
+            raise ValidationError(API_TOKEN_NOT_VALID)
+
+        product_member = Product_Member.objects.filter(user=api_token.user).first()
+        if not product_member:
+            raise ValidationError(API_TOKEN_NOT_VALID)
+
+        product = _get_product(product_member.product.pk)
         user_has_permission_or_403(product, Permissions.Product_Api_Token_Revoke)
 
-        revoke_product_api_token(product)
+        revoke_product_api_token(product, api_token)
 
         response = Response(status=HTTP_204_NO_CONTENT)
         logger.info(format_log_message(message="Product API token revoked", response=response))

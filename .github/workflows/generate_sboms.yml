@@ -16,12 +16,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 24
       -
         name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: 'v${{ github.event.inputs.release }}'
       - 
@@ -75,7 +75,7 @@ jobs:
         working-directory: ./sbom
         run: |
           sed -i "s|REPLACE_VERSION|$VERSION|g" ./configuration/patch_backend_container.json
-          trivy image --scanners license --pkg-types os --format cyclonedx --output sbom_backend_container.json maibornwolff/secobserve-backend:$VERSION
+          trivy image --scanners license --pkg-types os --format cyclonedx --output sbom_backend_container.json ghcr.io/secobserve/secobserve-backend:$VERSION
           sbom-utility trim --keys=externalReferences,properties,evidence,authors,lifecycles,services --quiet --input-file sbom_backend_container.json \
             | sbom-utility patch --patch-file ./configuration/patch_supplier.json --quiet --input-file - \
             | sbom-utility patch --patch-file ./configuration/patch_backend_container.json --quiet --input-file - --output-file sbom_backend_container_"$VERSION".json
@@ -88,7 +88,7 @@ jobs:
         working-directory: ./sbom
         run: |
           sed -i "s|REPLACE_VERSION|$VERSION|g" ./configuration/patch_frontend_container.json
-          trivy image --scanners license --pkg-types os --format cyclonedx --output sbom_frontend_container.json maibornwolff/secobserve-frontend:$VERSION
+          trivy image --scanners license --pkg-types os --format cyclonedx --output sbom_frontend_container.json ghcr.io/secobserve/secobserve-frontend:$VERSION
           sbom-utility trim --keys=externalReferences,properties,evidence,authors,lifecycles,services --quiet --input-file sbom_frontend_container.json \
             | sbom-utility patch --patch-file ./configuration/patch_supplier.json --quiet --input-file - \
             | sbom-utility patch --patch-file ./configuration/patch_frontend_container.json --quiet --input-file - --output-file sbom_frontend_container_"$VERSION".json
@@ -108,7 +108,7 @@ jobs:
           sbom-utility validate --input-file sbom_"$VERSION".json
       - 
         name: Commit SBOMs
-        uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7
         with:
           skip_fetch: true
           create_branch: true
