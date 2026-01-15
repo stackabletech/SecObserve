@@ -318,7 +318,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                             origin_component_location=component_location,
                             patched_in_versions=patched_versions,
                             upgrade_impact_score=upgrade_impact_score,
-                            patch_available=bool(patched_versions),
                         )
 
                         self._add_references(vulnerability, observation)

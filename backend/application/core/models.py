@@ -371,7 +371,6 @@ class Observation(Model):
     rule_vex_remediations = JSONField(blank=True, null=True)
     vex_vex_remediations = JSONField(blank=True, null=True)
     assessment_vex_remediations = JSONField(blank=True, null=True)
-    patch_available = BooleanField(default=False)
     patched_in_versions = CharField(max_length=255, blank=True)
     vex_statement = ForeignKey(
         "vex.VEX_Statement",
@@ -406,7 +405,6 @@ class Observation(Model):
             Index(fields=["last_observation_log"]),
             Index(fields=["epss_score"]),
             Index(fields=["scanner"]),
-            Index(fields=["patch_available"]),
             Index(fields=["update_impact_score"]),
         ]
 

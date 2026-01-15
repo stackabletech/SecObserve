@@ -67,14 +67,6 @@ function listFilters() {
             <AutocompleteInputMedium optionText="name" />
         </ReferenceInput>,
         <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
-        <TextInput source="title" alwaysOn />,
-        <AutocompleteInput
-            source="current_severity"
-            label="Severity"
-            choices={OBSERVATION_SEVERITY_CHOICES}
-            alwaysOn
-        />,
-        <AutocompleteInput source="current_status" label="Status" choices={OBSERVATION_STATUS_CHOICES} alwaysOn />,
         // <ReferenceInput
         //     label="Service"
         //     source="origin_service"
@@ -103,12 +95,9 @@ function listFilters() {
             label="Component type"
             choices={PURL_TYPE_CHOICES}
             alwaysOn
-        />
+        />,
+        <NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />
     );
-    if (feature_exploit_information()) {
-        filters.push(<NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />);
-    }
-    filters.push(<NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />);
     return filters;
 }
 
