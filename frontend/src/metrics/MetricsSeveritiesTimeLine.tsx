@@ -16,6 +16,7 @@ import { Line } from "react-chartjs-2";
 
 import { get_severity_color } from "../commons/functions";
 import { httpClient } from "../commons/ra-data-django-rest-framework";
+import { getSettingsMetricsTimespanInDays } from "../commons/user_settings/functions";
 import {
     OBSERVATION_SEVERITY_CRITICAL,
     OBSERVATION_SEVERITY_HIGH,
@@ -37,10 +38,9 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
     const notify = useNotify();
 
     const days = [];
-    for (let i = 90; i >= 1; i--) {
+    for (let i = getSettingsMetricsTimespanInDays() - 1; i >= 0; i--) {
         days.push(new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString());
     }
-    days.push(new Date(Date.now()).toLocaleDateString());
 
     function get_metrics(date: Date, metrics_data: any) {
         const date_string = date.toISOString().split("T")[0];
@@ -71,7 +71,11 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
     function get_data() {
         setLoading(true);
 
-        let url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/metrics/product_metrics_timeline/?age=Past%2090%20days";
+        let url =
+            window.__RUNTIME_CONFIG__.API_BASE_URL +
+            "/metrics/product_metrics_timeline/?age=Past%20" +
+            getSettingsMetricsTimespanInDays() +
+            "%20days";
         if (props.product_id) {
             url += "&product_id=" + props.product_id;
         }
@@ -88,7 +92,7 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                 const unknown_observations = [];
 
                 let metrics = null;
-                for (let i = 90; i >= 1; i--) {
+                for (let i = getSettingsMetricsTimespanInDays() - 1; i >= 0; i--) {
                     metrics = get_metrics(new Date(Date.now() - i * 24 * 60 * 60 * 1000), result.json);
                     critical_observations.push(metrics.open_critical);
                     high_observations.push(metrics.open_high);
@@ -97,14 +101,6 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                     none_observations.push(metrics.open_none);
                     unknown_observations.push(metrics.open_unknown);
                 }
-
-                metrics = get_metrics(new Date(Date.now()), result.json);
-                critical_observations.push(metrics.open_critical);
-                high_observations.push(metrics.open_high);
-                medium_observations.push(metrics.open_medium);
-                low_observations.push(metrics.open_low);
-                none_observations.push(metrics.open_none);
-                unknown_observations.push(metrics.open_unknown);
 
                 const data_sets = [
                     {
@@ -213,7 +209,10 @@ const MetricsSeveritiesTimeline = (props: MetricsSeveritiesTimelineProps) => {
                         plugins: {
                             title: {
                                 display: true,
-                                text: "Severities of open observations (last 90 days)",
+                                text:
+                                    "Severities of open observations (last " +
+                                    getSettingsMetricsTimespanInDays() +
+                                    " days)",
                                 color: getFontColor(),
                             },
                             legend: {
