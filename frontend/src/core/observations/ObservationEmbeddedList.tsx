@@ -94,9 +94,6 @@ function listFilters(product: Product) {
                 <AutocompleteInputMedium optionText="name" label="Component type" />
             </ReferenceInput>
         );
-        if (feature_exploit_information()) {
-            filters.push(<NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />);
-        }
     }
     if (product?.has_docker_image) {
         filters.push(<TextInput source="origin_docker_image_name_tag_short" label="Container" alwaysOn />);
@@ -124,8 +121,13 @@ function listFilters(product: Product) {
         filters.push(<NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />);
     }
     // filters.push(<TextInput source="origin_component_location" label="Component location" />);
-    filters.push(<NullableBooleanInput source="patch_available" label="Patch available" alwaysOn />);
 
+    if (product?.has_component) {
+        if (feature_exploit_information()) {
+            filters.push(<NullableBooleanInput source="cve_known_exploited" label="CVE exploited" alwaysOn />);
+        }
+        filters.push(<NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />);
+    }
     return filters;
 }
 
@@ -272,7 +274,9 @@ const ObservationsEmbeddedList = ({ product }: ObservationsEmbeddedListProps) =>
                         {product?.has_potential_duplicates && (
                             <BooleanField source="has_potential_duplicates" label="Dupl." />
                         )}
-                        <BooleanField source="patch_available" label="Patch" />
+                        {product?.has_component && (
+                            <TextField source="update_impact_score" label="Update impact score" />
+                        )}
                     </DatagridConfigurable>
                     <CustomPagination />
                 </div>

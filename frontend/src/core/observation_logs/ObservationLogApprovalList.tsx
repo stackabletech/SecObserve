@@ -11,13 +11,14 @@ import {
     ResourceContextProvider,
     TextField,
     TextInput,
+    WithListContext,
     useListController,
 } from "react-admin";
 
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
-import { feature_vex_enabled } from "../../commons/functions";
+import { feature_vex_enabled, has_attribute } from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL, OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
@@ -44,6 +45,9 @@ const BulkActionButtons = ({ product, storeKey }: BulkActionButtonsProps) => {
 
 function listFilters(product: any) {
     const filters = [];
+
+    filters.push(<TextInput source="observation_title" label="Observation title" alwaysOn />);
+
     if (!product) {
         filters.push(
             <ReferenceInput
@@ -73,7 +77,16 @@ function listFilters(product: any) {
             >
                 <AutocompleteInputWide optionText="name_with_product" label="Branch / Version" />
             </ReferenceInput>,
-            <TextInput source="branch_name" label="Branch / Version name" alwaysOn />
+            <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
+            <ReferenceInput
+                source="origin_service"
+                reference="services"
+                queryOptions={{ meta: { api_resource: "service_names" } }}
+                sort={{ field: "name", order: "ASC" }}
+                alwaysOn
+            >
+                <AutocompleteInputWide label="Service" optionText="name_with_product" />
+            </ReferenceInput>
         );
     }
 
@@ -92,8 +105,20 @@ function listFilters(product: any) {
             <TextInput source="branch_name" label="Branch / Version name" alwaysOn />
         );
     }
-
-    filters.push(<TextInput source="observation_title" label="Observation title" alwaysOn />);
+    if (product?.has_services) {
+        filters.push(
+            <ReferenceInput
+                source="origin_service"
+                reference="services"
+                queryOptions={{ meta: { api_resource: "service_names" } }}
+                sort={{ field: "name", order: "ASC" }}
+                filter={{ product: product.id }}
+                alwaysOn
+            >
+                <AutocompleteInputMedium label="Service" optionText="name" />
+            </ReferenceInput>
+        );
+    }
 
     if (!product || product?.has_component) {
         filters.push(<TextInput source="origin_component_name_version" label="Component" alwaysOn />);
@@ -154,46 +179,50 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
             <ListContextProvider value={listContext}>
                 <div style={{ width: "100%" }}>
                     <FilterForm filters={listFilters(product)} />
-                    <Datagrid
-                        size={getSettingListSize()}
-                        sx={{ width: "100%" }}
-                        bulkActionButtons={
-                            !product || product?.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL) ? (
-                                <BulkActionButtons product={product} storeKey={storeKey} />
-                            ) : (
-                                false
-                            )
-                        }
-                        rowClick={ShowObservationLogs}
-                        resource="observation_logs"
-                    >
-                        <DateField locales="de-DE" source="created" showTime />
-                        {!product && <TextField source="observation_data.product_data.name" label="Product" />}
-                        {(!product || product?.has_branches) && (
-                            <TextField source="observation_data.branch_name" label="Branch / Version" />
+                    <WithListContext
+                        render={({ data }) => (
+                            <Datagrid
+                                size={getSettingListSize()}
+                                sx={{ width: "100%" }}
+                                bulkActionButtons={
+                                    !product || product?.permissions.includes(PERMISSION_OBSERVATION_LOG_APPROVAL) ? (
+                                        <BulkActionButtons product={product} storeKey={storeKey} />
+                                    ) : (
+                                        false
+                                    )
+                                }
+                                rowClick={ShowObservationLogs}
+                                resource="observation_logs"
+                            >
+                                <DateField locales="de-DE" source="created" showTime />
+                                {!product && <TextField source="observation_data.product_data.name" label="Product" />}
+                                {(!product || product?.has_branches) && (
+                                    <TextField source="observation_data.branch_name" label="Branch / Version" />
+                                )}
+                                <TextField source="observation_data.title" label="Observation" />
+                                {(!product || product?.has_component) && (
+                                    <TextField
+                                        source="observation_data.origin_component_name_version"
+                                        label="Component"
+                                        sx={{ wordBreak: "break-word" }}
+                                    />
+                                )}
+                                <TextField source="observation_data.title" label="Observation" />
+                                <TextField source="user_full_name" label="User" />
+                                <SeverityField label="Severity" source="severity" />
+                                <ChipField source="status" label="Status" emptyText="---" />
+                                {feature_vex_enabled() && (
+                                    <TextField
+                                        label="VEX justification"
+                                        source="vex_justification"
+                                        emptyText="---"
+                                        sx={{ wordBreak: "break-word" }}
+                                    />
+                                )}
+                                <DateField source="created" showTime />
+                            </Datagrid>
                         )}
-                        <TextField source="observation_data.title" label="Observation" />
-                        {(!product || product?.has_component) && (
-                            <TextField
-                                source="observation_data.origin_component_name_version"
-                                label="Component"
-                                sx={{ wordBreak: "break-word" }}
-                            />
-                        )}
-                        <TextField source="observation_data.title" label="Observation" />
-                        <TextField source="user_full_name" label="User" />
-                        <SeverityField label="Severity" source="severity" />
-                        <ChipField source="status" label="Status" emptyText="---" />
-                        {feature_vex_enabled() && (
-                            <TextField
-                                label="VEX justification"
-                                source="vex_justification"
-                                emptyText="---"
-                                sx={{ wordBreak: "break-word" }}
-                            />
-                        )}
-                        <DateField source="created" showTime />
-                    </Datagrid>
+                    />
                     <CustomPagination />
                 </div>
             </ListContextProvider>
