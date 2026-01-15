@@ -25,7 +25,6 @@ export const oidcConfig = {
             ? window.__RUNTIME_CONFIG__.OIDC_SCOPE
             : "openid profile email",
     automaticSilentRenew: true,
-    prompt: "select_account",
     onSigninCallback: onSigninCallback,
 };
 
