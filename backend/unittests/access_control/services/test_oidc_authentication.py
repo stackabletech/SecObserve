@@ -142,7 +142,7 @@ class TestOIDCAuthentication(BaseTestCase):
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._get_jwks_uri")
     @patch("jwt.PyJWKClient.__init__")
     @patch("jwt.PyJWKClient.get_signing_key_from_jwt")
-    @patch("application.access_control.services.oidc_authentication.get_user_by_username")
+    @patch("application.access_control.services.oidc_authentication.get_user_by_email")
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._create_user")
     def test_validate_jwt_user_not_found(
         self,
@@ -157,9 +157,9 @@ class TestOIDCAuthentication(BaseTestCase):
         pyjwkclient_mock.return_value = None
         mock_py_jwk = MockPyJWK("test_key")
         get_signing_key_mock.return_value = mock_py_jwk
-        jwt_mock.return_value = {"preferred_username": "test_username"}
+        jwt_mock.return_value = {"email": "test@example.com"}
         get_user_mock.return_value = None
-        expected_user = User(username="test_username")
+        expected_user = User(email="test@example.com")
         create_user_mock.return_value = expected_user
 
         settings = Settings.load()
@@ -169,7 +169,7 @@ class TestOIDCAuthentication(BaseTestCase):
         user = oidc_authentication._validate_jwt("token")
 
         self.assertEqual(user, expected_user)
-        get_user_mock.assert_called_with("test_username")
+        get_user_mock.assert_called_with("test@example.com")
         jwks_uri_mock.assert_called_once()
         pyjwkclient_mock.assert_called_once_with("test_jwks_uri")
         get_signing_key_mock.assert_called_once_with("token")
@@ -189,13 +189,13 @@ class TestOIDCAuthentication(BaseTestCase):
             audience="client_id",
             leeway=7,
         )
-        create_user_mock.assert_called_once_with("test_username", {"preferred_username": "test_username"})
+        create_user_mock.assert_called_once_with("test@example.com", {"email": "test@example.com"})
 
     @patch("jwt.decode")
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._get_jwks_uri")
     @patch("jwt.PyJWKClient.__init__")
     @patch("jwt.PyJWKClient.get_signing_key_from_jwt")
-    @patch("application.access_control.services.oidc_authentication.get_user_by_username")
+    @patch("application.access_control.services.oidc_authentication.get_user_by_email")
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._check_user_change")
     def test_validate_jwt_user_found(
         self,
@@ -210,7 +210,7 @@ class TestOIDCAuthentication(BaseTestCase):
         pyjwkclient_mock.return_value = None
         mock_py_jwk = MockPyJWK("test_key")
         get_signing_key_mock.return_value = mock_py_jwk
-        jwt_mock.return_value = {"preferred_username": self.user_internal.username}
+        jwt_mock.return_value = {"email": self.user_internal.email}
         get_user_mock.return_value = self.user_internal
         check_user_change_mock.return_value = self.user_internal
 
@@ -221,7 +221,7 @@ class TestOIDCAuthentication(BaseTestCase):
         user = oidc_authentication._validate_jwt("token")
 
         self.assertEqual(self.user_internal, user)
-        get_user_mock.assert_called_with(self.user_internal.username)
+        get_user_mock.assert_called_with(self.user_internal.email)
         jwks_uri_mock.assert_called_once()
         pyjwkclient_mock.assert_called_once_with("test_jwks_uri")
         get_signing_key_mock.assert_called_once_with("token")
@@ -242,7 +242,7 @@ class TestOIDCAuthentication(BaseTestCase):
             leeway=5,
         )
         check_user_change_mock.assert_called_once_with(
-            self.user_internal, {"preferred_username": self.user_internal.username}
+            self.user_internal, {"email": self.user_internal.email}
         )
 
     @patch("requests.request")

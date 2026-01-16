@@ -18,7 +18,7 @@ import {
 import { PERMISSION_OBSERVATION_LOG_APPROVAL } from "../../access_control/types";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
-import { feature_vex_enabled, has_attribute } from "../../commons/functions";
+import { feature_vex_enabled } from "../../commons/functions";
 import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import { ASSESSMENT_STATUS_NEEDS_APPROVAL, OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
@@ -180,7 +180,7 @@ const ObservationLogApprovalList = ({ product }: ObservationLogApprovalListProps
                 <div style={{ width: "100%" }}>
                     <FilterForm filters={listFilters(product)} />
                     <WithListContext
-                        render={({ data }) => (
+                        render={() => (
                             <Datagrid
                                 size={getSettingListSize()}
                                 sx={{ width: "100%" }}

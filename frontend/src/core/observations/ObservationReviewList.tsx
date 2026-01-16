@@ -1,4 +1,3 @@
-import { Stack } from "@mui/material";
 import { Fragment } from "react";
 import {
     AutocompleteInput,
@@ -12,10 +11,8 @@ import {
     NumberField,
     ReferenceInput,
     ResourceContextProvider,
-    SelectColumnsButton,
     TextField,
     TextInput,
-    TopToolbar,
     WithListContext,
     useListController,
 } from "react-admin";
@@ -163,11 +160,6 @@ const BulkActionButtons = ({ product, storeKey }: BulkActionButtonsProps) => (
     </Fragment>
 );
 
-const ListActions = () => (
-    <TopToolbar>
-        <SelectColumnsButton preferenceKey="observations.review" />
-    </TopToolbar>
-);
 type ObservationsReviewListProps = {
     product?: any;
 };

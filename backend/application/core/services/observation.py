@@ -168,9 +168,9 @@ def normalize_observation_fields(observation: Observation) -> None:
     _normalize_origin_cloud(observation)
     _normalize_origin_kubernetes(observation)
 
-    normalize_severity(observation)
-    normalize_status(observation)
-    normalize_vex_justification(observation)
+    _normalize_severity(observation)
+    _normalize_status(observation)
+    _normalize_vex_justification(observation)
     normalize_vex_remediations(observation)
 
     _normalize_description(observation)
@@ -491,6 +491,8 @@ def normalize_vex_remediations(observation: Observation) -> None:
         observation.vex_vex_remediations = ""
 
     observation.current_vex_remediations = get_current_vex_remediations(observation)
+
+
 def _normalize_update_impact_score_and_fix_available(observation: Observation) -> None:
     observation.fix_available = None
     observation.update_impact_score = None
