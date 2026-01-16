@@ -26,6 +26,9 @@ export const oidcConfig = {
             : "openid profile email",
     automaticSilentRenew: true,
     onSigninCallback: onSigninCallback,
+    ...(window.__RUNTIME_CONFIG__.OIDC_PROMPT && window.__RUNTIME_CONFIG__.OIDC_PROMPT !== ""
+        ? { prompt: window.__RUNTIME_CONFIG__.OIDC_PROMPT }
+        : {}),
 };
 
 export const oidcStorageKey =
