@@ -210,7 +210,7 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                     <FilterForm filters={listFilters(product)} />
                     <WithListContext
                         render={({ data }) => (
-                            <Datagrid
+                            <DatagridConfigurable
                                 size={getSettingListSize()}
                                 sx={{ width: "100%" }}
                                 rowClick={ShowObservations}
@@ -298,7 +298,7 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
                                 {product?.has_potential_duplicates && (
                                     <BooleanField source="has_potential_duplicates" label="Dupl." />
                                 )}
-                            </Datagrid>
+                            </DatagridConfigurable>
                         )}
                     />
                     <CustomPagination />
