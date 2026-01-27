@@ -9,7 +9,7 @@ from packageurl import PackageURL
 from application.core.models import Observation
 from application.core.types import Severity, Status
 
-VERSION_REGEX = r"(?:\s|^)+(?:\d+:)?(\d+[\.\d]*)"  # NOSONAR
+VERSION_REGEX = r"(?:\s|^)+(?:\d+:)?v?(\d+[\.\d]*)"  # NOSONAR
 VERSION_REGEX_COMPILED = re.compile(VERSION_REGEX)
 # The regex will never be used on an empty string
 
@@ -543,7 +543,10 @@ def _normalize_update_impact_score_and_fix_available(observation: Observation) -
 
 
 def _parse_version(version: str) -> tuple[int, ...]:
-    rettuple = tuple(map(int, version.split(".")[:3]))
+    parts = version.split(".")[:3]
+    # Filter out empty strings
+    parts = [part for part in parts if part]
+    rettuple = tuple(map(int, parts))
     for _ in range(3 - len(rettuple)):
         rettuple += (0,)
     return rettuple
