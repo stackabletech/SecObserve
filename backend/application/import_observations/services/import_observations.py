@@ -765,6 +765,9 @@ def _get_initial_status(product: Product) -> str:
 
 
 def _get_github_issue_id(observation: Observation) -> Optional[str]:
+    if not observation.vulnerability_id:
+        return None
+
     github_pat = os.getenv("GITHUB_ISSUES_PAT")
     if not github_pat:
         return None
