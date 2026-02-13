@@ -280,16 +280,17 @@ def _get_product_branch_by_name(request_serializer: Serializer) -> tuple[Product
             branch = Branch.objects.create(
                 product=product, name=branch_name, is_default_branch=branch_name.endswith("0.0.0-dev-amd64")
             )
-            digest = subprocess.check_output(
-                "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
-                shell=True,
-            ).rstrip()
-            arch = branch.name.split("-")[-1]
-            branch.purl = (
-                f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
-                f"?arch={arch}&repository_url=oci.stackable.tech%2Fsdp%2F{branch.product.name}"
-            )
-            branch.save()
+            if product.product_group.name in ["SDP Operators", "SDP Products"]:
+                digest = subprocess.check_output(
+                    "crane digest oci.stackable.tech/sdp/" + branch.product.name + ":" + branch.name,
+                    shell=True,
+                ).rstrip()
+                arch = branch.name.split("-")[-1]
+                branch.purl = (
+                    f"pkg:oci/{branch.product.name}@{urllib.parse.quote_plus(digest)}"
+                    f"?arch={arch}&repository_url=oci.stackable.tech%2Fsdp%2F{branch.product.name}"
+                )
+                branch.save()
 
     return product, branch
 
