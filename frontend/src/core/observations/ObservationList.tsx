@@ -21,7 +21,7 @@ import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { feature_exploit_information, has_attribute, humanReadableDate } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
-import { AutocompleteInputMedium } from "../../commons/layout/themes";
+import { AutocompleteInputMedium, AutocompleteInputWide } from "../../commons/layout/themes";
 import { getSettingListSize } from "../../commons/user_settings/functions";
 import {
     AGE_CHOICES,
@@ -67,15 +67,15 @@ function listFilters() {
             <AutocompleteInputMedium optionText="name" />
         </ReferenceInput>,
         <TextInput source="branch_name" label="Branch / Version name" alwaysOn />,
-        // <ReferenceInput
-        //     label="Service"
-        //     source="origin_service"
-        //     queryOptions={{ meta: { api_resource: "service_names" } }}
-        //     reference="services"
-        //     sort={{ field: "name", order: "ASC" }}
-        // >
-        //     <AutocompleteInputWide label="Service" optionText="name_with_product" />
-        // </ReferenceInput>,
+        <ReferenceInput
+            label="Service"
+            source="origin_service"
+            queryOptions={{ meta: { api_resource: "service_names" } }}
+            reference="services"
+            sort={{ field: "name", order: "ASC" }}
+        >
+            <AutocompleteInputWide label="Service" optionText="name_with_product" />
+        </ReferenceInput>,
         <TextInput source="origin_component_name_version" label="Component" />
     );
     if (feature_exploit_information()) {
@@ -83,10 +83,10 @@ function listFilters() {
     }
     filters.push(
         <TextInput source="origin_docker_image_name_tag_short" label="Container" />,
-        // <TextInput source="origin_endpoint_hostname" label="Host" />,
-        // <TextInput source="origin_source_file" label="Source" />,
-        // <TextInput source="origin_cloud_qualified_resource" label="Cloud resource" />,
-        // <TextInput source="origin_kubernetes_qualified_resource" label="Kubernetes resource" />,
+        <TextInput source="origin_endpoint_hostname" label="Host" />,
+        <TextInput source="origin_source_file" label="Source" />,
+        <TextInput source="origin_cloud_qualified_resource" label="Cloud resource" />,
+        <TextInput source="origin_kubernetes_qualified_resource" label="Kubernetes resource" />,
         <TextInput source="scanner" alwaysOn />,
         <AutocompleteInputMedium source="age" choices={AGE_CHOICES} alwaysOn />,
         <NullableBooleanInput source="has_potential_duplicates" label="Duplicates" alwaysOn />,
