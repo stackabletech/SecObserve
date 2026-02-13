@@ -43,7 +43,7 @@ type ObservationBulkAssessmentButtonProps = {
 
 const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessmentButtonProps) => {
     const dialogRef = useRef<HTMLDivElement>(null);
-    const [comment, setComment] = useState("");
+    const [comment, setComment] = useState<string | null>("");
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
@@ -61,6 +61,9 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
             url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/products/" + product.id + "/observations_bulk_assessment/";
         } else {
             url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/observations/bulk_assessment/";
+        }
+        if (comment === "") {
+            setComment(null);
         }
         const assessment_data = {
             severity: data.current_severity,

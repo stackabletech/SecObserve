@@ -36,7 +36,7 @@ import {
 const ObservationAssessment = () => {
     const observation = useRecordContext();
     const dialogRef = useRef<HTMLDivElement>(null);
-    const [comment, setComment] = useState("");
+    const [comment, setComment] = useState<string | null>("");
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(observation?.current_status);
     const justificationEnabled = justificationIsEnabledForStatus(status);
@@ -45,6 +45,9 @@ const ObservationAssessment = () => {
     const notify = useNotify();
 
     const observationUpdate = async (data: any) => {
+        if (comment === "") {
+            setComment(null);
+        }
         const patch = {
             severity: data.current_severity,
             status: data.current_status,
