@@ -519,7 +519,7 @@ class ObservationAssessmentSerializer(Serializer):
     )
     vex_remediations = JSONField(required=False)
     risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
-    comment = CharField(max_length=4096, required=False)
+    comment = CharField(max_length=4096, required=False, allow_null=True)
 
 
 class ObservationRemoveAssessmentSerializer(Serializer):
@@ -533,7 +533,7 @@ class ObservationBulkDeleteSerializer(Serializer):
 class ObservationBulkAssessmentSerializer(Serializer):
     severity = ChoiceField(choices=Severity.SEVERITY_CHOICES, required=False)
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
-    comment = CharField(max_length=4096, required=False)
+    comment = CharField(max_length=4096, required=False, allow_null=True)
     observations = ListField(child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True)
     vex_justification = ChoiceField(
         choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES,
