@@ -45,15 +45,16 @@ const ObservationAssessment = () => {
     const notify = useNotify();
 
     const observationUpdate = async (data: any) => {
-        if (comment === "") {
-            setComment(null);
+        let local_comment = comment;
+        if (local_comment === "") {
+            local_comment = null;
         }
         const patch = {
             severity: data.current_severity,
             status: data.current_status,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
-            comment: comment,
+            comment: local_comment,
             risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
 

@@ -62,13 +62,14 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
         } else {
             url = window.__RUNTIME_CONFIG__.API_BASE_URL + "/observations/bulk_assessment/";
         }
-        if (comment === "") {
-            setComment(null);
+        let local_comment = comment;
+        if (local_comment === "") {
+            local_comment = null;
         }
         const assessment_data = {
             severity: data.current_severity,
             status: data.current_status,
-            comment: comment,
+            comment: local_comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
             observations: selectedIds,
