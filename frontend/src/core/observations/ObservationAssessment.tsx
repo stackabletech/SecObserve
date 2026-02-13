@@ -12,6 +12,7 @@ import {
     useRefresh,
 } from "react-admin";
 
+import MarkdownEdit from "../../commons/custom_fields/MarkdownEdit";
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
 import { validate_after_today, validate_required } from "../../commons/custom_validators";
@@ -35,6 +36,7 @@ import {
 const ObservationAssessment = () => {
     const observation = useRecordContext();
     const dialogRef = useRef<HTMLDivElement>(null);
+    const [comment, setComment] = useState("");
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(observation?.current_status);
     const justificationEnabled = justificationIsEnabledForStatus(status);
@@ -48,6 +50,7 @@ const ObservationAssessment = () => {
             status: data.current_status,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
+            comment: comment,
             risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
 
@@ -143,6 +146,13 @@ const ObservationAssessment = () => {
                                 )
                             }
                         </FormDataConsumer>
+                        <MarkdownEdit
+                            initialValue=""
+                            setValue={setComment}
+                            label="Comment"
+                            overlayContainer={dialogRef.current ?? null}
+                            maxLength={4096}
+                        />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>

@@ -13,6 +13,7 @@ import {
     useUnselectAll,
 } from "react-admin";
 
+import MarkdownEdit from "../../commons/custom_fields/MarkdownEdit";
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
 import { validate_after_today } from "../../commons/custom_validators";
@@ -42,6 +43,7 @@ type ObservationBulkAssessmentButtonProps = {
 
 const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessmentButtonProps) => {
     const dialogRef = useRef<HTMLDivElement>(null);
+    const [comment, setComment] = useState("");
     const [open, setOpen] = useState(false);
     const [status, setStatus] = useState(OBSERVATION_STATUS_OPEN);
     const justificationEnabled = justificationIsEnabledForStatus(status);
@@ -63,6 +65,7 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
         const assessment_data = {
             severity: data.current_severity,
             status: data.current_status,
+            comment: comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
             observations: selectedIds,
@@ -168,6 +171,13 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                                 )
                             }
                         </FormDataConsumer>
+                        <MarkdownEdit
+                            initialValue=""
+                            setValue={setComment}
+                            label="Comment"
+                            overlayContainer={dialogRef.current ?? null}
+                            maxLength={4096}
+                        />
                     </SimpleForm>
                 </DialogContent>
             </Dialog>
