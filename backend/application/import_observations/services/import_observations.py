@@ -341,8 +341,8 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
 
                     rule_engine.apply_rules_for_observation(imported_observation)
                     vex_engine.apply_vex_statements_for_observation(imported_observation)
-                if imported_observation.current_status in Status.STATUS_ACTIVE:
-                    observations_new += 1
+                    if imported_observation.current_status in Status.STATUS_ACTIVE:
+                        observations_new += 1
 
                     # Add identity_hash to set of observations in this run to detect duplicates in this run
                     observations_this_run.add(imported_observation.identity_hash)
