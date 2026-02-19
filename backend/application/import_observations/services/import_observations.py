@@ -308,8 +308,8 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
                     rule_engine.apply_rules_for_observation(observation_before)
                     vex_engine.apply_vex_statements_for_observation(observation_before)
 
-                    if observation_before.current_status == _get_initial_status(observation_before.product):
-                        observations_updated += 1
+                if observation_before.current_status in Status.STATUS_ACTIVE:
+                    observations_updated += 1
 
                 # Remove observation from list of current observations because it is still part of the check
                 observations_before.pop(observation_before.identity_hash)
@@ -341,8 +341,8 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
 
                     rule_engine.apply_rules_for_observation(imported_observation)
                     vex_engine.apply_vex_statements_for_observation(imported_observation)
-                    if imported_observation.current_status == _get_initial_status(imported_observation.product):
-                        observations_new += 1
+                if imported_observation.current_status in Status.STATUS_ACTIVE:
+                    observations_new += 1
 
                     # Add identity_hash to set of observations in this run to detect duplicates in this run
                     observations_this_run.add(imported_observation.identity_hash)
@@ -743,16 +743,23 @@ def _resolve_unimported_observations(
         ).exists():
             continue
 
-        create_observation_log(
-            observation=observation,
-            severity="",
-            status=observation.current_status,
-            comment="Observation not found in latest scan",
-            vex_justification="",
-            vex_remediations="",
-            assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
-            risk_acceptance_expiry_date=None,
-        )
+        old_status = observation.current_status
+        new_status = get_current_status(observation)
+        if old_status != new_status:
+            if old_status in Status.STATUS_ACTIVE:
+                observations_resolved.add(observation)
+
+            observation.current_status = new_status
+            create_observation_log(
+                observation=observation,
+                severity="",
+                status=observation.current_status,
+                comment="Observation not found in latest scan",
+                vex_justification="",
+                vex_remediations="",
+                assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
+                risk_acceptance_expiry_date=None,
+            )
 
     return observations_resolved
 

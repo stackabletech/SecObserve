@@ -27,6 +27,7 @@ class Severity:
 
 class Status:
     STATUS_OPEN = "Open"
+    STATUS_AFFECTED = "Affected"
     STATUS_RESOLVED = "Resolved"
     STATUS_DUPLICATE = "Duplicate"
     STATUS_FALSE_POSITIVE = "False positive"
@@ -38,6 +39,7 @@ class Status:
 
     STATUS_CHOICES = [
         (STATUS_OPEN, STATUS_OPEN),
+        (STATUS_AFFECTED, STATUS_AFFECTED),
         (STATUS_RESOLVED, STATUS_RESOLVED),
         (STATUS_DUPLICATE, STATUS_DUPLICATE),
         (STATUS_FALSE_POSITIVE, STATUS_FALSE_POSITIVE),
@@ -47,6 +49,8 @@ class Status:
         (STATUS_RISK_ACCEPTED, STATUS_RISK_ACCEPTED),
         (STATUS_AFFECTED, STATUS_AFFECTED),
     ]
+
+    STATUS_ACTIVE = [STATUS_OPEN, STATUS_AFFECTED, STATUS_IN_REVIEW]
 
 
 class Assessment_Status:
