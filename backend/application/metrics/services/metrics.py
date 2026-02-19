@@ -62,7 +62,6 @@ def calculate_metrics_for_product(  # pylint: disable=too-many-branches
                 not_affected=latest_product_metrics.not_affected,
                 not_security=latest_product_metrics.not_security,
                 risk_accepted=latest_product_metrics.risk_accepted,
-                affected=latest_product_metrics.affected,
             )
             iteration_date += timedelta(days=1)
             metrics_calculated = True

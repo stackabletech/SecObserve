@@ -157,7 +157,6 @@ export const OBSERVATION_STATUS_FALSE_POSITIVE = "False positive";
 export const OBSERVATION_STATUS_NOT_AFFECTED = "Not affected";
 export const OBSERVATION_STATUS_NOT_SECURITY = "Not security";
 export const OBSERVATION_STATUS_RISK_ACCEPTED = "Risk accepted";
-export const OBSERVATION_STATUS_AFFECTED = "Affected";
 
 export const OBSERVATION_STATUS_CHOICES = [
     { id: OBSERVATION_STATUS_OPEN, name: OBSERVATION_STATUS_OPEN },
