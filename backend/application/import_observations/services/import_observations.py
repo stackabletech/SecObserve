@@ -735,6 +735,10 @@ def _resolve_unimported_observations(
     # and seem to have been resolved.
     observations_resolved: set[Observation] = set()
     for observation in observations_before.values():
+        old_status = observation.current_status
+
+        observation.parser_status = Status.STATUS_RESOLVED
+        observation.save()
 
         # Check if this observation log entry already exists
         if Observation_Log.objects.filter(
@@ -743,7 +747,6 @@ def _resolve_unimported_observations(
         ).exists():
             continue
 
-        old_status = observation.current_status
         new_status = get_current_status(observation)
         if old_status != new_status:
             if old_status in Status.STATUS_ACTIVE:
