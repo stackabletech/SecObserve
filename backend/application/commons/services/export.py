@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from typing import Any, Optional
 
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
+logger = logging.getLogger("secobserve.commons")
 
 def export_excel(objects: QuerySet, title: str, excludes: list[str], foreign_keys: list[str]) -> Workbook:
     workbook = Workbook()
@@ -40,7 +42,11 @@ def export_excel(objects: QuerySet, title: str, excludes: list[str], foreign_key
                         value = str(getattr(current_object, key))
                     if value and isinstance(value, datetime):
                         value = value.replace(tzinfo=None)
-                    worksheet.cell(row=row_num, column=col_num, value=value)
+                    try:
+                        worksheet.cell(row=row_num, column=col_num, value=value)
+                    except Exception as e:
+                        logger.warning(f"Cannot set cell with type {type(value)}")
+                        logger.warning(str(e))
                     col_num += 1
         row_num += 1
 
