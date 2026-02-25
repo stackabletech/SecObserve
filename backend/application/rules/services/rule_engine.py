@@ -12,7 +12,6 @@ from application.core.services.observation import (
     get_current_severity,
     get_current_status,
     get_current_vex_justification,
-    get_current_vex_remediations,
 )
 from application.core.services.observation_log import create_observation_log
 from application.core.services.risk_acceptance_expiry import (
@@ -121,7 +120,11 @@ class Rule_Engine:
             observations = Observation.objects.filter(product=self.product)
 
         observations = (
-            observations.select_related("parser").select_related("general_rule").select_related("product_rule")
+            observations.select_related("parser")
+            .select_related("general_rule")
+            .select_related("product_rule")
+            .select_related("branch")
+            .select_related("origin_service")
         )
 
         for observation in observations:
@@ -250,7 +253,7 @@ class Rule_Engine:
 
         return False
 
-    def _check_rule_rego(
+    def _check_rule_rego(  # pylint: disable=too-many-branches
         self, rule: Rule, observation: Observation, observation_before: Observation, simulation: Optional[bool] = False
     ) -> bool:
         jsonpickle.set_encoder_options("simplejson", use_decimal=True, sort_keys=True)
@@ -258,6 +261,12 @@ class Rule_Engine:
 
         observation_dict = json.loads(jsonpickle.dumps(observation, unpicklable=False, use_decimal=True))
         observation_dict = {k: v for k, v in observation_dict.items() if v is not None and v != ""}
+
+        observation_dict["product_name"] = observation.product.name
+        if observation.branch:
+            observation_dict["branch_name"] = observation.branch.name
+        if observation.origin_service:
+            observation_dict["origin_service_name"] = observation.origin_service.name
 
         rego_interpreter = self.rego_interpreters[rule.pk]
         result = rego_interpreter.query(observation_dict)
@@ -332,11 +341,6 @@ def _write_observation_log(
         if observation_before.current_vex_justification != observation.current_vex_justification
         else ""
     )
-    vex_remediations = (
-        observation.current_vex_remediations or ""
-        if observation_before.current_vex_remediations != observation.current_vex_remediations
-        else ""
-    )
     risk_acceptance_expiry_date = (
         observation.risk_acceptance_expiry_date
         if observation_before.risk_acceptance_expiry_date != observation.risk_acceptance_expiry_date
@@ -358,7 +362,6 @@ def _write_observation_log(
         priority=priority,
         comment=comment,
         vex_justification=vex_justification,
-        vex_remediations=vex_remediations,
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=risk_acceptance_expiry_date,
     )
@@ -406,16 +409,6 @@ def _write_observation_log_no_rule(
         else None
     )
 
-    observation.rule_vex_remediations = ""
-    previous_vex_remediations = observation.current_vex_remediations
-    observation.current_vex_remediations = get_current_vex_remediations(observation)
-
-    log_vex_remediations = (
-        observation.current_vex_remediations
-        if previous_vex_remediations != observation.current_vex_remediations
-        else ""
-    )
-
     if previous_product_rule:
         comment = f"Removed product {previous_product_rule.type.lower()} rule {previous_product_rule.name}"
     elif previous_general_rule:
@@ -430,7 +423,6 @@ def _write_observation_log_no_rule(
         priority=log_priority,
         comment=comment,
         vex_justification=log_vex_justification,
-        vex_remediations=log_vex_remediations,
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
     )
