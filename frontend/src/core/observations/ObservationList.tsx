@@ -32,6 +32,7 @@ import {
     Observation,
     PURL_TYPE_CHOICES,
 } from "../types";
+import ExportMenu from "./ExportMenu";
 import ObservationBulkAssessment from "./ObservationBulkAssessment";
 import ObservationExpand from "./ObservationExpand";
 import { IDENTIFIER_OBSERVATION_LIST, setListIdentifier } from "./functions";
@@ -91,6 +92,7 @@ function listFilters() {
 
 const ListActions = () => (
     <TopToolbar>
+        <ExportMenu />
         <FilterButton />
     </TopToolbar>
 );

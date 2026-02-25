@@ -133,7 +133,9 @@ from application.core.services.assessment import (
 )
 from application.core.services.export_observations import (
     export_observations_csv,
+    export_observations_csv_for_product,
     export_observations_excel,
+    export_observations_excel_for_product,
 )
 from application.core.services.observations_bulk_actions import (
     observation_logs_bulk_approval,
@@ -230,7 +232,7 @@ class ProductViewSet(ModelViewSet):
             if status and (status, status) not in Status.STATUS_CHOICES:
                 raise ValidationError(f"Status {status} is not a valid choice")
 
-        workbook = export_observations_excel(product, statuses)
+        workbook = export_observations_excel_for_product(product, statuses)
 
         with NamedTemporaryFile() as tmp:
             workbook.save(tmp.name)  # nosemgrep: python.lang.correctness.tempfile.flush.tempfile-without-flush
@@ -265,7 +267,7 @@ class ProductViewSet(ModelViewSet):
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=observations.csv"
 
-        export_observations_csv(response, product, statuses)
+        export_observations_csv_for_product(response, product, statuses)
 
         return response
 
@@ -677,6 +679,47 @@ class ObservationViewSet(ModelViewSet):
     def count_reviews(self, request: Request) -> Response:
         count = get_observations().filter(current_status=Status.STATUS_IN_REVIEW).count()
         return Response(status=HTTP_200_OK, data={"count": count})
+
+    @extend_schema(
+        methods=["GET"],
+        responses={200: None},
+    )
+    @action(detail=False, methods=["get"])
+    def export_excel(self, request: Request) -> HttpResponse:
+        queryset = self._filter_queryset(request)
+        workbook = export_observations_excel(queryset)
+
+        with NamedTemporaryFile() as tmp:
+            workbook.save(tmp.name)  # nosemgrep: python.lang.correctness.tempfile.flush.tempfile-without-flush
+            # export works fine without .flush()
+            tmp.seek(0)
+            stream = tmp.read()
+
+        response = HttpResponse(
+            content=stream,
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = "attachment; filename=observations.xlsx"
+        return response
+
+    @extend_schema(
+        methods=["GET"],
+        responses={200: None},
+        parameters=[],
+    )
+    @action(detail=False, methods=["get"])
+    def export_csv(self, request: Request) -> HttpResponse:
+        queryset = self._filter_queryset(request)
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = "attachment; filename=observations.csv"
+        export_observations_csv(response, queryset)
+        return response
+
+    def _filter_queryset(self, request: Request) -> QuerySet:
+        queryset = self.get_queryset()
+        for backend in self.filter_backends:
+            queryset = backend().filter_queryset(request, queryset, self)
+        return queryset
 
 
 class ObservationTitleViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
