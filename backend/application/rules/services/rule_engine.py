@@ -12,6 +12,7 @@ from application.core.services.observation import (
     get_current_severity,
     get_current_status,
     get_current_vex_justification,
+    get_current_vex_remediations,
 )
 from application.core.services.observation_log import create_observation_log
 from application.core.services.risk_acceptance_expiry import (
@@ -159,6 +160,8 @@ class Rule_Engine:
             or observation_before.current_severity != observation.current_severity
             or observation_before.rule_vex_justification != observation.rule_vex_justification
             or observation_before.current_vex_justification != observation.current_vex_justification
+            or observation_before.rule_vex_remediations != observation.rule_vex_remediations
+            or observation_before.current_vex_remediations != observation.current_vex_remediations
             or observation_before.general_rule != observation.general_rule
             or observation_before.product_rule != observation.product_rule
         ):
@@ -237,6 +240,10 @@ class Rule_Engine:
             if rule.new_vex_justification:
                 observation.rule_vex_justification = rule.new_vex_justification
                 observation.current_vex_justification = get_current_vex_justification(observation)
+
+            if rule.new_vex_remediations:
+                observation.rule_vex_remediations = rule.new_vex_remediations
+                observation.current_vex_remediations = get_current_vex_remediations(observation)
 
             if observation.current_status == Status.STATUS_RISK_ACCEPTED:
                 if observation_before.current_status != Status.STATUS_RISK_ACCEPTED:
@@ -341,6 +348,11 @@ def _write_observation_log(
         if observation_before.current_vex_justification != observation.current_vex_justification
         else ""
     )
+    vex_remediations = (
+        observation.current_vex_remediations
+        if observation_before.current_vex_remediations != observation.current_vex_remediations
+        else ""
+    )
     risk_acceptance_expiry_date = (
         observation.risk_acceptance_expiry_date
         if observation_before.risk_acceptance_expiry_date != observation.risk_acceptance_expiry_date
@@ -362,6 +374,7 @@ def _write_observation_log(
         priority=priority,
         comment=comment,
         vex_justification=vex_justification,
+        vex_remediations=vex_remediations,
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=risk_acceptance_expiry_date,
     )
@@ -409,6 +422,16 @@ def _write_observation_log_no_rule(
         else None
     )
 
+    observation.rule_vex_remediations = ""
+    previous_vex_remediations = observation.current_vex_remediations
+    observation.current_vex_remediations = get_current_vex_remediations(observation)
+
+    log_vex_remediations = (
+        observation.current_vex_remediations
+        if previous_vex_remediations != observation.current_vex_remediations
+        else ""
+    )
+
     if previous_product_rule:
         comment = f"Removed product {previous_product_rule.type.lower()} rule {previous_product_rule.name}"
     elif previous_general_rule:
@@ -423,6 +446,7 @@ def _write_observation_log_no_rule(
         priority=log_priority,
         comment=comment,
         vex_justification=log_vex_justification,
+        vex_remediations=log_vex_remediations,
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
     )
