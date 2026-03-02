@@ -242,7 +242,10 @@ def _create_azure_devops_url(observation: Observation, origin_source_file_url: s
 
 def _create_common_url(observation: Observation, origin_source_file_url: str) -> str:
     if observation.branch:
-        origin_source_file_url += f"/{observation.branch.name}"
+        if "$BRANCH_NAME" in origin_source_file_url:
+            origin_source_file_url = origin_source_file_url.replace("$BRANCH_NAME", observation.branch.name)
+        else:
+            origin_source_file_url += f"/{observation.branch.name}"
     origin_source_file_url += f"/{observation.origin_source_file}"
     if observation.origin_source_line_start:
         origin_source_file_url += "#L" + str(observation.origin_source_line_start)
