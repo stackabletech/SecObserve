@@ -313,10 +313,13 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
             else:
                 observation_found = (
                     Observation.objects.filter(
+                        product=imported_observation.product,
                         title=imported_observation.title,
                         branch=import_parameters.branch,
                         origin_component_name=imported_observation.origin_component_name,
                         origin_component_version=imported_observation.origin_component_version,
+                        origin_cloud_qualified_resource=imported_observation.origin_cloud_qualified_resource,
+                        origin_kubernetes_qualified_resource=imported_observation.origin_kubernetes_qualified_resource,
                     )
                     .exclude(scanner=imported_observation.scanner)
                     .exists()
@@ -328,7 +331,9 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
                         f"{imported_observation.title} - {imported_observation.origin_component_name} - "
                         f"{imported_observation.origin_component_version} - {imported_observation.scanner}"
                         f"{imported_observation.origin_docker_image_name} - "
-                        f"{imported_observation.origin_docker_image_tag}"
+                        f"{imported_observation.origin_docker_image_tag} - "
+                        f"{imported_observation.origin_cloud_qualified_resource} - "
+                        f"{imported_observation.origin_kubernetes_qualified_resource}"
                     )
                 else:
                     _process_new_observation(imported_observation, settings)
