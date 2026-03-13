@@ -160,6 +160,8 @@ class Rule_Engine:
             or observation_before.current_severity != observation.current_severity
             or observation_before.rule_vex_justification != observation.rule_vex_justification
             or observation_before.current_vex_justification != observation.current_vex_justification
+            or observation_before.rule_vex_remediations != observation.rule_vex_remediations
+            or observation_before.current_vex_remediations != observation.current_vex_remediations
             or observation_before.general_rule != observation.general_rule
             or observation_before.product_rule != observation.product_rule
         ):
@@ -239,6 +241,10 @@ class Rule_Engine:
             if rule.new_vex_justification:
                 observation.rule_vex_justification = rule.new_vex_justification
                 observation.current_vex_justification = get_current_vex_justification(observation)
+
+            if rule.new_vex_remediations:
+                observation.rule_vex_remediations = rule.new_vex_remediations
+                observation.current_vex_remediations = get_current_vex_remediations(observation)
 
             if observation.current_status == Status.STATUS_RISK_ACCEPTED:
                 if observation_before.current_status != Status.STATUS_RISK_ACCEPTED:
@@ -344,7 +350,7 @@ def _write_observation_log(
         else ""
     )
     vex_remediations = (
-        observation.current_vex_remediations or ""
+        observation.current_vex_remediations
         if observation_before.current_vex_remediations != observation.current_vex_remediations
         else ""
     )

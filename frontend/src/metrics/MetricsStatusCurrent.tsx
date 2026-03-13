@@ -39,7 +39,6 @@ const MetricsStatusCurrent = (props: MetricsStatusCurrentProps) => {
             OBSERVATION_STATUS_NOT_AFFECTED,
             OBSERVATION_STATUS_NOT_SECURITY,
             OBSERVATION_STATUS_RISK_ACCEPTED,
-            OBSERVATION_STATUS_AFFECTED,
         ],
         datasets: [
             {
@@ -86,7 +85,6 @@ const MetricsStatusCurrent = (props: MetricsStatusCurrentProps) => {
                     result.json.not_affected,
                     result.json.not_security,
                     result.json.risk_accepted,
-                    result.json.affected,
                 ];
                 setData((data) => data.concat(new_data));
             })
