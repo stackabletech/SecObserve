@@ -1,6 +1,7 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
 import {
+    AutocompleteArrayInput,
     BooleanInput,
     FormDataConsumer,
     Identifier,
@@ -12,6 +13,7 @@ import {
 import products from ".";
 import MarkdownEdit from "../../commons/custom_fields/MarkdownEdit";
 import OSVLinuxDistributionInput from "../../commons/custom_fields/OSVLinuxDistributionInput";
+import { ProductGroupReferenceInput } from "../../commons/custom_fields/ProductGroupReferenceInput";
 import { validate_0_999999, validate_255, validate_2048, validate_required_255 } from "../../commons/custom_validators";
 import { feature_automatic_osv_scanning, feature_email, feature_license_management } from "../../commons/functions";
 import {
@@ -21,7 +23,7 @@ import {
     TextInputWide,
 } from "../../commons/layout/themes";
 import { transform_product_group_and_product } from "../functions";
-import { ISSUE_TRACKER_TYPE_CHOICES, OBSERVATION_SEVERITY_CHOICES } from "../types";
+import { ISSUE_TRACKER_TYPE_CHOICES, OBSERVATION_SEVERITY_CHOICES, OBSERVATION_STATUS_CHOICES } from "../types";
 
 export const transform = (data: any, description: string) => {
     data = transform_product_group_and_product(data, description);
@@ -75,26 +77,7 @@ export const ProductCreateEditComponent = ({
                 label="Description"
                 maxLength={2048}
             />
-            {!productGroupId && (
-                <ReferenceInput
-                    source="product_group"
-                    reference="product_groups"
-                    queryOptions={{ meta: { api_resource: "product_group_names" } }}
-                    sort={{ field: "name", order: "ASC" }}
-                >
-                    <AutocompleteInputWide optionText="name" />
-                </ReferenceInput>
-            )}
-            {productGroupId && (
-                <ReferenceInput
-                    source="product_group"
-                    reference="product_groups"
-                    queryOptions={{ meta: { api_resource: "product_group_names" } }}
-                    sort={{ field: "name", order: "ASC" }}
-                >
-                    <AutocompleteInputWide optionText="name" defaultValue={productGroupId} disabled={true} />
-                </ReferenceInput>
-            )}
+            <ProductGroupReferenceInput defaultValue={productGroupId} />
             <Stack direction="row" spacing={4}>
                 <TextInputWide source="purl" validate={validate_255} label="PURL" />
                 <TextInputWide source="cpe23" validate={validate_255} label="CPE 2.3" />
@@ -157,29 +140,46 @@ export const ProductCreateEditComponent = ({
 
             <Divider flexItem sx={{ marginTop: 2, marginBottom: 2 }} />
 
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            <Typography variant="h6" sx={{ marginBottom: 1 }}>
                 Notifications
             </Typography>
             <Stack spacing={2}>
                 {feature_email() && (
-                    <TextInputWide
+                    <TextInputExtraWide
                         source="notification_email_to"
-                        label="Email"
-                        helperText="Comma separated email to addresses"
+                        label="Comma separated email to addresses to send notifications via email"
                         validate={validate_255}
                     />
                 )}
                 <TextInputExtraWide
                     source="notification_ms_teams_webhook"
-                    label="MS Teams"
-                    helperText="Webhook URL to send notifications to MS Teams"
+                    label="Webhook URL to send notifications to MS Teams"
                     validate={validate_2048}
                 />
                 <TextInputExtraWide
                     source="notification_slack_webhook"
-                    label="Slack"
-                    helperText="Webhook URL to send notifications to Slack"
+                    label="Webhook URL to send notifications to Slack"
                     validate={validate_2048}
+                />
+                <AutocompleteInputMedium
+                    source="observation_notification_min_severity"
+                    label="Minimum severity for observation notifications"
+                    choices={OBSERVATION_SEVERITY_CHOICES}
+                    sx={{ width: "25em" }}
+                />
+                <AutocompleteArrayInput
+                    source="observation_notification_status_list"
+                    label="Statuses for observation notifications"
+                    choices={OBSERVATION_STATUS_CHOICES}
+                    sx={{ width: "25em" }}
+                />
+                <NumberInput
+                    source="observation_notification_min_priority"
+                    label="Minimum priority for observation notifications"
+                    step={1}
+                    min={1}
+                    max={99}
+                    sx={{ width: "25em" }}
                 />
             </Stack>
 

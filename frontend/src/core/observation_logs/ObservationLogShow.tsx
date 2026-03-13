@@ -6,6 +6,7 @@ import {
     Datagrid,
     DateField,
     Labeled,
+    NumberField,
     PrevNextButtons,
     ReferenceField,
     Show,
@@ -129,6 +130,11 @@ const ObservationLogComponent = () => {
                                             width: "fit-content",
                                         }}
                                     />
+                                </Labeled>
+                            )}
+                            {observation_log.priority && (
+                                <Labeled label="Priority">
+                                    <NumberField source="priority" />
                                 </Labeled>
                             )}
                             {observation_log.risk_acceptance_expiry_date != null && (

@@ -3,7 +3,6 @@ import { RefObject } from "react";
 import { Fragment, useState } from "react";
 import {
     ArrayField,
-    ArrayInput,
     BooleanField,
     BooleanInput,
     ChipField,
@@ -12,7 +11,6 @@ import {
     Labeled,
     ReferenceField,
     ReferenceInput,
-    SimpleFormIterator,
     TextField,
     useRecordContext,
 } from "react-admin";
@@ -53,7 +51,6 @@ import {
     OBSERVATION_SEVERITY_CHOICES,
     OBSERVATION_STATUS_CHOICES,
     OBSERVATION_VEX_JUSTIFICATION_CHOICES,
-    OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES,
 } from "../core/types";
 import general_rules from "./general_rules";
 import product_rules from "./product_rules";

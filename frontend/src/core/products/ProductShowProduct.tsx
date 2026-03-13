@@ -1,9 +1,10 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import { Fragment } from "react";
-import { BooleanField, Labeled, NumberField, ReferenceField, TextField, WithRecord } from "react-admin";
+import { BooleanField, Labeled, NumberField, ReferenceField, TextArrayField, TextField, WithRecord } from "react-admin";
 
 import MarkdownField from "../../commons/custom_fields/MarkdownField";
 import OSVLinuxDistributionField from "../../commons/custom_fields/OSVLinuxDistributionField";
+import { ProductGroupReferenceField } from "../../commons/custom_fields/ProductGroupReferenceField";
 import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { feature_email } from "../../commons/functions";
 import { Product } from "../types";
@@ -29,15 +30,7 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
                 )}
                 {product.product_group && (
                     <Labeled label="Product group">
-                        <ReferenceField
-                            source="product_group"
-                            reference="product_groups"
-                            queryOptions={{ meta: { api_resource: "product_group_names" } }}
-                            link="show"
-                            sx={{ "& a": { textDecoration: "none" } }}
-                        >
-                            <TextField source="name" />
-                        </ReferenceField>
+                        <ProductGroupReferenceField />
                     </Labeled>
                 )}
                 {product.purl && (
@@ -115,7 +108,10 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
 
             {((feature_email() && product.notification_email_to) ||
                 product.notification_ms_teams_webhook ||
-                product.notification_slack_webhook) && (
+                product.notification_slack_webhook ||
+                product.observation_notification_min_severity ||
+                product.observation_notification_status_list ||
+                product.observation_notification_min_priority) && (
                 <Fragment>
                     <Divider sx={{ marginTop: 2, marginBottom: 2 }} />
                     <Typography variant="h6" sx={{ marginBottom: 1 }}>
@@ -135,6 +131,22 @@ const ProductShowProduct = ({ product }: ProductShowProductProps) => {
                         {product.notification_slack_webhook && (
                             <Labeled label="Slack">
                                 <TextField source="notification_slack_webhook" />
+                            </Labeled>
+                        )}
+                        {product.observation_notification_min_severity && (
+                            <Labeled label="Minimum severity for observation notifications">
+                                <TextField source="observation_notification_min_severity" />
+                            </Labeled>
+                        )}
+                        {product.observation_notification_status_list &&
+                            product.observation_notification_status_list.length > 0 && (
+                                <Labeled label="Statuses for observation notifications">
+                                    <TextArrayField source="observation_notification_status_list" />
+                                </Labeled>
+                            )}
+                        {product.observation_notification_min_priority && (
+                            <Labeled label="Minimum priority for observation notifications">
+                                <TextField source="observation_notification_min_priority" />
                             </Labeled>
                         )}
                     </Stack>

@@ -20,6 +20,7 @@ from application.commons.services.functions import get_comma_separated_as_list
 from application.core.api.serializers_helpers import (
     get_branch_name,
     get_origin_component_name_version,
+    get_origin_service_name,
     get_scanner_name,
     validate_cvss3_vector,
     validate_cvss4_vector,
@@ -93,7 +94,9 @@ class ObservationSerializer(ModelSerializer):
     parser_data = ParserSerializer(source="parser")
     references = NestedReferenceSerializer(many=True)
     evidences = NestedEvidenceSerializer(many=True)
+    origin_service_name = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
+    origin_cloud_resource_url = SerializerMethodField()
     issue_tracker_issue_url = SerializerMethodField()
     duplicates = NestedObservationIdSerializer(many=True)
     assessment_needs_approval = SerializerMethodField()
@@ -113,8 +116,14 @@ class ObservationSerializer(ModelSerializer):
     def get_branch_name(self, observation: Observation) -> str:
         return get_branch_name(observation)
 
+    def get_origin_service_name(self, observation: Observation) -> str:
+        return get_origin_service_name(observation)
+
     def get_origin_source_file_url(self, observation: Observation) -> Optional[str]:
         return _get_origin_source_file_url(observation)
+
+    def get_origin_cloud_resource_url(self, observation: Observation) -> Optional[str]:
+        return _get_origin_cloud_resource_url(observation)
 
     def get_issue_tracker_issue_url(self, observation: Observation) -> Optional[str]:
         issue_url = None
@@ -161,9 +170,11 @@ class ObservationListSerializer(ModelSerializer):
     branch_name = SerializerMethodField()
     parser_data = ParserSerializer(source="parser")
     scanner_name = SerializerMethodField()
+    origin_service_name = SerializerMethodField()
     origin_component_name_version = SerializerMethodField()
     origin_source_file_short = SerializerMethodField()
     origin_source_file_url = SerializerMethodField()
+    origin_cloud_resource_url = SerializerMethodField()
     vulnerability_id_aliases = SerializerMethodField()
     cve_found_in = SerializerMethodField()
 
@@ -182,6 +193,9 @@ class ObservationListSerializer(ModelSerializer):
     def get_scanner_name(self, observation: Observation) -> str:
         return get_scanner_name(observation)
 
+    def get_origin_service_name(self, observation: Observation) -> str:
+        return get_origin_service_name(observation)
+
     def get_origin_component_name_version(self, observation: Observation) -> str:
         return get_origin_component_name_version(observation)
 
@@ -194,6 +208,9 @@ class ObservationListSerializer(ModelSerializer):
 
     def get_origin_source_file_url(self, observation: Observation) -> Optional[str]:
         return _get_origin_source_file_url(observation)
+
+    def get_origin_cloud_resource_url(self, observation: Observation) -> Optional[str]:
+        return _get_origin_cloud_resource_url(observation)
 
     def get_vulnerability_id_aliases(self, observation: Observation) -> list[dict[str, str]]:
         return _get_vulnerability_id_aliases(observation)
@@ -223,6 +240,22 @@ def _get_origin_source_file_url(observation: Observation) -> Optional[str]:
             origin_source_file_url = _create_common_url(observation, origin_source_file_url)
 
     return origin_source_file_url
+
+
+def _get_origin_cloud_resource_url(observation: Observation) -> Optional[str]:
+    if (
+        observation.origin_cloud_provider.lower() == "github"
+        and observation.origin_cloud_account_subscription_project
+        and observation.origin_cloud_resource
+    ):
+        if observation.origin_cloud_resource_type.lower() == "githubrepository":
+            return (
+                f"https://github.com/{observation.origin_cloud_account_subscription_project}/"
+                + f"{observation.origin_cloud_resource}"
+            )
+        if observation.origin_cloud_resource_type.lower() == "githuborganization":
+            return f"https://github.com/{observation.origin_cloud_resource}"
+    return None
 
 
 def _create_azure_devops_url(observation: Observation, origin_source_file_url: str) -> str:
@@ -315,18 +348,10 @@ class ObservationUpdateSerializer(ModelSerializer):
         instance.origin_docker_image_tag = ""
         instance.origin_docker_image_digest = ""
 
-        if validated_data.get("origin_service"):
-            service = Service.objects.get(pk=validated_data["origin_service"].id)
-            validated_data["origin_service_name"] = service.name
-        else:
-            validated_data["origin_service_name"] = ""
-
         observation: Observation = super().update(instance, validated_data)
 
         log_severity = observation.current_severity if actual_severity != observation.current_severity else ""
-
         log_status = observation.current_status if actual_status != observation.current_status else ""
-
         log_vex_justification = (
             observation.current_vex_justification
             if actual_vex_justification != observation.current_vex_justification
@@ -436,12 +461,6 @@ class ObservationCreateSerializer(ModelSerializer):
         return validate_cvss4_vector(cvss4_vector)
 
     def create(self, validated_data: dict) -> Observation:
-        if validated_data.get("origin_service"):
-            service = Service.objects.get(pk=validated_data["origin_service"].id)
-            validated_data["origin_service_name"] = service.name
-        else:
-            validated_data["origin_service_name"] = ""
-
         observation: Observation = super().create(validated_data)
 
         create_observation_log(
@@ -518,6 +537,7 @@ class ObservationAssessmentSerializer(Serializer):
         allow_blank=True,
     )
     vex_remediations = JSONField(required=False)
+    priority = IntegerField(min_value=1, max_value=99, required=False, allow_null=True)
     risk_acceptance_expiry_date = DateField(required=False, allow_null=True)
     comment = CharField(max_length=4096, required=False, allow_null=True)
 
@@ -533,6 +553,7 @@ class ObservationBulkDeleteSerializer(Serializer):
 class ObservationBulkAssessmentSerializer(Serializer):
     severity = ChoiceField(choices=Severity.SEVERITY_CHOICES, required=False)
     status = ChoiceField(choices=Status.STATUS_CHOICES, required=False)
+    priority = IntegerField(min_value=1, max_value=99, required=False, allow_null=True)
     comment = CharField(max_length=4096, required=False, allow_null=True)
     observations = ListField(child=IntegerField(min_value=1), min_length=0, max_length=10000, required=True)
     vex_justification = ChoiceField(
@@ -551,6 +572,7 @@ class ObservationBulkMarkDuplicatesSerializer(Serializer):
 
 class NestedObservationSerializer(ModelSerializer):
     scanner_name = SerializerMethodField()
+    origin_service_name = SerializerMethodField()
     origin_component_name_version = SerializerMethodField()
     cve_found_in = SerializerMethodField()
 
@@ -560,6 +582,9 @@ class NestedObservationSerializer(ModelSerializer):
 
     def get_scanner_name(self, observation: Observation) -> str:
         return get_scanner_name(observation)
+
+    def get_origin_service_name(self, observation: Observation) -> str:
+        return get_origin_service_name(observation)
 
     def get_origin_component_name_version(self, observation: Observation) -> str:
         return get_origin_component_name_version(observation)

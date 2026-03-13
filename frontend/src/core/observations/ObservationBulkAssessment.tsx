@@ -5,6 +5,7 @@ import {
     ArrayInput,
     DateInput,
     FormDataConsumer,
+    NumberInput,
     SimpleForm,
     SimpleFormIterator,
     useListContext,
@@ -69,6 +70,7 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
         const assessment_data = {
             severity: data.current_severity,
             status: data.current_status,
+            priority: data.priority,
             comment: local_comment,
             vex_justification: justificationEnabled ? data.current_vex_justification : "",
             vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
@@ -123,11 +125,12 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                             choices={OBSERVATION_SEVERITY_CHOICES}
                         />
                         <AutocompleteInputMedium
-                            source="current_status"
+                            source="status"
                             label="Status"
                             choices={OBSERVATION_STATUS_CHOICES}
                             onChange={(e) => setStatus(e)}
                         />
+                        <NumberInput source="priority" step={1} min={1} max={99} />
                         {remediationsEnabled && (
                             <ArrayInput source="current_vex_remediations" defaultValue={""} label="VEX remediations">
                                 <SimpleFormIterator disableReordering inline>
@@ -143,7 +146,7 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                         {justificationEnabled &&
                             settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX && (
                                 <AutocompleteInputWide
-                                    source="current_vex_justification"
+                                    source="vex_justification"
                                     label="VEX justification"
                                     choices={OBSERVATION_VEX_JUSTIFICATION_CHOICES}
                                 />
@@ -151,15 +154,15 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                         {justificationEnabled &&
                             settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CYCLONEDX && (
                                 <AutocompleteInputWide
-                                    source="current_vex_justification"
+                                    source="vex_justification"
                                     label="VEX justification"
                                     choices={OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES}
                                 />
                             )}
                         <FormDataConsumer>
                             {({ formData }) =>
-                                formData.current_status &&
-                                formData.current_status == OBSERVATION_STATUS_RISK_ACCEPTED &&
+                                formData.status &&
+                                formData.status == OBSERVATION_STATUS_RISK_ACCEPTED &&
                                 (formData.risk_acceptance_expiry_date_calculated ||
                                     settings_risk_acceptance_expiry_date()) && (
                                     <DateInput
