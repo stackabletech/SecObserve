@@ -1,3 +1,5 @@
+from typing import Optional
+
 from application.access_control.services.current_user import get_current_user
 from application.commons.models import Settings
 from application.commons.services.functions import get_base_url_frontend
