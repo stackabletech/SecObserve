@@ -51,11 +51,11 @@ const ObservationAssessment = () => {
             local_comment = null;
         }
         const patch = {
-            severity: data.current_severity,
-            status: data.current_status,
+            severity: data.severity,
+            status: data.status,
             priority: data.priority,
-            vex_justification: justificationEnabled ? data.current_vex_justification : "",
-            vex_remediations: remediationsEnabled ? data.current_vex_remediations : "",
+            vex_justification: justificationEnabled ? data.vex_justification : "",
+            vex_remediations: remediationsEnabled ? data.vex_remediations : "",
             comment: local_comment,
             risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
@@ -105,7 +105,7 @@ const ObservationAssessment = () => {
                         />
                         <NumberInput source="priority" step={1} min={1} max={99} sx={{ width: "7em" }} />
                         {remediationsEnabled && (
-                            <ArrayInput source="current_vex_remediations" defaultValue={""} label="VEX remediations">
+                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
                                 <SimpleFormIterator disableReordering inline>
                                     <AutocompleteInputMedium
                                         source="category"
