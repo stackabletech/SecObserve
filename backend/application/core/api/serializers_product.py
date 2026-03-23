@@ -135,6 +135,7 @@ class ProductCoreSerializer(ModelSerializer):
             statuses = validated_data["observation_notification_status_list"]
             if isinstance(statuses, list):
                 validated_data["observation_notification_statuses"] = ",".join(statuses)
+            validated_data.pop("observation_notification_status_list")
 
         return validated_data
 
@@ -277,6 +278,7 @@ class ProductSerializer(ProductListSerializer):  # pylint: disable=too-many-publ
     has_api_configurations = SerializerMethodField()
     has_branch_osv_linux_distribution = SerializerMethodField()
     has_concluded_comments = SerializerMethodField()
+    has_priorities = SerializerMethodField()
 
     class Meta:
         model = Product
@@ -359,6 +361,9 @@ class ProductSerializer(ProductListSerializer):  # pylint: disable=too-many-publ
 
     def get_has_concluded_comments(self, obj: Product) -> bool:
         return License_Component.objects.filter(product=obj).exclude(manual_concluded_comment="").exists()
+
+    def get_has_priorities(self, obj: Product) -> bool:
+        return Observation.objects.filter(product=obj).filter(current_priority__isnull=False).exists()
 
     def validate(self, attrs: dict) -> dict:  # pylint: disable=too-many-branches
         # There are quite a lot of branches, but at least they are not nested too much

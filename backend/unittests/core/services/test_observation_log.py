@@ -12,8 +12,10 @@ class TestObservationLog(BaseTestCase):
     @patch("application.core.services.observation_log.get_current_user")
     @patch("application.core.models.Product.save")
     @patch("application.core.services.observation_log.send_observation_notification")
+    @patch("application.core.services.observation_log.send_observation_title_notification")
     def test_create_observation_log(
         self,
+        mock_send_observation_title_notification,
         mock_send_observation_notification,
         mock_product_save,
         mock_user,
@@ -51,3 +53,4 @@ class TestObservationLog(BaseTestCase):
         mock_user.assert_called_once()
         self.observation_1.product.save.assert_called_once()
         mock_send_observation_notification.assert_called_once()
+        mock_send_observation_title_notification.assert_called_with(self.observation_1)

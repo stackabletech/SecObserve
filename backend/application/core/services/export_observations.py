@@ -66,6 +66,7 @@ def _get_excludes() -> list[str]:
         "STATUS_NOT_SECURITY",
         "STATUS_AFFECTED",
         "origin_service",
+        "observation_notified",
     ]
 
 

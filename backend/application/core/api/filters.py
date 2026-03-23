@@ -289,6 +289,7 @@ class ObservationFilter(FilterSet):
             "title",
             "current_severity",
             "current_status",
+            "current_priority",
             "parser",
             "scanner",
             "upload_filename",

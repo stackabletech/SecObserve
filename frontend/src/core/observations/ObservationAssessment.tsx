@@ -103,7 +103,7 @@ const ObservationAssessment = () => {
                             choices={OBSERVATION_STATUS_CHOICES}
                             onChange={(e) => setStatus(e)}
                         />
-                        <NumberInput source="priority" step={1} min={1} max={99} />
+                        <NumberInput source="priority" step={1} min={1} max={99} sx={{ width: "7em" }} />
                         {remediationsEnabled && (
                             <ArrayInput source="current_vex_remediations" defaultValue={""} label="VEX remediations">
                                 <SimpleFormIterator disableReordering inline>
