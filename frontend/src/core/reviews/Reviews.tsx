@@ -102,18 +102,6 @@ export default function Reviews() {
             <Paper sx={{ marginTop: 2 }}>
                 <Tabs value={currentTab()} variant="scrollable" scrollButtons="auto">
                     <Tab
-                        label="Observation reviews"
-                        icon={
-                            <Badge badgeContent={count_observation_reviews} color="secondary">
-                                <observations.icon />
-                            </Badge>
-                        }
-                        to="/reviews/observation_reviews"
-                        component={Link}
-                        {...a11yProps(0)} // nosemgrep: typescript.react.best-practice.react-props-spreading.react-props-spreading
-                        // nosemgrep because the props are well defined in the import
-                    />
-                    <Tab
                         label="Assessment approvals"
                         icon={
                             <Badge badgeContent={count_observation_log_approvals} color="secondary">
