@@ -1,6 +1,6 @@
 {
     "@context": "https://openvex.dev/ns/v0.2.0",
-    "@id": "https://openvex.example.com/so_openvex_2020_0001",
+    "@id": "https://openvex.example.com/so_openvex_2020_0002",
     "author": "SecObserve",
     "last_updated": "2024-07-14T11:17:57.668609+00:00",
     "role": "vendor",
@@ -10,15 +10,10 @@
             "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/cryptography@41.0.5",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/cryptography@41.0.5"
-                        }
-                    ]
+                        "purl": "pkg:pypi/cryptography@41.0.5"
+                    }
                 }
             ],
             "status": "not_affected",
@@ -32,15 +27,10 @@
             "action_statement": "Upgrade cryptography to version 42.0.0",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/cryptography@41.0.5",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/cryptography@41.0.5"
-                        }
-                    ]
+                        "purl": "pkg:pypi/cryptography@41.0.5"
+                    }
                 }
             ],
             "status": "affected",
@@ -54,15 +44,10 @@
             "action_statement": "Upgrade cryptography to version 42.0.2",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/cryptography@41.0.5",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/cryptography@41.0.5"
-                        }
-                    ]
+                        "purl": "pkg:pypi/cryptography@41.0.5"
+                    }
                 }
             ],
             "status": "affected",
@@ -76,15 +61,10 @@
             "action_statement": "Upgrade gunicorn to version 22.0.0",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/gunicorn@21.2.0",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/gunicorn@21.2.0"
-                        }
-                    ]
+                        "purl": "pkg:pypi/gunicorn@21.2.0"
+                    }
                 }
             ],
             "status": "affected",
@@ -98,15 +78,10 @@
             "action_statement": "Upgrade black to version 24.3.0",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/black@23.11.0",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/black@23.11.0"
-                        }
-                    ]
+                        "purl": "pkg:pypi/black@23.11.0"
+                    }
                 }
             ],
             "status": "affected",
@@ -120,15 +95,10 @@
             "action_statement": "Upgrade django to version 3.2.24, 4.2.10, 5.0.2",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/django@4.2.8",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/django@4.2.8"
-                        }
-                    ]
+                        "purl": "pkg:pypi/django@4.2.8"
+                    }
                 }
             ],
             "status": "affected",
@@ -142,15 +112,10 @@
             "action_statement": "Upgrade cryptography to version 42.0.4",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/cryptography@41.0.5",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/cryptography@41.0.5"
-                        }
-                    ]
+                        "purl": "pkg:pypi/cryptography@41.0.5"
+                    }
                 }
             ],
             "status": "affected",
@@ -164,15 +129,10 @@
             "action_statement": "Upgrade django to version 3.2.25, 4.2.11, 5.0.3",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/django@4.2.8",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/django@4.2.8"
-                        }
-                    ]
+                        "purl": "pkg:pypi/django@4.2.8"
+                    }
                 }
             ],
             "status": "affected",
@@ -186,15 +146,10 @@
             "action_statement": "Upgrade werkzeug to version 3.0.3",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/werkzeug@3.0.1",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/werkzeug@3.0.1"
-                        }
-                    ]
+                        "purl": "pkg:pypi/werkzeug@3.0.1"
+                    }
                 }
             ],
             "status": "affected",
@@ -208,15 +163,10 @@
             "action_statement": "Upgrade requests to version 2.32.0",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/requests@2.31.0",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/requests@2.31.0"
-                        }
-                    ]
+                        "purl": "pkg:pypi/requests@2.31.0"
+                    }
                 }
             ],
             "status": "affected",
@@ -230,15 +180,10 @@
             "action_statement": "Upgrade idna to version 3.7",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/idna@3.6",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/idna@3.6"
-                        }
-                    ]
+                        "purl": "pkg:pypi/idna@3.6"
+                    }
                 }
             ],
             "status": "affected",
@@ -252,15 +197,10 @@
             "action_statement": "Upgrade urllib3 to version 1.26.19, 2.2.2",
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/urllib3@2.1.0",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/urllib3@2.1.0"
-                        }
-                    ]
+                        "purl": "pkg:pypi/urllib3@2.1.0"
+                    }
                 }
             ],
             "status": "affected",
@@ -273,15 +213,10 @@
         {
             "products": [
                 {
-                    "@id": "pkg:github/SecObserve/VEX_Test@v1.7.0",
+                    "@id": "pkg:pypi/sqlparse@0.4.4",
                     "identifiers": {
-                        "purl": "pkg:github/SecObserve/VEX_Test@v1.7.0"
-                    },
-                    "subcomponents": [
-                        {
-                            "@id": "pkg:pypi/sqlparse@0.4.4"
-                        }
-                    ]
+                        "purl": "pkg:pypi/sqlparse@0.4.4"
+                    }
                 }
             ],
             "status": "under_investigation",
