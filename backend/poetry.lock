@@ -776,14 +776,14 @@ profile = ["gprof2dot (>=2022.7.29)"]
 
 [[package]]
 name = "django"
-version = "6.0.3"
+version = "6.0.4"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "django-6.0.3-py3-none-any.whl", hash = "sha256:2e5974441491ddb34c3f13d5e7a9f97b07ba03bf70234c0a9c68b79bbb235bc3"},
-    {file = "django-6.0.3.tar.gz", hash = "sha256:90be765ee756af8a6cbd6693e56452404b5ad15294f4d5e40c0a55a0f4870fe1"},
+    {file = "django-6.0.4-py3-none-any.whl", hash = "sha256:14359c809fc16e8f81fd2b59d7d348e4d2d799da6840b10522b6edf7b8afc1da"},
+    {file = "django-6.0.4.tar.gz", hash = "sha256:8cfa2572b3f2768b2e84983cf3c4811877a01edb64e817986ec5d60751c113ac"},
 ]
 
 [package.dependencies]
@@ -813,15 +813,15 @@ django = ">=4.2"
 
 [[package]]
 name = "django-coverage-plugin"
-version = "3.2.0"
+version = "3.2.2"
 description = "Django template coverage.py plugin"
 optional = true
 python-versions = ">=3.10"
 groups = ["main"]
 markers = "extra == \"unittests\""
 files = [
-    {file = "django_coverage_plugin-3.2.0-py3-none-any.whl", hash = "sha256:a4a9400c784c86f1ba53a73c336508e07316c92345b34a0eb0b22b3b14cdbdd6"},
-    {file = "django_coverage_plugin-3.2.0.tar.gz", hash = "sha256:0e1460294ecd4b192bd09788ab9ad9380d9b8c9b45925b408ce6c620ac352585"},
+    {file = "django_coverage_plugin-3.2.2-py3-none-any.whl", hash = "sha256:66c9bdb2756762d6bef3510548bb228e1e8465ff1cd2b372775b82624e85e0b4"},
+    {file = "django_coverage_plugin-3.2.2.tar.gz", hash = "sha256:fcc507ee02f3a8f7c1d79b6eba1bafebb4a95b5055801987b715f4f88270c441"},
 ]
 
 [package.dependencies]
@@ -2109,14 +2109,14 @@ tests = ["pytest"]
 
 [[package]]
 name = "py-ocsf-models"
-version = "0.8.1"
+version = "0.9.0"
 description = "This is a Python implementation of the OCSF models. The models are used to represent the data of the OCSF Schema defined in https://schema.ocsf.io/."
 optional = false
-python-versions = "<3.15,>3.9.1"
+python-versions = "<3.15,>=3.10"
 groups = ["main"]
 files = [
-    {file = "py_ocsf_models-0.8.1-py3-none-any.whl", hash = "sha256:061eb446c4171534c09a8b37f5a9d2a2fe9f87c5db32edbd1182446bc5fd097e"},
-    {file = "py_ocsf_models-0.8.1.tar.gz", hash = "sha256:c9045237857f951e073c9f9d1f57954c90d86875b469260725292d47f7a7d73c"},
+    {file = "py_ocsf_models-0.9.0-py3-none-any.whl", hash = "sha256:4496c1fcc7cd8fabea53cfb81d000e9a4d2808769236f8432290b3a215cb7ee6"},
+    {file = "py_ocsf_models-0.9.0.tar.gz", hash = "sha256:9c41bc2f809a5e5554095931063cbb1bd04b3e3d35edb01d2c5f5bb8462aa3e2"},
 ]
 
 [package.dependencies]
@@ -3143,15 +3143,15 @@ typing_extensions = ">=4.14.0"
 
 [[package]]
 name = "types-pymysql"
-version = "1.1.0.20251220"
+version = "1.1.0.20260408"
 description = "Typing stubs for PyMySQL"
 optional = true
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 markers = "extra == \"code-quality\""
 files = [
-    {file = "types_pymysql-1.1.0.20251220-py3-none-any.whl", hash = "sha256:fa1082af7dea6c53b6caa5784241924b1296ea3a8d3bd060417352c5e10c0618"},
-    {file = "types_pymysql-1.1.0.20251220.tar.gz", hash = "sha256:ae1c3df32a777489431e2e9963880a0df48f6591e0aa2fd3a6fabd9dee6eca54"},
+    {file = "types_pymysql-1.1.0.20260408-py3-none-any.whl", hash = "sha256:da630647eaaa7a926a3907794f4067f269cd245b2c202c74aa3c6a3bd660a9db"},
+    {file = "types_pymysql-1.1.0.20260408.tar.gz", hash = "sha256:b784dc37908479e3767e2d794ab507b3674adb1c686ca3d13fc9e2960dbcb9ec"},
 ]
 
 [[package]]
@@ -3350,4 +3350,4 @@ unittests = ["coverage", "django-coverage-plugin", "django-extensions"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">= 3.12, < 3.15"
-content-hash = "b17e88482f71c523d8c16db3699e65f458cd50d8d17da90485efc3fa5f1294ca"
+content-hash = "815541472bfcd931c2451f06111bc9594327f2450fc76ae5e0d07234ccc0d9ca"
