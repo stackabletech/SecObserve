@@ -149,7 +149,7 @@ const ObservationLogComponent = () => {
                             )}
                             {observation_log.vex_remediations && (
                                 <Labeled label="VEX remediations">
-                                    <ArrayField source="vex_remediations" label="VEX remediations">
+                                    <ArrayField source="vex_remediations">
                                         <Datagrid
                                             bulkActionButtons={false}
                                             header={VEXRemediationHeader}

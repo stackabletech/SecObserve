@@ -179,7 +179,7 @@ export const RuleShowComponent = ({ rule }: any) => {
                     )}
                     {feature_vex_enabled() && rule.new_vex_remediations && (
                         <Labeled label="New VEX remediations">
-                            <ArrayField source="new_vex_remediations" label="New VEX remediations">
+                            <ArrayField source="new_vex_remediations">
                                 <Datagrid
                                     bulkActionButtons={false}
                                     header={VEXRemediationHeader}
