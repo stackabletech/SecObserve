@@ -104,6 +104,7 @@ const MarkdownEdit = ({ label, initialValue, setValue, overlayContainer, maxLeng
                 yaml: "YAML",
                 xml: "XML",
             },
+            codeMirrorExtensions: [codemirror_theme],
         }),
     ];
 
