@@ -10,6 +10,8 @@ import {
     ListsToggle,
     MDXEditor,
     Separator,
+    codeBlockPlugin,
+    codeMirrorPlugin,
     diffSourcePlugin,
     headingsPlugin,
     imagePlugin,
@@ -85,6 +87,24 @@ const MarkdownEdit = ({ label, initialValue, setValue, overlayContainer, maxLeng
             codeMirrorExtensions: [codemirror_theme],
         }),
         maxLengthPlugin(maxLength),
+        codeBlockPlugin({ defaultCodeBlockLanguage: "txt" }),
+        codeMirrorPlugin({
+            codeBlockLanguages: {
+                js: "JavaScript",
+                ts: "TypeScript",
+                python: "Python",
+                java: "Java",
+                csharp: "C#",
+                cpp: "C++",
+                go: "Go",
+                rust: "Rust",
+                php: "PHP",
+                sql: "SQL",
+                json: "JSON",
+                yaml: "YAML",
+                xml: "XML",
+            },
+        }),
     ];
 
     return (
