@@ -16,9 +16,9 @@ import {
 } from "react-admin";
 import { useWatch } from "react-hook-form";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+
 // import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
 // import rego from "react-syntax-highlighter/dist/esm/languages/prism/rego";
-import { oneDark, oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import MarkdownEdit from "../commons/custom_fields/MarkdownEdit";
 import MarkdownField from "../commons/custom_fields/MarkdownField";
@@ -33,6 +33,7 @@ import {
 import {
     feature_general_rules_need_approval_enabled,
     feature_vex_enabled,
+    getPrismTheme,
     justificationIsEnabledForStatus,
     remediationsAreEnabledForStatus,
     settings_vex_justification_style,
@@ -45,7 +46,6 @@ import {
     useStyles,
 } from "../commons/layout/themes";
 import { VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX, VEX_JUSTIFICATION_TYPE_CYCLONEDX } from "../commons/types";
-import { getResolvedSettingTheme } from "../commons/user_settings/functions";
 import {
     OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES,
     OBSERVATION_SEVERITY_CHOICES,
@@ -57,15 +57,6 @@ import product_rules from "./product_rules";
 import { RULE_TYPE_CHOICES, RULE_TYPE_FIELDS, RULE_TYPE_REGO } from "./types";
 
 // SyntaxHighlighter.registerLanguage("rego", rego);
-
-export function getRegoTheme() {
-    const theme = getResolvedSettingTheme();
-    if (theme === "dark") {
-        return oneDark;
-    } else {
-        return oneLight;
-    }
-}
 
 export const validateRuleForm = (values: any) => {
     const errors: any = {};
@@ -196,7 +187,7 @@ export const RuleShowComponent = ({ rule }: any) => {
                         <Labeled label="Rego module">
                             <SyntaxHighlighter
                                 language="rego"
-                                style={getRegoTheme()}
+                                style={getPrismTheme()}
                                 wrapLongLines
                                 customStyle={{ lineHeight: "1.43", fontSize: "0.875rem" }}
                                 codeTagProps={{
