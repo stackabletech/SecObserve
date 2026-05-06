@@ -1,6 +1,6 @@
 import Markdown from "markdown-to-jsx";
 import { marked } from "marked";
-import { Fragment, React } from "react";
+import { Fragment, HTMLAttributes } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import { useLinkStyles } from "../../commons/layout/themes";
@@ -56,7 +56,7 @@ function isMarkdownValue(value: string): boolean {
     return isMarkdown;
 }
 
-type CodeProps = React.HTMLAttributes<HTMLElement>;
+type CodeProps = HTMLAttributes<HTMLElement>;
 
 function SyntaxHighlightedCode({ className, children, ...rest }: CodeProps) {
     // markdown-to-jsx tags fenced blocks with `lang-<language>`.
