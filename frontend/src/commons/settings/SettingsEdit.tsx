@@ -193,55 +193,29 @@ const SettingsEdit = () => {
                             </Stack>
                         </Grid>
                     </Grid>
-                    <NumberInput
-                        source="risk_acceptance_expiry_days"
-                        label="Risk acceptance expiry (days)"
-                        min={0}
-                        step={1}
-                        validate={validate_0_999999}
-                        helperText="Calculate product metrics every x minutes"
-                        sx={{ marginBottom: 2 }}
-                    />
-                    <Stack direction="row" spacing={2}>
-                        <NumberInput
-                            source="background_epss_import_crontab_hour"
-                            label="EPSS import crontab (hour)"
-                            min={0}
-                            step={1}
-                            validate={validate_0_23}
-                            helperText="Hour crontab expression for EPSS import (UTC)"
-                            sx={{ marginBottom: 2 }}
-                        />
-                        <NumberInput
-                            source="background_epss_import_crontab_minute"
-                            label="EPSS import crontab (minute)"
-                            min={0}
-                            step={1}
-                            validate={validate_0_59}
-                            helperText="Minute crontab expression for EPSS import"
-                            sx={{ marginBottom: 2 }}
-                        />
-                    </Stack>
-
-                    <Divider flexItem sx={{ marginTop: 2, marginBottom: 2 }} />
-                    <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                        Features
-                    </Typography>
-                    <BooleanInput
-                        source="feature_vex"
-                        label="VEX"
-                        helperText="Generate VEX documents in OpenVEX and CSAF format"
-                    />
-                    <BooleanInput
-                        source="feature_disable_user_login"
-                        label="Disable user login"
-                        helperText="Do not show user and password fields if OIDC login is enabled"
-                    />
-                    <BooleanInput
-                        source="feature_general_rules_need_approval"
-                        label="General rules need approval"
-                        sx={{ marginBottom: 2 }}
-                    />
+                    <Grid container spacing={2} width={"100%"}>
+                        <Grid size={3}>
+                            <Stack spacing={2}>
+                                <BooleanInput
+                                    source="feature_cross_scanner_deduplication"
+                                    label="Enable cross scanner deduplication"
+                                />
+                            </Stack>
+                        </Grid>
+                        <Grid size={3}>
+                            <Stack spacing={2}>
+                                <NumberInput
+                                    source="risk_acceptance_expiry_days"
+                                    label="Risk acceptance expiry (days)"
+                                    min={0}
+                                    step={1}
+                                    validate={validate_0_999999}
+                                    helperText="Days before risk acceptance expires, 0 means no expiry"
+                                    sx={{ marginBottom: 2 }}
+                                />
+                            </Stack>
+                        </Grid>
+                    </Grid>
 
                     <Divider flexItem sx={{ marginTop: 2, marginBottom: 2 }} />
                     <Typography variant="h6" sx={{ marginBottom: 2 }}>

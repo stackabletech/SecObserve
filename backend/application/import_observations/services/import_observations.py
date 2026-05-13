@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Optional, Tuple
@@ -69,6 +70,8 @@ from application.licenses.services.spdx_license_cache import SPDXLicenseCache
 from application.licenses.types import NO_LICENSE_INFORMATION
 from application.rules.services.rule_engine import Rule_Engine
 from application.vex.services.vex_engine import VEX_Engine
+
+logger = logging.getLogger("secobserve.import_observations")
 
 SBOM_BULK_BATCH_SIZE = 100
 
@@ -311,35 +314,12 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
                 observations_this_run.add(observation_before.identity_hash)
                 vulnerability_check_observations.add(observation_before)
             else:
-                observation_found = (
-                    Observation.objects.filter(
-                        product=imported_observation.product,
-                        title=imported_observation.title,
-                        branch=import_parameters.branch,
-                        origin_component_name=imported_observation.origin_component_name,
-                        origin_component_version=imported_observation.origin_component_version,
-                        origin_cloud_qualified_resource=imported_observation.origin_cloud_qualified_resource,
-                        origin_kubernetes_qualified_resource=imported_observation.origin_kubernetes_qualified_resource,
-                    )
-                    .exclude(scanner=imported_observation.scanner)
-                    .exists()
-                )
-
-                if observation_found:
-                    print(
-                        "Observation already found: "
-                        f"{imported_observation.title} - {imported_observation.origin_component_name} - "
-                        f"{imported_observation.origin_component_version} - {imported_observation.scanner}"
-                        f"{imported_observation.origin_docker_image_name} - "
-                        f"{imported_observation.origin_docker_image_tag} - "
-                        f"{imported_observation.origin_cloud_qualified_resource} - "
-                        f"{imported_observation.origin_kubernetes_qualified_resource}"
-                    )
-                else:
+                if not _deduplicate_cross_scanner(imported_observation, settings):
                     _process_new_observation(imported_observation, settings)
 
                     rule_engine.apply_rules_for_observation(imported_observation)
                     vex_engine.apply_vex_statements_for_observation(imported_observation)
+
                     if imported_observation.current_status in Status.STATUS_ACTIVE:
                         observations_new += 1
 
@@ -407,6 +387,7 @@ def process_license_components(  # pylint: disable=too-many-statements disable=t
             effective_license_expression_before = existing_component.effective_license_expression
             effective_multiple_licenses_before = existing_component.effective_multiple_licenses
             evaluation_result_before = existing_component.evaluation_result
+            existing_component.component_type = unsaved_component.component_type
             existing_component.component_purl = unsaved_component.component_purl
             existing_component.component_purl_type = unsaved_component.component_purl_type
             existing_component.component_cpe = unsaved_component.component_cpe
@@ -482,6 +463,7 @@ def process_license_components(  # pylint: disable=too-many-statements disable=t
     License_Component.objects.bulk_update(
         components_updated,
         [
+            "component_type",
             "component_purl",
             "component_purl_type",
             "component_cpe",
@@ -603,6 +585,7 @@ def _process_current_observation(
     observation_before.scanner = imported_observation.scanner
     observation_before.origin_component_location = imported_observation.origin_component_location
 
+    observation_before.origin_component_type = imported_observation.origin_component_type
     observation_before.origin_component_dependencies = imported_observation.origin_component_dependencies
 
     previous_severity = observation_before.current_severity
@@ -726,6 +709,36 @@ def _process_new_observation(imported_observation: Observation, settings: Settin
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=imported_observation.risk_acceptance_expiry_date,
     )
+
+
+def _deduplicate_cross_scanner(observation: Observation, settings: Settings) -> bool:
+    if not settings.feature_cross_scanner_deduplication:
+        return False
+
+    duplicate_found = (
+        Observation.objects.filter(
+            product=observation.product,
+            title=observation.title,
+            branch=observation.branch,
+            origin_service=observation.origin_service,
+            origin_component_name_version=observation.origin_component_name_version,
+            origin_docker_image_name_tag=observation.origin_docker_image_name_tag,
+            origin_endpoint_url=observation.origin_endpoint_url,
+            origin_source_file=observation.origin_source_file,
+            origin_source_line_start=observation.origin_source_line_start,
+            origin_source_line_end=observation.origin_source_line_end,
+            origin_cloud_qualified_resource=observation.origin_cloud_qualified_resource,
+            origin_kubernetes_qualified_resource=observation.origin_kubernetes_qualified_resource,
+        )
+        .exclude(scanner=observation.scanner)
+        .exists()
+    )
+
+    if duplicate_found:
+        logger.info("Cross scanner deduplication / Observation already saved: %s", observation.title)
+        return True
+
+    return False
 
 
 def _resolve_unimported_observations(

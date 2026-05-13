@@ -74,7 +74,7 @@ function listFilters(product: Product) {
         filters.push(
             <AutocompleteInput
                 source="origin_component_purl_type"
-                label="Component type"
+                label="Ecosystem"
                 choices={PURL_TYPE_CHOICES}
                 alwaysOn
             />
@@ -135,8 +135,7 @@ const ObservationsReviewList = ({ product }: ObservationsReviewListProps) => {
         setListIdentifier(IDENTIFIER_OBSERVATION_REVIEW_LIST);
     }
 
-    let filter = {};
-    filter = { current_status: OBSERVATION_STATUS_IN_REVIEW };
+    let filter: Record<string, any> = { current_status: OBSERVATION_STATUS_IN_REVIEW };
     let filterDefaultValues = {};
     let storeKey = "observations.review";
     if (product) {

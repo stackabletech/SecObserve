@@ -531,6 +531,7 @@ class ComponentFilter(FilterSet):
         fields=(
             ("id", "id"),
             (("product__name", "branch__name", "component_name_version"), "product_name"),
+            (("component_type", "product__name", "branch__name", "component_name_version"), "component_type"),
             (("product__product_group__name", "branch__name", "component_name_version"), "product_group_name"),
             (("branch__name", "product__name", "component_name_version"), "branch_name"),
             (("component_name_version", "product__name", "branch__name"), "component_name_version_type"),
@@ -548,6 +549,7 @@ class ComponentFilter(FilterSet):
             "product",
             "branch",
             "component_name_version",
+            "component_type",
             "component_purl_type",
             "origin_service",
             "has_observations",
