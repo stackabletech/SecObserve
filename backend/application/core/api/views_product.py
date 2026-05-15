@@ -126,6 +126,7 @@ class ProductGroupViewSet(ModelViewSet):
             with_metrics_annotations=settings.observation_count_from_metrics,
         )
 
+
 class ProductGroupNameViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = ProductNameSerializer
     filterset_class = ProductGroupFilter

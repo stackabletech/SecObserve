@@ -813,7 +813,8 @@ def _get_github_issue_id(observation: Observation) -> Optional[str]:
             "title": observation.title,
             "body": (
                 "[Show observations in SecObserve](https://secobserve.stackable.tech/#/observations"
-                "?displayedFilters=%7B%7D&filter=%7B%22current_status%22%3A%5B%22Open%22%2C%22In%20review%22%5D%2C%22title"
+                "?displayedFilters=%7B%7D&filter=%7B%22current_status%22%3A%5B%22Open%22%2C%22In%20review%22%5D%2C"
+                "%22title"
                 f"%22%3A%22{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
                 "\n\n"
                 "[Review assessments in SecObserve](https://secobserve.stackable.tech/#/observation_logs"
