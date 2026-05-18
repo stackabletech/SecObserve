@@ -70,7 +70,8 @@ function listFilters() {
             choices={PURL_TYPE_CHOICES}
             alwaysOn
         />,
-        <NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />
+        <NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />,
+        <NullableBooleanInput source="has_pending_assessment" label="Has pending assessment" alwaysOn />
     );
     return filters;
 }

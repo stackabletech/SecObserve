@@ -133,6 +133,7 @@ function listFilters(product: Product) {
         }
         filters.push(<NullableBooleanInput source="fix_available" label="Fix available" alwaysOn />);
     }
+    filters.push(<NullableBooleanInput source="has_pending_assessment" label="Has pending assessment" alwaysOn />);
     return filters;
 }
 
