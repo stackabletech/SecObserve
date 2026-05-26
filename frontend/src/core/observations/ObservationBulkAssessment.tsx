@@ -74,7 +74,7 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
             priority: data.priority,
             comment: local_comment,
             vex_justification: justificationEnabled ? data.vex_justification : "",
-            vex_remediations: remediationsEnabled ? data.vex_remediations : "",
+            vex_remediations: remediationsEnabled ? data.vex_remediations : null,
             observations: selectedIds,
             risk_acceptance_expiry_date: data.risk_acceptance_expiry_date,
         };
@@ -132,18 +132,6 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                             onChange={(e) => setStatus(e)}
                         />
                         <NumberInput source="priority" step={1} min={1} max={99} sx={{ width: "7em" }} />
-                        {remediationsEnabled && (
-                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
-                                <SimpleFormIterator disableReordering inline>
-                                    <AutocompleteInputMedium
-                                        source="category"
-                                        label=""
-                                        choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
-                                    />
-                                    <TextInputWide source="text" multiline={true} minRows={3} />
-                                </SimpleFormIterator>
-                            </ArrayInput>
-                        )}
                         {justificationEnabled &&
                             settings_vex_justification_style() === VEX_JUSTIFICATION_TYPE_CSAF_OPENVEX && (
                                 <AutocompleteInputWide
@@ -160,6 +148,18 @@ const ObservationBulkAssessment = ({ product, storeKey }: ObservationBulkAssessm
                                     choices={OBSERVATION_CYCLONEDX_VEX_JUSTIFICATION_CHOICES}
                                 />
                             )}
+                        {remediationsEnabled && (
+                            <ArrayInput source="vex_remediations" defaultValue={""} label="VEX remediations">
+                                <SimpleFormIterator disableReordering inline>
+                                    <AutocompleteInputMedium
+                                        source="category"
+                                        label=""
+                                        choices={OBSERVATION_VEX_REMEDIATION_CATEGORY_CHOICES}
+                                    />
+                                    <TextInputWide source="text" multiline={true} minRows={3} />
+                                </SimpleFormIterator>
+                            </ArrayInput>
+                        )}
                         <FormDataConsumer>
                             {({ formData }) =>
                                 formData.status &&

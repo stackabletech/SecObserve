@@ -76,6 +76,7 @@ const VEXRemediationHeader = () => (
         </TableRow>
     </TableHead>
 );
+
 const ObservationLogComponent = () => {
     return (
         <WithRecord
@@ -147,7 +148,7 @@ const ObservationLogComponent = () => {
                                     <TextField source="vex_justification" />
                                 </Labeled>
                             )}
-                            {observation_log.vex_remediations && (
+                            {observation_log.vex_remediations && observation_log.vex_remediations.length > 0 && (
                                 <Labeled label="VEX remediations">
                                     <ArrayField source="vex_remediations">
                                         <Datagrid

@@ -171,9 +171,13 @@ def get_current_vex_justification(observation: Observation) -> str:
     return ""
 
 
-def get_current_vex_remediations(observation: Observation) -> str:
+def get_current_vex_remediations(observation: Observation) -> Optional[str]:
     if observation.assessment_vex_remediations:
         return observation.assessment_vex_remediations
+
+    if observation.rule_rego_vex_remediations:
+        return observation.rule_rego_vex_remediations
+
 
     if observation.rule_vex_remediations:
         return observation.rule_vex_remediations
@@ -181,7 +185,7 @@ def get_current_vex_remediations(observation: Observation) -> str:
     if observation.vex_vex_remediations:
         return observation.vex_vex_remediations
 
-    return ""
+    return None
 
 
 def normalize_observation_fields(observation: Observation) -> None:
@@ -195,7 +199,7 @@ def normalize_observation_fields(observation: Observation) -> None:
     _normalize_status(observation)
     observation.current_priority = get_current_priority(observation)
     _normalize_vex_justification(observation)
-    normalize_vex_remediations(observation)
+    _normalize_vex_remediations(observation)
 
     _normalize_description(observation)
     _normalize_vulnerability_ids(observation)
@@ -510,16 +514,7 @@ def _normalize_vex_justification(observation: Observation) -> None:
     observation.current_vex_justification = get_current_vex_justification(observation)
 
 
-def normalize_vex_remediations(observation: Observation) -> None:
-    if observation.current_vex_remediations is None:
-        observation.current_vex_remediations = ""
-    if observation.assessment_vex_remediations is None:
-        observation.assessment_vex_remediations = ""
-    if observation.rule_vex_remediations is None:
-        observation.rule_vex_remediations = ""
-    if observation.vex_vex_remediations is None:
-        observation.vex_vex_remediations = ""
-
+def _normalize_vex_remediations(observation: Observation) -> None:
     observation.current_vex_remediations = get_current_vex_remediations(observation)
 
 

@@ -6,6 +6,7 @@ from typing import Any, Optional, Tuple
 
 import requests
 from django.core.files.base import File
+from django.db import connection
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
@@ -345,7 +346,7 @@ def _process_data(import_parameters: ImportParameters, settings: Settings) -> Tu
     return observations_new, observations_updated, len(observations_resolved)
 
 
-def process_license_components(  # pylint: disable=too-many-statements disable=too-many-locals
+def process_license_components(  # pylint: disable=too-many-statements disable=too-many-locals disable=too-many-branches
     license_components: list[License_Component],
     scanner: str,
     vulnerability_check: Vulnerability_Check,
@@ -498,8 +499,29 @@ def process_license_components(  # pylint: disable=too-many-statements disable=t
     )
 
     inserted_components = License_Component.objects.bulk_create(components_new, SBOM_BULK_BATCH_SIZE)
-    for inserted_component in inserted_components:
-        license_component_evidences += _process_license_evidences(inserted_component, inserted_component)
+
+    if connection.vendor == "mysql":
+        # MySQL doesn't support RETURNING, so bulk_create returns objects without PKs.
+        # Re-fetch by identity_hash to get real PKs before creating evidences.
+        components_needing_evidences = [c for c in components_new if c.unsaved_evidences]
+        if components_needing_evidences:
+            inserted_hashes = [c.identity_hash for c in components_needing_evidences]
+            inserted_by_hash = {
+                c.identity_hash: c
+                for c in License_Component.objects.filter(
+                    identity_hash__in=inserted_hashes,
+                    product=vulnerability_check.product,
+                    branch=vulnerability_check.branch,
+                    upload_filename=vulnerability_check.filename,
+                )
+            }
+            for component in components_needing_evidences:
+                db_component = inserted_by_hash.get(component.identity_hash)
+                if db_component:
+                    license_component_evidences += _process_license_evidences(component, db_component)
+    else:
+        for inserted_component in inserted_components:
+            license_component_evidences += _process_license_evidences(inserted_component, inserted_component)
 
     License_Component_Evidence.objects.bulk_create(license_component_evidences, SBOM_BULK_BATCH_SIZE)
 
@@ -652,7 +674,7 @@ def _process_current_observation(
             status=status,
             comment="Updated by parser",
             vex_justification="",
-            vex_remediations="",
+            vex_remediations=None,
             assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
             risk_acceptance_expiry_date=observation_before.risk_acceptance_expiry_date,
         )
@@ -705,7 +727,7 @@ def _process_new_observation(imported_observation: Observation, settings: Settin
         status=imported_observation.current_status,
         comment="Set by parser",
         vex_justification="",
-        vex_remediations="",
+        vex_remediations=None,
         assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
         risk_acceptance_expiry_date=imported_observation.risk_acceptance_expiry_date,
     )
@@ -772,7 +794,7 @@ def _resolve_unimported_observations(
                 status=observation.current_status,
                 comment="Observation not found in latest scan",
                 vex_justification="",
-                vex_remediations="",
+                vex_remediations=None,
                 assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
                 risk_acceptance_expiry_date=None,
             )

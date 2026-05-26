@@ -16,11 +16,11 @@ from django.db.models import (
     ForeignKey,
     Index,
     IntegerField,
+    JSONField,
     ManyToManyField,
     Model,
     TextField,
 )
-from django.db.models.fields.json import JSONField
 from django.utils import timezone
 
 from application.access_control.models import Authorization_Group, User
@@ -400,11 +400,15 @@ class Observation(Model):
         max_length=64, choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES, blank=True
     )
     duplicate_of = ForeignKey("self", related_name="duplicates", on_delete=PROTECT, null=True)
+
     current_vex_remediations = JSONField(blank=True, null=True)
-    rule_vex_remediations = JSONField(blank=True, null=True)
     vex_vex_remediations = JSONField(blank=True, null=True)
+    rule_vex_remediations = JSONField(blank=True, null=True)
+    rule_rego_vex_remediations = JSONField(blank=True, null=True)
     assessment_vex_remediations = JSONField(blank=True, null=True)
+
     patched_in_versions = CharField(max_length=255, blank=True)
+
     vex_statement = ForeignKey(
         "vex.VEX_Statement",
         related_name="vex_statements",

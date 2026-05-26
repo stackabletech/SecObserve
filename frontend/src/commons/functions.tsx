@@ -366,6 +366,7 @@ export const remediationsAreEnabledForStatus = (status: string) => {
     ].includes(status);
     return vex_enabled && remediations_recommended_for_status;
 };
+
 export const is_superuser = () => {
     const user = localStorage.getItem("user");
     return user && JSON.parse(user).is_superuser;
