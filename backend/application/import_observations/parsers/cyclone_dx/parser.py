@@ -117,7 +117,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             payload = base64.b64decode(cosign_output["payload"]).decode("utf-8")
             sbom_data = json.loads(payload)["predicate"]
 
-        self.components = self._get_components(sbom_data or data)
+        self.components = self._get_components(data, sbom_data)
         self.dependencies = self._get_dependencies(sbom_data or data)
         observations = self._create_observations(data)
 
@@ -163,7 +163,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         evidence.append(dumps(component.json))
         license_component.unsaved_evidences.append(evidence)
 
-    def _get_components(self, data: dict) -> dict[str, Component]:
+    def _get_components(self, data: dict, sbom_data: Optional[dict] = None) -> dict[str, Component]:
         components_dict = {}
         components_list: list[Component] = []
 
@@ -174,6 +174,15 @@ class CycloneDXParser(BaseParser, BaseFileParser):
         for sbom_component in sbom_components:
             components = self._get_sbom_component_with_subs(sbom_component)
             components_list.extend(components)
+
+        # The scan report (e.g. Grype) and the attested SBOM (Trivy) use different bom-refs for the
+        # same package, so the vulnerabilities reference refs that only exist in the scan report.
+        # Merge both component sets so those refs resolve, while still keeping the richer SBOM
+        # components for dependency relations and license/location enrichment.
+        if sbom_data:
+            components_list.extend(self._get_root_component_with_subs(sbom_data))
+            for sbom_component in sbom_data.get("components", []):
+                components_list.extend(self._get_sbom_component_with_subs(sbom_component))
 
         for component in components_list:
             components_dict[component.bom_ref] = component

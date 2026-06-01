@@ -1,5 +1,8 @@
+import base64
+import json
 from os import path
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from application.core.models import Product
 from application.core.types import Severity
@@ -8,6 +11,41 @@ from application.import_observations.services.parser_detector import detect_pars
 
 
 class TestCycloneDXParser(TestCase):
+    def test_grype_observations_kept_when_sbom_attestation_resolves(self):
+        # The scan report (Grype) and the attested SBOM (Trivy) use different bom-refs for the same
+        # package. When the cosign attestation lookup succeeds, the SBOM components must be *merged*
+        # with the scan components, not replace them. Otherwise the vulnerabilities reference refs
+        # that only exist in the scan report, no component is found, and every observation is
+        # silently dropped.
+        attested_sbom = {
+            "bomFormat": "CycloneDX",
+            "metadata": {"component": {"bom-ref": "sbom-only-ref", "type": "container", "name": "x"}},
+            "components": [
+                {
+                    "bom-ref": "sbom-only-ref",
+                    "type": "library",
+                    "name": "sbom-only-package",
+                    "version": "1.0.0",
+                    "purl": "pkg:generic/sbom-only-package@1.0.0",
+                }
+            ],
+            "dependencies": [],
+        }
+        payload = base64.b64encode(json.dumps({"predicate": attested_sbom}).encode()).decode()
+        cosign_result = MagicMock(returncode=0, stdout=json.dumps({"payload": payload}).encode())
+
+        with open(path.dirname(__file__) + "/files/grype.json") as testfile:
+            parser, parser_instance, data = detect_parser(testfile)
+
+            with patch(
+                "application.import_observations.parsers.cyclone_dx.parser.subprocess.run",
+                return_value=cosign_result,
+            ):
+                observations, scanner = parser_instance.get_observations(data, Product(name="product"), None)
+
+            self.assertEqual("grype / 0.59.1", scanner)
+            self.assertEqual(8, len(observations))
+
     def test_grype_no_bom_link(self):
         with open(path.dirname(__file__) + "/files/grype.json") as testfile:
             parser, parser_instance, data = detect_parser(testfile)
