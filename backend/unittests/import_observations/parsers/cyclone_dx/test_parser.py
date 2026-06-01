@@ -12,7 +12,7 @@ from application.import_observations.services.parser_detector import detect_pars
 
 class TestCycloneDXParser(TestCase):
     def test_grype_observations_kept_when_sbom_attestation_resolves(self):
-        # The scan report (Grype) and the attested SBOM (Trivy) use different bom-refs for the same
+        # The scan report (Grype) and the attested SBOM (Syft) use different bom-refs for the same
         # package. When the cosign attestation lookup succeeds, the SBOM components must be *merged*
         # with the scan components, not replace them. Otherwise the vulnerabilities reference refs
         # that only exist in the scan report, no component is found, and every observation is
@@ -45,6 +45,60 @@ class TestCycloneDXParser(TestCase):
 
             self.assertEqual("grype / 0.59.1", scanner)
             self.assertEqual(8, len(observations))
+
+    def test_grype_dependencies_resolved_from_scan_graph_when_sbom_attestation_resolves(self):
+        # The dependency graph must also be merged from both the scan report (Grype) and the
+        # attested SBOM (Syft). Both key it by their own bom-refs, so a component from the scan
+        # report only resolves its dependencies against the scan report's graph. Building it from
+        # the SBOM alone leaves the dependency tree empty for every scan-report component.
+        data = {
+            "bomFormat": "CycloneDX",
+            "serialNumber": "urn:uuid:11111111-1111-1111-1111-111111111111",
+            "version": 1,
+            "metadata": {
+                "component": {"bom-ref": "root", "type": "container", "name": "example/image", "version": "dev"},
+                "tools": {"components": [{"name": "grype", "version": "0.112.0"}]},
+            },
+            "components": [
+                {
+                    "bom-ref": "scan-ref-a",
+                    "type": "library",
+                    "name": "package-a",
+                    "version": "1.0.0",
+                    "purl": "pkg:generic/package-a@1.0.0",
+                },
+                {
+                    "bom-ref": "scan-ref-b",
+                    "type": "library",
+                    "name": "package-b",
+                    "version": "2.0.0",
+                    "purl": "pkg:generic/package-b@2.0.0",
+                },
+            ],
+            "dependencies": [{"ref": "scan-ref-a", "dependsOn": ["scan-ref-b"]}],
+            "vulnerabilities": [
+                {"id": "CVE-2099-0001", "affects": [{"ref": "scan-ref-b"}], "ratings": [{"severity": "high"}]}
+            ],
+        }
+        attested_sbom = {
+            "bomFormat": "CycloneDX",
+            "metadata": {"component": {"bom-ref": "sbom-only-ref", "type": "container", "name": "x"}},
+            "components": [{"bom-ref": "sbom-only-ref", "type": "library", "name": "y", "version": "1.0"}],
+            "dependencies": [],
+        }
+        payload = base64.b64encode(json.dumps({"predicate": attested_sbom}).encode()).decode()
+        cosign_result = MagicMock(returncode=0, stdout=json.dumps({"payload": payload}).encode())
+
+        parser_instance = CycloneDXParser()
+        with patch(
+            "application.import_observations.parsers.cyclone_dx.parser.subprocess.run",
+            return_value=cosign_result,
+        ):
+            observations, _ = parser_instance.get_observations(data, Product(name="product"), None)
+
+        self.assertEqual(1, len(observations))
+        self.assertEqual("CVE-2099-0001", observations[0].vulnerability_id)
+        self.assertEqual("package-a:1.0.0 --> package-b:2.0.0", observations[0].origin_component_dependencies)
 
     def test_grype_no_bom_link(self):
         with open(path.dirname(__file__) + "/files/grype.json") as testfile:

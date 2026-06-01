@@ -118,7 +118,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             sbom_data = json.loads(payload)["predicate"]
 
         self.components = self._get_components(data, sbom_data)
-        self.dependencies = self._get_dependencies(sbom_data or data)
+        self.dependencies = self._get_dependencies(data, sbom_data)
         observations = self._create_observations(data)
 
         return observations, self.metadata.scanner
@@ -175,7 +175,7 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             components = self._get_sbom_component_with_subs(sbom_component)
             components_list.extend(components)
 
-        # The scan report (e.g. Grype) and the attested SBOM (Trivy) use different bom-refs for the
+        # The scan report (e.g. Grype) and the attested SBOM (Syft) use different bom-refs for the
         # same package, so the vulnerabilities reference refs that only exist in the scan report.
         # Merge both component sets so those refs resolve, while still keeping the richer SBOM
         # components for dependency relations and license/location enrichment.
@@ -505,15 +505,23 @@ class CycloneDXParser(BaseParser, BaseFileParser):
 
         return ""
 
-    def _get_dependencies(self, data: dict) -> dict[str, list[str]]:
+    def _get_dependencies(self, data: dict, sbom_data: Optional[dict] = None) -> dict[str, list[str]]:
         dependency_dict: dict[str, list[str]] = {}
 
-        for dependency in data.get("dependencies", {}):
-            for dependency_key in dependency.get("dependsOn", []):
-                if dependency_key not in dependency_dict:
-                    dependency_dict[dependency_key] = [dependency.get("ref")]
-                else:
-                    dependency_dict[dependency_key].append(dependency.get("ref"))
+        # Merge the dependency graphs of both the scan report (e.g. Grype) and the attested SBOM
+        # (Syft). They key the graph by their own bom-refs, so a component originating from the
+        # scan report only resolves its dependencies against the scan report's graph.
+        sources = [data]
+        if sbom_data:
+            sources.append(sbom_data)
+
+        for source in sources:
+            for dependency in source.get("dependencies", {}):
+                for dependency_key in dependency.get("dependsOn", []):
+                    if dependency_key not in dependency_dict:
+                        dependency_dict[dependency_key] = [dependency.get("ref")]
+                    else:
+                        dependency_dict[dependency_key].append(dependency.get("ref"))
 
         return dependency_dict
 
