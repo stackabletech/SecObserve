@@ -836,7 +836,7 @@ def _get_initial_status(product: Product) -> str:
 
 
 def _get_github_issue_id(observation: Observation) -> Optional[str]:
-    if not observation.product.product_group or not observation.product.product_group.startswith("SDP"):
+    if not observation.product.product_group or not observation.product.product_group.name.startswith("SDP"):
         return None
 
     if not observation.vulnerability_id:
