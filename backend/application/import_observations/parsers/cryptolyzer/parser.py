@@ -85,14 +85,13 @@ RECOMMENDED_ELLIPTIC_CURVES = [
     # "brainpoolP256r1",
     # "brainpoolP384r1",
     # "brainpoolP512r1",
-    "secp256r1",
-    "prime256v1",  # equivalent to secp256r1 according to RFC 4492
-    "secp384r1",
-    "secp521r1",
+    "SECP256R1",
+    "PRIME256V1",  # equivalent to secp256r1 according to RFC 4492
+    "SECP384R1",
+    "SECP521R1",
     # "ffdhe2048",
     # "ffdhe3072",
     # "ffdhe4096",
-    
     "X25519_ML_KEM_768",
     "X25519",
 
@@ -251,7 +250,7 @@ class CryptoLyzerParser(BaseParser, BaseFileParser):
         unrecommended_curves = []
         inner_curves = curves.get("curves", {})
         for inner_curve in inner_curves:
-            if inner_curve.lower() not in RECOMMENDED_ELLIPTIC_CURVES:
+            if inner_curve.upper() not in RECOMMENDED_ELLIPTIC_CURVES:
                 unrecommended_curves.append(inner_curve)
 
         if not unrecommended_curves:
