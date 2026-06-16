@@ -24,10 +24,10 @@ class BetterleaksParser(BaseParser, BaseFileParser):
         return Parser_Type.TYPE_SECRETS
 
     def check_format(self, data: Any) -> bool:
-        if not data or not isinstance(data, list) or len(data) == 0:
+        if data is None or not isinstance(data, list):
             return False
 
-        if data[0].get("RuleID") and data[0].get("Match") and data[0].get("Secret"):
+        if len(data) == 0 or (data[0].get("RuleID") and data[0].get("Match") and data[0].get("Secret")):
             return True
 
         return False
