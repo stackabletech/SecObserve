@@ -171,7 +171,7 @@ def scan_license_components(
         kubernetes_namespace="",
         kubernetes_resource_type="",
         kubernetes_resource_name="",
-imported_observations=observations,
+        imported_observations=observations,
     )
     numbers: Tuple[int, int, int] = _process_data(import_parameters, Settings.load())
 

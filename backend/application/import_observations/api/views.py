@@ -317,7 +317,7 @@ def _get_service_name(product: Product, request_serializer: Serializer) -> str:
     return service_name
 
 
-def _file_upload_observations(
+def _file_upload_observations(  # pylint: disable=too-many-locals
     request_serializer: Serializer, product: Product, branch: Optional[Branch], service_name: str
 ) -> dict[str, int]:
     file = request_serializer.validated_data.get("file")

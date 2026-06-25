@@ -78,7 +78,7 @@ SBOM_BULK_BATCH_SIZE = 100
 
 
 @dataclass
-class ImportParameters:
+class ImportParameters:  # pylint: disable=too-many-instance-attributes
     product: Product
     branch: Optional[Branch]
     service: Optional[Service]
@@ -95,7 +95,7 @@ class ImportParameters:
 
 
 @dataclass
-class FileUploadParameters:
+class FileUploadParameters:  # pylint: disable=too-many-instance-attributes
     product: Product
     branch: Optional[Branch]
     file: File

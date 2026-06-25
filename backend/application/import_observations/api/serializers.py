@@ -69,6 +69,8 @@ class ApiImportObservationsByIdRequestSerializer(ObservationOriginFieldsMixin):
     branch = IntegerField(validators=[MinValueValidator(0)], required=False)
     service = CharField(max_length=255, required=False, allow_blank=True)
     service_id = IntegerField(validators=[MinValueValidator(0)], required=False)
+    docker_image_name_tag = CharField(max_length=513, required=False, allow_blank=True)
+    endpoint_url = CharField(max_length=2048, required=False, allow_blank=True)
 
 
 class ApiImportObservationsByNameRequestSerializer(ObservationOriginFieldsMixin):
