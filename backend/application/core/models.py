@@ -83,6 +83,17 @@ class Product(Model, DirtyFieldsMixin):  # pylint: disable=too-many-instance-att
         blank=True,
     )
 
+    assessment_approvers: ManyToManyField = ManyToManyField(
+        User,
+        related_name="assessment_approver_for_products",
+        blank=True,
+    )
+    assessment_approver_authorization_groups: ManyToManyField = ManyToManyField(
+        Authorization_Group,
+        related_name="assessment_approver_group_for_products",
+        blank=True,
+    )
+
     apply_general_rules = BooleanField(default=True)
 
     notification_ms_teams_webhook = TextField(max_length=2048, blank=True)
@@ -137,6 +148,8 @@ class Product(Model, DirtyFieldsMixin):  # pylint: disable=too-many-instance-att
     )
     osv_linux_release = CharField(max_length=255, blank=True)
     automatic_osv_scanning_enabled = BooleanField(default=False)
+
+    propagate_branches = JSONField(blank=True, null=True)
 
     has_cloud_resource = BooleanField(default=False)
     has_component = BooleanField(default=False)
@@ -503,6 +516,8 @@ class Observation_Log(Model):
         on_delete=SET_NULL,
     )
     risk_acceptance_expiry_date = DateField(null=True)
+
+    propagated_from = ForeignKey("core.Observation_Log", blank=True, null=True, on_delete=SET_NULL)
 
     class Meta:
         indexes = [
