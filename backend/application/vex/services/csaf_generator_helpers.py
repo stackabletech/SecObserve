@@ -41,7 +41,7 @@ def map_status(secobserve_status: str) -> Optional[str]:
         return CSAF_Status.CSAF_STATUS_NOT_AFFECTED
 
     if secobserve_status == Status.STATUS_IN_REVIEW:
-        return CSAF_Status.CSAF_STATUS_UNDER_INVESTIGATION
+        return None # CSAF_Status.CSAF_STATUS_UNDER_INVESTIGATION
 
     if secobserve_status == Status.STATUS_DUPLICATE:
         return None
