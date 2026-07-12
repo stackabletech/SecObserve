@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("core", "0092_product_propagate_branches_new_assessment_and_more"),
-        ("rules", "0021_rename_approval_remark_rule_rejection_remark"),
+        ("rules", "0022_rename_approval_remark_rule_rejection_remark"),
     ]
 
     operations = [
