@@ -127,7 +127,7 @@ class CSAFProductTree:
 class CSAFNote:
     category: str
     text: str
-    title: str
+    title: Optional[str] = None
 
 
 @dataclass(frozen=True)

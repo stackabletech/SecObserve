@@ -150,6 +150,8 @@ class Product(Model, DirtyFieldsMixin):  # pylint: disable=too-many-instance-att
     automatic_osv_scanning_enabled = BooleanField(default=False)
 
     propagate_branches = JSONField(blank=True, null=True)
+    propagate_branches_new_assessment = BooleanField(default=True)
+    propagate_branches_new_observation = BooleanField(default=True)
 
     has_cloud_resource = BooleanField(default=False)
     has_component = BooleanField(default=False)
@@ -504,6 +506,20 @@ class Observation_Log(Model):
     product_rule = ForeignKey(
         "rules.Rule",
         related_name="observation_log_product_rules",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    general_rule_rego = ForeignKey(
+        "rules.Rule",
+        related_name="observation_log_general_rules_rego",
+        blank=True,
+        null=True,
+        on_delete=SET_NULL,
+    )
+    product_rule_rego = ForeignKey(
+        "rules.Rule",
+        related_name="observation_log_product_rules_rego",
         blank=True,
         null=True,
         on_delete=SET_NULL,
