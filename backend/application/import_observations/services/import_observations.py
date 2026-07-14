@@ -1,10 +1,8 @@
-import json
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple
+from typing import Optional, Tuple
 
-import requests
 from django.core.files.base import File
 from django.db import connection
 from django.utils import timezone
@@ -724,9 +722,6 @@ def _process_new_observation(imported_observation: Observation, settings: Settin
         else None
     )
 
-    issue_id = _get_github_issue_id(imported_observation)
-    if issue_id:
-        imported_observation.issue_tracker_issue_id = issue_id
     # Observation has not been imported before, so it is a new one
     apply_epss(imported_observation)
     apply_exploit_information(imported_observation, settings)
@@ -842,63 +837,3 @@ def _get_initial_status(product: Product) -> str:
     if _get_new_observations_in_review(product):
         return Status.STATUS_IN_REVIEW
     return Status.STATUS_OPEN
-
-
-def _get_github_issue_id(observation: Observation) -> Optional[str]:
-    if not observation.product.product_group or not observation.product.product_group.name.startswith("SDP"):
-        return None
-
-    if not observation.vulnerability_id:
-        return None
-
-    github_pat = os.getenv("GITHUB_ISSUES_PAT")
-    if not github_pat:
-        return None
-
-    # Find observation with the same title and "issue_tracker_issue_id" set
-    issue_number = (
-        Observation.objects.filter(title=observation.title, issue_tracker_issue_id__isnull=False)
-        .values_list("issue_tracker_issue_id", flat=True)
-        .first()
-    )
-
-    if not issue_number:
-        print(f"Creating new issue for vulnerability_id: {observation.title}")
-        data: dict[str, Any] = {
-            "title": observation.title,
-            "body": (
-                "[Show observations in SecObserve](https://secobserve.stackable.tech/#/observations"
-                "?displayedFilters=%7B%7D&filter=%7B%22current_status%22%3A%5B%22Open%22%2C%22In%20review%22%5D%2C"
-                "%22title"
-                f"%22%3A%22{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
-                "\n\n"
-                "[Review assessments in SecObserve](https://secobserve.stackable.tech/#/observation_logs"
-                "/needs_approval?displayedFilters=%7B%7D&filter=%7B%22observation_title%22%3A%22"
-                f"{observation.title}%22%7D&order=ASC&page=1&perPage=500&sort=created)"
-                "\n\n"
-                "[Show completed assessments in SecObserve](https://secobserve.stackable.tech/#/observations"
-                "?displayedFilters=%7B%7D&filter=%7B%22has_completed_assessment%22%3Atrue%2C%22title%22%3A%22"
-                f"{observation.title}%22%7D&order=DESC&page=1&perPage=500&sort=branch_name)"
-                "\n\n---\n\n"
-                f"### {observation.title}\n{observation.description}"
-            ),
-        }
-        response = requests.post(
-            url="https://api.github.com/repos/stackabletech/vulnerabilities/issues",
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {github_pat}",
-            },
-            data=json.dumps(data),
-            timeout=60,
-        )
-        response.raise_for_status()
-        issue_number = response.json().get("number")
-
-        # Update issue_tracker_issue_id for all observations with the same title
-        Observation.objects.filter(
-            title=observation.title,
-        ).exclude(
-            issue_tracker_issue_id=issue_number
-        ).update(issue_tracker_issue_id=issue_number)
-    return issue_number
