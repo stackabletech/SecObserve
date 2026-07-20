@@ -15,6 +15,7 @@ from application.vex.services.csaf_generator_component import (
     append_component_to_product_tree,
 )
 from application.vex.services.csaf_generator_document import create_csaf_root
+from application.vex.services.csaf_generator_helpers import map_status
 from application.vex.services.csaf_generator_product import (
     append_product_to_product_tree,
 )
@@ -198,6 +199,11 @@ def _get_content_for_vulnerabilities(vulnerability_names: list[str]) -> tuple:
 
         observations = get_observations_for_vulnerability(vulnerability_name)
         for observation in observations:
+            if map_status(observation.current_status) is None:
+                # Observations without a CSAF status (e.g. "In review" or duplicates) must not
+                # appear in the document at all; a vulnerability without a product_status entry
+                # would violate mandatory CSAF test 6.1.27.7.
+                continue
             append_component_to_product_tree(product_tree, observation)
             current_vulnerability_description = set_vulnerability_description(
                 vulnerability, observation, current_vulnerability_description
@@ -208,6 +214,17 @@ def _get_content_for_vulnerabilities(vulnerability_names: list[str]) -> tuple:
             remove_conflicting_product_status(vulnerability)
             set_remediation(vulnerability, observation)
             set_flag_or_threat(vulnerability, observation)
+
+    # Vulnerabilities where all observations were skipped above have no product_status
+    # and must not be part of the document.
+    vulnerabilities = [
+        vulnerability
+        for vulnerability in vulnerabilities
+        if vulnerability.product_status.fixed
+        or vulnerability.product_status.known_affected
+        or vulnerability.product_status.known_not_affected
+        or vulnerability.product_status.under_investigation
+    ]
 
     return vulnerabilities, product_tree
 
@@ -231,6 +248,11 @@ def _get_content_for_product(product: Product, vulnerability_names: list[str], b
 
     observations = get_observations_for_product(product, vulnerability_names, branches)
     for observation in observations:
+        if map_status(observation.current_status) is None:
+            # Observations without a CSAF status (e.g. "In review" or duplicates) must not
+            # appear in the document at all; a vulnerability without a product_status entry
+            # would violate mandatory CSAF test 6.1.27.7.
+            continue
         append_component_to_product_tree(product_tree, observation)
         vulnerability = vulnerabilities.get(observation.vulnerability_id)
         if not vulnerability:
