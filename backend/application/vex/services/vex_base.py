@@ -93,7 +93,13 @@ def get_observations_for_vulnerabilities(
 def get_observations_for_product(
     product: Product, vulnerability_names: list[str], branches: list[Branch]
 ) -> list[Observation]:
-    observations = get_observations().filter(product_id=product.pk).exclude(vulnerability_id="").order_by("id")
+    observations = (
+        get_observations()
+        .filter(product_id=product.pk)
+        .exclude(vulnerability_id="")
+        .exclude(current_status=Status.STATUS_OPEN)
+        .order_by("id")
+    )
 
     if vulnerability_names:
         observations = observations.filter(vulnerability_id__in=vulnerability_names)
