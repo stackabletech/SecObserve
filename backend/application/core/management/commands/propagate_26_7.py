@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
         try:
             observations = Observation.objects.filter(
-                branch__name__contains="26.7.0", current_severity__in=[Status.STATUS_OPEN, Status.STATUS_IN_REVIEW]
-            )
+                branch__name__contains="26.7.0", current_status__in=[Status.STATUS_OPEN, Status.STATUS_IN_REVIEW]
+            ).order_by("id")
 
             paginator = Paginator(observations, 1000)
             for page_number in paginator.page_range:
