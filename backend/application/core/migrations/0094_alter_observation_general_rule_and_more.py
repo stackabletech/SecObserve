@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("core", "0093_observation_log_general_rule_rego_and_more"),
-        ("rules", "0021_rename_approval_remark_rule_rejection_remark"),
+        ("rules", "0022_rename_approval_remark_rule_rejection_remark"),
     ]
 
     operations = [
