@@ -116,6 +116,8 @@ class ProductAuthorizationGroupMemberFilter(FilterSet):
 
 
 class BranchFilter(FilterSet):
+    name = CharFilter(field_name="name", lookup_expr="icontains")
+
     search = CharFilter(
         field_name="search",
         method="filter_branch_name_with_product",
