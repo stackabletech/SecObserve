@@ -379,6 +379,8 @@ class ObservationUpdateSerializer(ModelSerializer):
                 observation=observation,
                 severity=log_severity,
                 status=log_status,
+                priority=None,
+                priority_changed=False,
                 comment="Observation changed manually",
                 vex_justification=log_vex_justification,
                 vex_remediations=log_vex_remediations,
@@ -466,6 +468,8 @@ class ObservationCreateSerializer(ModelSerializer):
             observation=observation,
             severity=observation.current_severity,
             status=observation.current_status,
+            priority=None,
+            priority_changed=False,
             comment="Observation created manually",
             vex_justification=observation.current_vex_justification,
             vex_remediations=(
