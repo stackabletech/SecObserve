@@ -15,6 +15,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
+      artifact-metadata: write
       id-token: write
     outputs:
       digest: ${{ steps.build-and-push-backend.outputs.digest }}
@@ -53,7 +54,7 @@ jobs:
           platforms: linux/amd64
           push: true
           # Disable buildkit attestations so the pushed reference is the image
-          # manifest digest (not an index), which the SLSA generator requires.
+          # manifest digest (not an index), which actions/attest requires.
           provenance: false
           tags: oci.stackable.tech/stackable/secobserve-backend:dev
           build-args: |
@@ -63,22 +64,13 @@ jobs:
       -
         name: Sign the published backend image
         run: cosign sign -y oci.stackable.tech/stackable/secobserve-backend@${{ steps.build-and-push-backend.outputs.digest }}
-
-  provenance_backend_dev:
-    needs: [docker_backend_dev]
-    permissions:
-      actions: read # detect the build workflow that generated the image
-      id-token: write # mint the OIDC token for keyless signing
-      packages: write # needed until https://github.com/slsa-framework/slsa-github-generator/issues/1257 is resolved
-    # MUST be referenced by a @vX.Y.Z tag (not a SHA), otherwise the
-    # reusable workflow cannot verify its own provenance.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0
-    with:
-      image: oci.stackable.tech/stackable/secobserve-backend
-      digest: ${{ needs.docker_backend_dev.outputs.digest }}
-      registry-username: robot$stackable+github-action-build
-    secrets:
-      registry-password: ${{ secrets.HARBOR_ROBOT_STACKABLE_GITHUB_ACTION_BUILD_SECRET }}
+      -
+        name: Attest the published backend image
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: oci.stackable.tech/stackable/secobserve-backend
+          subject-digest: ${{ steps.build-and-push-backend.outputs.digest }}
+          push-to-registry: true
 
   docker_frontend_dev:
     runs-on: ubuntu-latest
@@ -86,6 +78,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
+      artifact-metadata: write
       id-token: write
     outputs:
       digest: ${{ steps.build-and-push-frontend.outputs.digest }}
@@ -123,7 +116,7 @@ jobs:
           platforms: linux/amd64
           push: true
           # Disable buildkit attestations so the pushed reference is the image
-          # manifest digest (not an index), which the SLSA generator requires.
+          # manifest digest (not an index), which actions/attest requires.
           provenance: false
           tags: oci.stackable.tech/stackable/secobserve-frontend:dev
           build-args: |
@@ -133,19 +126,10 @@ jobs:
       -
         name: Sign the published frontend image
         run: cosign sign -y oci.stackable.tech/stackable/secobserve-frontend@${{ steps.build-and-push-frontend.outputs.digest }}
-
-  provenance_frontend_dev:
-    needs: [docker_frontend_dev]
-    permissions:
-      actions: read # detect the build workflow that generated the image
-      id-token: write # mint the OIDC token for keyless signing
-      packages: write # needed until https://github.com/slsa-framework/slsa-github-generator/issues/1257 is resolved
-    # MUST be referenced by a @vX.Y.Z tag (not a SHA), otherwise the
-    # reusable workflow cannot verify its own provenance.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0
-    with:
-      image: oci.stackable.tech/stackable/secobserve-frontend
-      digest: ${{ needs.docker_frontend_dev.outputs.digest }}
-      registry-username: robot$stackable+github-action-build
-    secrets:
-      registry-password: ${{ secrets.HARBOR_ROBOT_STACKABLE_GITHUB_ACTION_BUILD_SECRET }}
+      -
+        name: Attest the published frontend image
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: oci.stackable.tech/stackable/secobserve-frontend
+          subject-digest: ${{ steps.build-and-push-frontend.outputs.digest }}
+          push-to-registry: true
