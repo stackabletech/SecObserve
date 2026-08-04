@@ -786,7 +786,7 @@ def _deduplicate_cross_scanner(observation: Observation, settings: Settings) -> 
     )
 
     if duplicate_found:
-        logger.info("Cross scanner deduplication / Observation already saved: %s", observation.title)
+        logger.debug("Cross scanner deduplication / Observation already saved: %s", observation.title)
         return True
 
     return False

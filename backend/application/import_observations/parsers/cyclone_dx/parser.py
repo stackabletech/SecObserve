@@ -279,7 +279,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
                 ref = affected.get("ref")
                 if ref:
                     component = self.components.get(ref)
-                    print(f"Processing vulnerability: {vulnerability_id}")
                     if component:
                         title = vulnerability_id
 
