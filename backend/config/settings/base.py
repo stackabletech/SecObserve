@@ -451,7 +451,7 @@ else:
 
 print("--------------------------------")
 print(db["ENGINE"])
-print(db_url)
+print(db["PORT"])
 print("--------------------------------")
 
 HUEY = {
