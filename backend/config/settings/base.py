@@ -449,7 +449,6 @@ if "postgresql" in db["ENGINE"]:
 
     from urllib.parse import urlparse
     parse_result = urlparse(db_url_redacted)
-    print(parse_result.path[1:])
     print(parse_result.port)
     print("--------------------------------")
 

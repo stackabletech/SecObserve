@@ -6,6 +6,14 @@ from huey.contrib.sql_huey import SqlStorage
 
 
 class PrefixedSqlStorage(SqlStorage):
+    def __init__(self, name: str = "huey", database: Any = None, **kwargs: Any) -> None:
+
+        print("---")
+        print(database)
+        print("---")
+
+        super().__init__(name=name, database=database, **kwargs)
+
     def create_models(self) -> tuple[Any, Any, Any, Any]:
         KV, Schedule, Task, Counter = super().create_models()
 
