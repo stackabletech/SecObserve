@@ -442,17 +442,25 @@ db = DATABASES["default"]
 if "postgresql" in db["ENGINE"]:
     scheme, port = "postgresql", db["PORT"] or 5432
     db_url = f"{scheme}://{db['USER']}:{db['PASSWORD']}@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
+
+    print("--------------------------------")
+    db_url_redacted = f"{scheme}://{db['USER']}:REDACTED@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
+    print(db_url_redacted)
+
+    from urllib.parse import urlparse
+    parse_result = urlparse(db_url_redacted)
+    print(parse_result.username)
+    print(parse_result.hostname)
+    print(parse_result.params)
+    print(parse_result.port)
+    print("--------------------------------")
+
 elif "mysql" in db["ENGINE"]:
     scheme, port = "mysql", db["PORT"] or 3306
     db_url = f"{scheme}://{db['USER']}:{db['PASSWORD']}@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
 else:
     # Fallback: SQLite file
     db_url = "sqlite:////var/lib/huey/huey.db"
-
-print("--------------------------------")
-print(db["ENGINE"])
-print(db["PORT"])
-print("--------------------------------")
 
 HUEY = {
     "huey_class": "application.background_tasks.services.prefixed_sql_storage.PrefixedSqlHuey",
