@@ -444,7 +444,6 @@ if "postgresql" in db["ENGINE"]:
     db_url = f"{scheme}://{db['USER']}:{db['PASSWORD']}@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
 
     print("--------------------------------")
-    db_url = f"{scheme}://{db['USER']}:REDACTED@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
     print(db_url)
 
     from urllib.parse import urlparse
