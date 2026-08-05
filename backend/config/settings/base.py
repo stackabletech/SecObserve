@@ -449,6 +449,11 @@ else:
     # Fallback: SQLite file
     db_url = "sqlite:////var/lib/huey/huey.db"
 
+print("--------------------------------")
+print(db["ENGINE"])
+print(db_url)
+print("--------------------------------")
+
 HUEY = {
     "huey_class": "application.background_tasks.services.prefixed_sql_storage.PrefixedSqlHuey",
     "name": "secobserve",
