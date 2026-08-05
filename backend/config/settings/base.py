@@ -442,15 +442,6 @@ db = DATABASES["default"]
 if "postgresql" in db["ENGINE"]:
     scheme, port = "postgresql", db["PORT"] or 5432
     db_url = f"{scheme}://{db['USER']}:{db['PASSWORD']}@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
-
-    print("--------------------------------")
-    print(db_url)
-
-    from urllib.parse import urlparse
-    parse_result = urlparse(db_url)
-    print(parse_result.port)
-    print("--------------------------------")
-
 elif "mysql" in db["ENGINE"]:
     scheme, port = "mysql", db["PORT"] or 3306
     db_url = f"{scheme}://{db['USER']}:{db['PASSWORD']}@{db['HOST'] or 'localhost'}:{port}/{db['NAME']}"
