@@ -40,9 +40,26 @@ User.objects.create_superuser(
 EOD
 fi
 
+python manage.py flush_huey_inflight
 python manage.py run_huey --flush-locks &
+HUEY_PID=$!
+RUNSERVER_PID=""
+
+# This script is PID 1 of the container, but a non-interactive shell does not forward signals to
+# its children. Without the trap neither the development server nor the huey consumer would ever
+# see the SIGTERM of a container shutdown and both would be killed after the grace period. The huey
+# consumer needs the SIGTERM to finish its running tasks and to mark them as no longer in flight.
+trap 'kill -TERM $HUEY_PID $RUNSERVER_PID 2>/dev/null' TERM INT
 
 python manage.py register_parsers
 python manage.py initial_license_load
 
-python manage.py runserver_plus 0.0.0.0:8000
+python manage.py runserver_plus 0.0.0.0:8000 &
+RUNSERVER_PID=$!
+
+# "wait" returns a non-zero exit code when it is interrupted by a signal, which would abort the
+# script because of "set -o errexit". Waiting for the huey consumer after the development server
+# has terminated gives it the chance to shut down gracefully before this script and with it the
+# container exits.
+wait "$RUNSERVER_PID" || true
+wait "$HUEY_PID" || true
