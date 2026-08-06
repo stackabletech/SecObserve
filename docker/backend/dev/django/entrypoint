@@ -41,7 +41,7 @@ EOD
 fi
 
 python manage.py flush_huey_inflight
-python manage.py run_huey --flush-locks
+python manage.py run_huey --flush-locks &
 
 python manage.py register_parsers
 python manage.py initial_license_load
