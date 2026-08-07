@@ -15,10 +15,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
-      artifact-metadata: write
       id-token: write
-    outputs:
-      digest: ${{ steps.build-and-push-backend.outputs.digest }}
     steps:
       -
         name: Checkout
@@ -54,7 +51,7 @@ jobs:
           platforms: linux/amd64
           push: true
           # Disable buildkit attestations so the pushed reference is the image
-          # manifest digest (not an index), which actions/attest requires.
+          # manifest digest (not an index), which is what cosign signs.
           provenance: false
           tags: oci.stackable.tech/stackable/secobserve-backend:dev
           build-args: |
@@ -64,13 +61,6 @@ jobs:
       -
         name: Sign the published backend image
         run: cosign sign -y oci.stackable.tech/stackable/secobserve-backend@${{ steps.build-and-push-backend.outputs.digest }}
-      -
-        name: Attest the published backend image
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-        with:
-          subject-name: oci.stackable.tech/stackable/secobserve-backend
-          subject-digest: ${{ steps.build-and-push-backend.outputs.digest }}
-          push-to-registry: true
 
   docker_frontend_dev:
     runs-on: ubuntu-latest
@@ -78,10 +68,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
-      artifact-metadata: write
       id-token: write
-    outputs:
-      digest: ${{ steps.build-and-push-frontend.outputs.digest }}
     steps:
       -
         name: Checkout
@@ -116,7 +103,7 @@ jobs:
           platforms: linux/amd64
           push: true
           # Disable buildkit attestations so the pushed reference is the image
-          # manifest digest (not an index), which actions/attest requires.
+          # manifest digest (not an index), which is what cosign signs.
           provenance: false
           tags: oci.stackable.tech/stackable/secobserve-frontend:dev
           build-args: |
@@ -126,10 +113,3 @@ jobs:
       -
         name: Sign the published frontend image
         run: cosign sign -y oci.stackable.tech/stackable/secobserve-frontend@${{ steps.build-and-push-frontend.outputs.digest }}
-      -
-        name: Attest the published frontend image
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-        with:
-          subject-name: oci.stackable.tech/stackable/secobserve-frontend
-          subject-digest: ${{ steps.build-and-push-frontend.outputs.digest }}
-          push-to-registry: true
