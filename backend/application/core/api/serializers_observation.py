@@ -683,7 +683,7 @@ class ObservationLogApprovalBaseSerializer(Serializer):
 
 class ObservationLogApprovalSerializer(ObservationLogApprovalBaseSerializer):
     assessment_status = ChoiceField(choices=Assessment_Status.ASSESSMENT_STATUS_CHOICES_APPROVAL, required=True)
-    rejection_remark = CharField(max_length=255, required=False, allow_blank=True)
+    rejection_remark = CharField(max_length=4096, required=False, allow_blank=True)
     observation_log_comment = CharField(max_length=4096, required=False, allow_blank=True)
     observation_log_vex_justification = ChoiceField(
         choices=VEX_Justification.VEX_JUSTIFICATION_CHOICES,
@@ -709,7 +709,7 @@ class ObservationLogApprovalSerializer(ObservationLogApprovalBaseSerializer):
 
 class ObservationLogBulkApprovalSerializer(ObservationLogApprovalBaseSerializer):
     assessment_status = ChoiceField(choices=Assessment_Status.ASSESSMENT_STATUS_CHOICES_APPROVAL, required=False)
-    rejection_remark = CharField(max_length=255, required=False, allow_blank=True)
+    rejection_remark = CharField(max_length=4096, required=False, allow_blank=True)
     observation_log_comment = CharField(max_length=4096, required=False, allow_blank=True)
     observation_logs = ListField(child=IntegerField(min_value=1), min_length=0, max_length=250, required=True)
 

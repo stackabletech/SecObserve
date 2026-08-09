@@ -722,6 +722,30 @@ class TestObservationLogApprovalSerializer(BaseTestCase):
         except ValidationError as e:
             self.fail(f"Unexpected ValidationError: {e}")
 
+    def test_valid_rejection_with_long_remark(self):
+        """Test that a rejection remark longer than 255 characters passes validation"""
+        data = self._get_serializer_data(
+            assessment_status=Assessment_Status.ASSESSMENT_STATUS_REJECTED,
+            rejection_remark="x" * 4096,
+            observation_log_comment="",
+        )
+        serializer = ObservationLogApprovalSerializer(data=data)
+
+        if not serializer.is_valid():
+            self.fail(f"Validation failed unexpectedly: {serializer.errors}")
+
+    def test_invalid_rejection_with_too_long_remark(self):
+        """Test that a rejection remark longer than 4096 characters raises a validation error"""
+        data = self._get_serializer_data(
+            assessment_status=Assessment_Status.ASSESSMENT_STATUS_REJECTED,
+            rejection_remark="x" * 4097,
+            observation_log_comment="",
+        )
+        serializer = ObservationLogApprovalSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("rejection_remark", serializer.errors)
+
     def test_invalid_rejection_without_remark(self):
         """Test that rejection without a remark raises a validation error"""
         data = self._get_serializer_data(

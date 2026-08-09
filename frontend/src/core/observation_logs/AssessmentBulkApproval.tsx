@@ -7,7 +7,7 @@ import MarkdownEdit from "../../commons/custom_fields/MarkdownEdit";
 import SmallButton from "../../commons/custom_fields/SmallButton";
 import { Spinner } from "../../commons/custom_fields/Spinner";
 import { ToolbarCancelSave } from "../../commons/custom_fields/ToolbarCancelSave";
-import { validate_required, validate_required_255 } from "../../commons/custom_validators";
+import { validate_required, validate_required_4096 } from "../../commons/custom_validators";
 import { AutocompleteInputMedium, TextInputWide } from "../../commons/layout/themes";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import {
@@ -113,8 +113,10 @@ const AssessmentBulkApproval = ({ storeKey }: AssessmentBulkApprovalProps) => {
                         {decision == ASSESSMENT_STATUS_REJECTED && (
                             <TextInputWide
                                 source="rejection_remark"
-                                validate={validate_required_255}
+                                validate={validate_required_4096}
                                 label="Remark for rejection"
+                                multiline={true}
+                                minRows={3}
                             />
                         )}
                         {decision == ASSESSMENT_STATUS_APPROVED_WITH_EDITS && (
