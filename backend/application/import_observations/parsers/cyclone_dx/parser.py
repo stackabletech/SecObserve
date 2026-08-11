@@ -104,7 +104,6 @@ class CycloneDXParser(BaseParser, BaseFileParser):
             "https://token.actions.githubusercontent.com",
             image_location,
         ]
-        print(" ".join(extract_sbom_cmd))
 
         result = subprocess.run(
             extract_sbom_cmd,
