@@ -37,12 +37,7 @@ class DuplicateCandidate(NamedTuple):
 DuplicateTypes = dict[tuple[int, int], str]
 
 
-# The lock serializes all recalculations, so that concurrent imports cannot write
-# potential duplicates for the same observations at the same time. If the lock cannot be
-# acquired, Huey retries the task later. The retries have to be high enough to bridge
-# the recalculations of the other tasks waiting for the lock.
-@on_commit_task(retries=5, retry_delay=60)
-@lock_task("find_potential_duplicates_lock")
+@on_commit_task()
 def find_potential_duplicates(product: Product, branch: Optional[Branch], service: Optional[Service]) -> None:
     try:
         observations = Observation.objects.filter(product=product, branch=branch, origin_service=service)
