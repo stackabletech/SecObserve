@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from itertools import batched, combinations
 from typing import NamedTuple, Optional
 
+from django.db import transaction
 from django.db.models.query import QuerySet
 from huey.contrib.djhuey import lock_task, on_commit_task
 
@@ -37,7 +38,12 @@ class DuplicateCandidate(NamedTuple):
 DuplicateTypes = dict[tuple[int, int], str]
 
 
-@on_commit_task()
+# The lock serializes all recalculations, so that concurrent imports cannot write
+# potential duplicates for the same observations at the same time. If the lock cannot be
+# acquired, Huey retries the task later. The retries have to be high enough to bridge
+# the recalculations of the other tasks waiting for the lock.
+@on_commit_task(retries=5, retry_delay=60, retry_backoff=2)
+@lock_task("find_potential_duplicates_lock")
 def find_potential_duplicates(product: Product, branch: Optional[Branch], service: Optional[Service]) -> None:
     try:
         observations = Observation.objects.filter(product=product, branch=branch, origin_service=service)
@@ -45,8 +51,12 @@ def find_potential_duplicates(product: Product, branch: Optional[Branch], servic
         candidates = _get_duplicate_candidates(observations)
         duplicate_types = _match_duplicate_candidates(candidates)
 
-        _write_potential_duplicates(observations, duplicate_types)
-        _set_has_potential_duplicates(observations, product, duplicate_types)
+        # Deleted rows, new rows and the flags of a recalculation have to be consistent,
+        # and a failed recalculation must not leave the potential duplicates of the
+        # product / branch / service deleted.
+        with transaction.atomic():
+            _write_potential_duplicates(observations, duplicate_types)
+            _set_has_potential_duplicates(observations, product, duplicate_types)
 
         logger.debug(
             "Potential duplicates for product %s / branch %s / service %s: %s candidates, %s pairs",

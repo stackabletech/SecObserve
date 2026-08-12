@@ -1,6 +1,11 @@
 from os import path
 from unittest.mock import call, patch
 
+from django.core.management import call_command
+from django.db import IntegrityError
+from huey.contrib.djhuey import HUEY
+from huey.exceptions import TaskLockedException
+
 from application.core.models import Observation, Potential_Duplicate, Product
 from application.core.services.potential_duplicates import (
     DuplicateCandidate,
@@ -73,7 +78,10 @@ class TestSetPotentialDuplicate(BaseTestCase):
         self.assertFalse(self.observation.has_potential_duplicates)
         save_mock.assert_called_once()
 
-    def test_find_potential_duplicates_components(self):
+    def _import_duplicate_observations(self) -> Product:
+        """Import a file with 2 vulnerabilities for 2 components each, giving 2 pairs of duplicates."""
+        call_command("loaddata", "unittests/fixtures/unittests_fixtures.json")
+
         # Register parsers
         command = Command()
         command.handle()
@@ -81,45 +89,6 @@ class TestSetPotentialDuplicate(BaseTestCase):
         product = Product.objects.get(id=1)
         product.has_potential_duplicates = False
         product.save()
-        Observation.objects.filter(product=product).delete()
-
-        with open(path.dirname(__file__) + "/files/duplicates_cdx.json") as testfile:
-            file_upload_parameters = FileUploadParameters(
-                product=Product.objects.get(id=1),
-                branch=None,
-                file=testfile,
-                service_name="",
-                docker_image_name_tag="",
-                endpoint_url="",
-                kubernetes_cluster="",
-                kubernetes_namespace="",
-                kubernetes_resource_type="",
-                kubernetes_resource_name="",
-                suppress_licenses=False,
-                sbom=False,
-            )
-            with self.captureOnCommitCallbacks(execute=True):
-                file_upload_observations(file_upload_parameters)
-
-            observations = Observation.objects.filter(product=product)
-            self.assertEqual(4, len(observations))
-            for observation in observations:
-                self.assertTrue(observation.has_potential_duplicates)
-                for potential_duplicate in Potential_Duplicate.objects.filter(observation=observation):
-                    self.assertEqual(
-                        potential_duplicate.type,
-                        Potential_Duplicate.POTENTIAL_DUPLICATE_TYPE_COMPONENT,
-                    )
-
-            product.refresh_from_db()
-            self.assertTrue(product.has_potential_duplicates)
-
-    def test_find_potential_duplicates_inactive_observation(self):
-        # Register parsers
-        command = Command()
-        command.handle()
-
-        product = Product.objects.get(id=1)
         Observation.objects.filter(product=product).delete()
 
         with open(path.dirname(__file__) + "/files/duplicates_cdx.json") as testfile:
@@ -140,8 +109,27 @@ class TestSetPotentialDuplicate(BaseTestCase):
             with self.captureOnCommitCallbacks(execute=True):
                 file_upload_observations(file_upload_parameters)
 
-        # The file has 2 vulnerabilities for 2 components each, so there are 2 pairs of
-        # observations with the same title.
+        return product
+
+    def test_find_potential_duplicates_components(self):
+        product = self._import_duplicate_observations()
+
+        observations = Observation.objects.filter(product=product)
+        self.assertEqual(4, len(observations))
+        for observation in observations:
+            self.assertTrue(observation.has_potential_duplicates)
+            for potential_duplicate in Potential_Duplicate.objects.filter(observation=observation):
+                self.assertEqual(
+                    potential_duplicate.type,
+                    Potential_Duplicate.POTENTIAL_DUPLICATE_TYPE_COMPONENT,
+                )
+
+        product.refresh_from_db()
+        self.assertTrue(product.has_potential_duplicates)
+
+    def test_find_potential_duplicates_inactive_observation(self):
+        product = self._import_duplicate_observations()
+
         inactive_observation = Observation.objects.filter(product=product).order_by("pk").first()
         former_duplicate = (
             Observation.objects.filter(product=product, title=inactive_observation.title)
@@ -172,6 +160,39 @@ class TestSetPotentialDuplicate(BaseTestCase):
         for observation in other_observations:
             self.assertTrue(observation.has_potential_duplicates)
             self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
+
+    def test_find_potential_duplicates_lock_not_acquired(self):
+        product = self._import_duplicate_observations()
+
+        # Without the lock, the recalculation would remove the pair of the resolved observation
+        inactive_observation = Observation.objects.filter(product=product).order_by("pk").first()
+        inactive_observation.assessment_status = Status.STATUS_RESOLVED
+        inactive_observation.save()
+
+        with HUEY.lock_task("find_potential_duplicates_lock"):
+            with self.assertRaises(TaskLockedException):
+                find_potential_duplicates.call_local(product, None, None)
+
+        for observation in Observation.objects.filter(product=product):
+            self.assertTrue(observation.has_potential_duplicates)
+            self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
+
+    @patch("application.core.services.potential_duplicates.handle_task_exception")
+    @patch("application.core.models.Potential_Duplicate.objects.bulk_create")
+    def test_find_potential_duplicates_failed_write_is_rolled_back(
+        self, bulk_create_mock, handle_task_exception_mock
+    ):
+        product = self._import_duplicate_observations()
+        bulk_create_mock.side_effect = IntegrityError("duplicate key value violates unique constraint")
+
+        find_potential_duplicates.call_local(product, None, None)
+
+        # The deletion of the existing potential duplicates was rolled back with the failed insert
+        for observation in Observation.objects.filter(product=product):
+            self.assertTrue(observation.has_potential_duplicates)
+            self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
+
+        handle_task_exception_mock.assert_called_once()
 
 
 class TestMatchDuplicateCandidates(BaseTestCase):
