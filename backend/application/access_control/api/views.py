@@ -90,7 +90,7 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.none()
     permission_classes = (IsAuthenticated, UserHasSuperuserPermission)
     filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ["full_name"]
+    search_fields = ["full_name", "username"]
 
     def get_queryset(self) -> QuerySet[User]:
         if self.action == "list":
@@ -347,12 +347,11 @@ class JWTSecretResetView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def _get_authenticated_user(data: dict) -> User:
-    username = data.get("username")
-    password = data.get("password")
+def _get_authenticated_user(data: dict[str, Any] | list[Any]) -> User:
+    username = data.get("username") if isinstance(data, dict) else None
+    password = data.get("password") if isinstance(data, dict) else None
 
     user: User = django_authenticate(username=username, password=password)  # type: ignore[assignment]
-    # We always get a User from our model
     if not user:
         raise PermissionDenied("Invalid credentials")
 

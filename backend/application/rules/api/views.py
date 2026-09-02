@@ -35,12 +35,12 @@ from application.rules.queries.rule import (
     get_product_rules,
 )
 from application.rules.services.approval import rule_approval
+from application.rules.services.evaluator import request_general_rule_evaluation
 from application.rules.services.simulator import simulate_rule
 
 
 @dataclass
 class SimulationResult:
-    count: int
     results: list[Observation]
 
 
@@ -89,6 +89,21 @@ class GeneralRuleViewSet(ModelViewSet):
             raise NotFound()
 
         return _do_simulation(rule)
+
+    @extend_schema(
+        methods=["POST"],
+        request=None,
+        responses={status.HTTP_202_ACCEPTED: None},
+    )
+    @action(detail=True, methods=["post"])
+    def evaluate(self, request: Request, pk: int) -> Response:
+        rule = get_general_rule_by_id(pk)
+        if not rule:
+            raise NotFound()
+
+        request_general_rule_evaluation(rule.pk)
+
+        return Response(status=status.HTTP_202_ACCEPTED)
 
 
 class ProductRuleViewSet(ModelViewSet):
@@ -143,8 +158,8 @@ class ProductRuleViewSet(ModelViewSet):
 
 
 def _do_simulation(rule: Rule) -> Response:
-    num_observations, observations = simulate_rule(rule)
-    simulation_result = SimulationResult(count=num_observations, results=observations)
+    observations = simulate_rule(rule)
+    simulation_result = SimulationResult(results=observations)
     response_serializer = SimulationResultSerializer(simulation_result)
 
     return Response(status=HTTP_200_OK, data=response_serializer.data)
