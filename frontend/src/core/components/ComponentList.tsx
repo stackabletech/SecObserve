@@ -27,7 +27,7 @@ const ComponentList = () => {
                 perPage={getSettingRowsPerPage()}
                 pagination={<CustomPagination />}
                 filters={listFilters}
-                sort={{ field: "name_version_type", order: "ASC" }}
+                sort={{ field: "name_version", order: "ASC" }}
                 disableSyncWithLocation={false}
                 actions={false}
                 storeKey="components.list"
