@@ -359,7 +359,7 @@ const SettingsShowComponent = () => {
                                             <NumberField source="license_import_crontab_hour" />
                                         </Labeled>
                                     )}
-                                    <Labeled label="Branch housekeeping crontab (hour/UTC)">
+                                    <Labeled label="Housekeeping crontab (hour/UTC)">
                                         <NumberField source="branch_housekeeping_crontab_hour" />
                                     </Labeled>
                                     <Labeled label="EPSS and exploit import crontab (hour/UTC)">
@@ -386,7 +386,7 @@ const SettingsShowComponent = () => {
                                             <NumberField source="license_import_crontab_minute" />
                                         </Labeled>
                                     )}
-                                    <Labeled label="Branch housekeeping crontab (minute)">
+                                    <Labeled label="Housekeeping crontab (minute)">
                                         <NumberField source="branch_housekeeping_crontab_minute" />
                                     </Labeled>
                                     <Labeled label="EPSS and exploit import crontab (minutes)">
