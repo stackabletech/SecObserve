@@ -20,16 +20,24 @@
                         "type": "FactSet",
                         "facts": [
                             {
-                                "title": "Severity:",
-                                "value": "{{ observation.current_severity|escapejs }}"
+                                "title": "Product:",
+                                "value": "{{ rule.product.name|escapejs }}"
                             },
                             {
-                                "title": "Status:",
-                                "value": "{{ observation.current_status|escapejs }}"
+                                "title": "Rule:",
+                                "value": "{{ rule.name|escapejs }}"
                             },
                             {
-                                "title": "Priority:",
-                                "value": "{{ observation.current_priority|escapejs }}"
+                                "title": "Type:",
+                                "value": "{{ rule.type|escapejs }}"
+                            },
+                            {
+                                "title": "New severity:",
+                                "value": "{{ rule.new_severity|escapejs }}"
+                            },
+                            {
+                                "title": "New status:",
+                                "value": "{{ rule.new_status|escapejs }}"
                             }
                         ]
                     }
@@ -37,8 +45,8 @@
                 "actions": [
                     {
                         "type": "Action.OpenUrl",
-                        "title": "View observation title {{ observation.title|escapejs }}",
-                        "url": "{{ url|escapejs }}"
+                        "title": "View product rule {{ rule.name|escapejs }}",
+                        "url": "{{ rule_url|escapejs }}"
                     }
                 ]
             }

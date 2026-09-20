@@ -20,8 +20,8 @@
                         "type": "FactSet",
                         "facts": [
                             {
-                                "title": "Product:",
-                                "value": "{{ observation.product.name|escapejs }}"
+                                "title": "Title:",
+                                "value": "{{ observation.title|escapejs }}"
                             },
                             {
                                 "title": "Severity:",
@@ -30,19 +30,19 @@
                             {
                                 "title": "Status:",
                                 "value": "{{ observation.current_status|escapejs }}"
-                            },
+                            }{% if observation.current_priority %},
                             {
                                 "title": "Priority:",
                                 "value": "{{ observation.current_priority|escapejs }}"
-                            }
+                            }{% endif %}
                         ]
                     }
                 ],
                 "actions": [
                     {
                         "type": "Action.OpenUrl",
-                        "title": "View observation {{ observation.title|escapejs }}",
-                        "url": "{{ observation_url|escapejs }}"
+                        "title": "View observation title {{ observation.title|escapejs }}",
+                        "url": "{{ url|escapejs }}"
                     }
                 ]
             }

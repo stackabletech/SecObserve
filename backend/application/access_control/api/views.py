@@ -126,7 +126,12 @@ class UserViewSet(ModelViewSet):
     )
     @action(detail=False, methods=["patch"])
     def my_settings(self, request: Request) -> Response:
-        request_serializer = UserSettingsSerializer(data=request.data)
+        user = request.user
+        if isinstance(user, AnonymousUser):
+            raise PermissionDenied("You must be authenticated to change settings")
+
+        # The serializer needs the user, its validations compare the request with the stored settings
+        request_serializer = UserSettingsSerializer(instance=user, data=request.data)
         if not request_serializer.is_valid():
             raise ValidationError(request_serializer.errors)
 
@@ -135,10 +140,6 @@ class UserViewSet(ModelViewSet):
         setting_package_info_preference = request_serializer.validated_data.get("setting_package_info_preference")
         setting_metrics_timespan = request_serializer.validated_data.get("setting_metrics_timespan")
         setting_rows_per_page = request_serializer.validated_data.get("setting_rows_per_page")
-
-        user = request.user
-        if isinstance(user, AnonymousUser):
-            raise PermissionDenied("You must be authenticated to change settings")
 
         if setting_theme:
             user.setting_theme = setting_theme
@@ -150,6 +151,21 @@ class UserViewSet(ModelViewSet):
             user.setting_metrics_timespan = setting_metrics_timespan
         if setting_rows_per_page:
             user.setting_rows_per_page = setting_rows_per_page
+
+        # The notification settings are checked for presence instead of truthiness,
+        # otherwise they could not be cleared or switched off
+        validated_data = request_serializer.validated_data
+        if "email" in validated_data:
+            user.email = validated_data["email"]
+        for notification_field in (
+            "notification_ms_teams_webhook",
+            "notification_slack_webhook",
+            "notification_email_active",
+            "notification_ms_teams_active",
+            "notification_slack_active",
+        ):
+            if notification_field in validated_data:
+                setattr(user, notification_field, validated_data[notification_field])
 
         user.save()
 
