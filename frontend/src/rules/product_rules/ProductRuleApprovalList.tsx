@@ -12,9 +12,9 @@ import {
     useListController,
 } from "react-admin";
 
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { AutocompleteInputMedium } from "../../commons/layout/themes";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 import { RULE_STATUS_NEEDS_APPROVAL } from "../types";
 
 function listFilters() {
@@ -71,7 +71,7 @@ const ProductRuleApprovalList = ({ product }: ProductRuleApprovalListProps) => {
                                 product.product_group_product_rules_need_approval) && (
                                 <ChipField source="approval_status" />
                             )}
-                        <BooleanField source="enabled" />
+                        <BooleanField source="enabled" textAlign="center" />
                         <ReferenceField
                             source="parser"
                             reference="parsers"

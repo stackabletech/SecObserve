@@ -15,7 +15,7 @@ import {
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { UserFullNameURLField } from "../../commons/custom_fields/UserFullNameURLField";
 import { is_superuser } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
+import { getSettingListSize, getSettingRowsPerPage } from "../users/functions";
 import AuthorizationGroupMemberAdd from "./AuthorizationGroupMemberAdd";
 import AuthorizationGroupMemberEdit from "./AuthorizationGroupMemberEdit";
 import AuthorizationGroupMemberRemove from "./AuthorizationGroupMemberRemove";
@@ -63,7 +63,7 @@ const AuthorizationGroupMemberEmbeddedList = ({ authorization_group }: Authoriza
                                 resource="users"
                             >
                                 <UserFullNameURLField source="user_data.full_name" label="User" />
-                                <BooleanField source="is_manager" label="Manager" />
+                                <BooleanField source="is_manager" label="Manager" textAlign="center" />
                                 {(is_superuser() || authorization_group.is_manager) && (
                                     <WithRecord
                                         render={(authorization_group_member) => (

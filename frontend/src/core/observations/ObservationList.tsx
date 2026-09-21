@@ -18,6 +18,7 @@ import {
 } from "react-admin";
 
 import observations from ".";
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { ProductGroupReferenceInput } from "../../commons/custom_fields/ProductGroupReferenceInput";
 import { ProductReferenceInput } from "../../commons/custom_fields/ProductReferenceInput";
@@ -25,7 +26,6 @@ import { SeverityField } from "../../commons/custom_fields/SeverityField";
 import { has_attribute, humanReadableDate } from "../../commons/functions";
 import ListHeader from "../../commons/layout/ListHeader";
 import { AutocompleteInputMedium } from "../../commons/layout/themes";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 import {
     AGE_CHOICES,
     OBSERVATION_SEVERITY_CHOICES,
@@ -178,7 +178,7 @@ const ObservationList = () => {
                                 sortBy="last_observation_log"
                                 render={(record) => (record ? humanReadableDate(record.last_observation_log) : "")}
                             />
-                            <BooleanField source="has_potential_duplicates" label="Dupl." />
+                            <BooleanField source="has_potential_duplicates" label="Dupl." textAlign="center" />
                             {has_attribute("update_impact_score", data, sort) && (
                                 <TextField source="update_impact_score" label="Update impact score" />
                             )}

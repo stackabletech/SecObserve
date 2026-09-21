@@ -10,6 +10,8 @@ import { oidcConfig, updateRefreshToken } from "./access_control/auth_provider/o
 import authorization_groups from "./access_control/authorization_groups";
 import { Login } from "./access_control/login";
 import users from "./access_control/users";
+import UserSettings from "./access_control/users/UserSettings";
+import { getTheme } from "./access_control/users/functions";
 import BackgroundTasksAdministration from "./background_tasks/background_tasks_administration/BackgroundTasksAdministration";
 import periodic_tasks from "./background_tasks/periodic_tasks";
 import { Layout } from "./commons/layout";
@@ -18,8 +20,6 @@ import PivotTable from "./commons/pivot_table/PivotTable";
 import { queryClient } from "./commons/queryClient";
 import drfProvider from "./commons/ra-data-django-rest-framework";
 import settings from "./commons/settings";
-import UserSettings from "./commons/user_settings/UserSettings";
-import { getTheme } from "./commons/user_settings/functions";
 import components from "./core/components";
 import evidences from "./core/evidences";
 import observation_logs from "./core/observation_logs";
@@ -36,7 +36,8 @@ import license_components from "./licenses/license_components";
 import license_groups from "./licenses/license_groups";
 import license_policies from "./licenses/license_policies";
 import licenses from "./licenses/licenses";
-import notifications from "./notifications";
+import notifications from "./notifications/notifications";
+import product_notifications from "./notifications/product_notifications";
 import general_rules from "./rules/general_rules";
 import product_rules from "./rules/product_rules";
 import csaf from "./vex/csaf";
@@ -168,6 +169,11 @@ const AdminApp = () => {
                 {...notifications} // nosemgrep: typescript.react.best-practice.react-props-spreading.react-props-spreading
                 // nosemgrep because the props are well defined in the import
                 recordRepresentation={(record) => `${trim_string(record.name)}`}
+            />
+            <Resource
+                name="product_notifications"
+                {...product_notifications} // nosemgrep: typescript.react.best-practice.react-props-spreading.react-props-spreading
+                // nosemgrep because the props are well defined in the import
             />
             <Resource
                 name="vex/csaf"

@@ -9,6 +9,7 @@ from django.db import IntegrityError, transaction
 from jwt.api_jwt import decode
 from jwt.exceptions import PyJWTError
 from jwt.jwks_client import PyJWKClient
+from jwt.types import Options
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
@@ -58,15 +59,18 @@ class OIDCAuthentication(BaseAuthentication):
             jwks_uri = self._get_jwks_uri()
             jwks_client = PyJWKClient(jwks_uri)
             signing_key = jwks_client.get_signing_key_from_jwt(token)
-            options = {
-                "verify_signature": True,
-                "verify_aud": True,
-                "strict_aud": False,
-                "require": ["exp"],
-                "verify_iat": True,
-                "verify_exp": True,
-                "verify_nbf": True,
-            }
+            options = Options(
+                verify_signature=True,
+                verify_aud=True,
+                # Stackable: audience verification is deliberately not strict, see f945bc9b.
+                # Upstream made this configurable via settings.oidc_strict_audience (default True),
+                # but flipping it on would break existing deployments, so it stays hardcoded.
+                strict_aud=False,
+                require=["exp"],
+                verify_iat=True,
+                verify_exp=True,
+                verify_nbf=True,
+            )
             payload = decode(
                 jwt=token,
                 options=options,

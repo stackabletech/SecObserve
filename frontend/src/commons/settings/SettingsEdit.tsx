@@ -106,6 +106,12 @@ const SettingsEdit = () => {
                         helperText="Time margin in seconds for checks of issued at, not before and expiration of OIDC tokens"
                         sx={{ marginBottom: 2 }}
                     />
+                    <BooleanInput
+                        source="oidc_strict_audience"
+                        label="OIDC strict audience"
+                        helperText="Require the audience claim to be a single string matching the client id. Disable if the OIDC provider issues a list of audiences."
+                        sx={{ marginBottom: 2 }}
+                    />
 
                     <Divider flexItem sx={{ marginTop: 2, marginBottom: 2 }} />
                     <Typography variant="h6" sx={{ marginBottom: 2 }}>
@@ -180,6 +186,13 @@ const SettingsEdit = () => {
                                         source="vulnerablecode_api_key"
                                         label="VulnerableCode API key"
                                         validate={validate_255}
+                                    />
+                                    <NumberInput
+                                        source="vulnerablecode_cache_ttl_hours"
+                                        label="VulnerableCode cache time to live (hours)"
+                                        min={0}
+                                        step={1}
+                                        validate={validate_0_999999}
                                     />
                                 </Stack>
                             </Stack>
@@ -307,7 +320,7 @@ const SettingsEdit = () => {
                             validate={validate_255}
                         />
                     )}
-                    <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
                         <TextInputExtraWide
                             source="exception_ms_teams_webhook"
                             label="MS Teams webhook to send exception notifications"
@@ -315,7 +328,7 @@ const SettingsEdit = () => {
                         />
                         <WebhookTestButton webhookSource="exception_ms_teams_webhook" webhookType="msteams" />
                     </Stack>
-                    <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
                         <TextInputExtraWide
                             source="exception_slack_webhook"
                             label="Slack webhook to send exception notifications"
@@ -339,7 +352,7 @@ const SettingsEdit = () => {
                             validate={validate_255}
                         />
                     )}
-                    <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
                         <TextInputExtraWide
                             source="observation_title_notification_ms_teams_webhook"
                             label="Webhook URL to send observation title notifications to MS Teams"
@@ -350,7 +363,7 @@ const SettingsEdit = () => {
                             webhookType="msteams"
                         />
                     </Stack>
-                    <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
                         <TextInputExtraWide
                             source="observation_title_notification_slack_webhook"
                             label="Webhook URL to send observation title notifications to Slack"

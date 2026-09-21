@@ -5,6 +5,7 @@ import {
     DateField,
     FieldProps,
     FilterForm,
+    FunctionField,
     ListContextProvider,
     ResourceContextProvider,
     TextField,
@@ -16,13 +17,14 @@ import {
 } from "react-admin";
 
 import { PERMISSION_BRANCH_DELETE, PERMISSION_BRANCH_EDIT, PERMISSION_PRODUCT_EDIT } from "../../access_control/types";
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import LicensesCountField from "../../commons/custom_fields/LicensesCountField";
 import OSVLinuxDistributionField from "../../commons/custom_fields/OSVLinuxDistributionField";
 import ObservationsCountField from "../../commons/custom_fields/ObservationsCountField";
+import { SecurityGateTextField } from "../../commons/custom_fields/SecurityGateTextField";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { feature_license_management, has_attribute } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 import BranchDelete from "./BranchDelete";
 import BranchEdit from "./BranchEdit";
 import DefaultBranch from "./DefaultBranch";
@@ -79,11 +81,13 @@ const BranchEmbeddedList = ({ product }: BranchEmbeddedListProps) => {
                                     source="is_default_branch"
                                     label="Default branch / version"
                                     sortable={false}
+                                    textAlign="center"
                                 />
                                 {has_attribute("purl", data, sort) && <TextField source="purl" label="PURL" />}
                                 {has_attribute("cpe23", data, sort) && <TextField source="cpe23" label="CPE 2.3" />}
-                                <WithRecord
+                                <FunctionField
                                     label="Protect"
+                                    textAlign="center"
                                     render={(branch) =>
                                         !branch.is_default_branch && <BooleanField source="housekeeping_protect" />
                                     }
@@ -99,6 +103,9 @@ const BranchEmbeddedList = ({ product }: BranchEmbeddedListProps) => {
                                             />
                                         )}
                                     />
+                                )}
+                                {has_attribute("security_gate_passed", data, sort) && (
+                                    <SecurityGateTextField label="Security gate" />
                                 )}
                                 <ObservationsCountField label="Active observations" withLabel={false} />
                                 {feature_license_management() && product?.has_licenses && (

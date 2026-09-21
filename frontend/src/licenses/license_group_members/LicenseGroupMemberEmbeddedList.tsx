@@ -12,10 +12,10 @@ import {
     useListController,
 } from "react-admin";
 
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { UserFullNameURLField } from "../../commons/custom_fields/UserFullNameURLField";
 import { is_superuser } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 import LicenseGroupMemberAdd from "./LicenseGroupMemberAdd";
 import LicenseGroupMemberEdit from "./LicenseGroupMemberEdit";
 import LicenseGroupMemberRemove from "./LicenseGroupMemberRemove";
@@ -61,7 +61,7 @@ const LicenseGroupMemberEmbeddedList = ({ license_group }: LicenseGroupMemberEmb
                                 resource="users"
                             >
                                 <UserFullNameURLField source="user_data.full_name" label="User" />
-                                <BooleanField source="is_manager" label="Manager" />
+                                <BooleanField source="is_manager" label="Manager" textAlign="center" />
                                 {(is_superuser() || license_group.is_manager) && (
                                     <WithRecord
                                         render={(license_group_member) => (

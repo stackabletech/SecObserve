@@ -13,7 +13,7 @@ import {
 import CreateButton from "../../commons/custom_fields/CreateButton";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { is_superuser } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
+import { getSettingListSize, getSettingRowsPerPage } from "./functions";
 
 const ShowUsers = (id: any) => {
     return "../../../../users/" + id + "/show";
@@ -67,10 +67,10 @@ const UserEmbeddedList = () => {
                     >
                         <TextField source="username" />
                         <TextField source="full_name" sx={{ wordBreak: "break-word" }} />
-                        {is_superuser() && <BooleanField source="is_active" label="Active" />}
-                        {is_superuser() && <BooleanField source="is_oidc_user" label="OIDC user" />}
-                        {is_superuser() && <BooleanField source="is_external" label="External" />}
-                        {is_superuser() && <BooleanField source="is_superuser" label="Superuser" />}
+                        {is_superuser() && <BooleanField source="is_active" label="Active" textAlign="center" />}
+                        {is_superuser() && <BooleanField source="is_oidc_user" label="OIDC user" textAlign="center" />}
+                        {is_superuser() && <BooleanField source="is_external" label="External" textAlign="center" />}
+                        {is_superuser() && <BooleanField source="is_superuser" label="Superuser" textAlign="center" />}
                     </Datagrid>
                     <CustomPagination />
                 </div>

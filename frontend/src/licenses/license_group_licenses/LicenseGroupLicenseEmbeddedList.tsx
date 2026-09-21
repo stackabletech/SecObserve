@@ -15,10 +15,10 @@ import {
     useRecordContext,
 } from "react-admin";
 
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import TextUrlField from "../../commons/custom_fields/TextUrlField";
 import { is_superuser } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 import LicenseGroupLicenseAdd from "./LicenseGroupLicenseAdd";
 import LicenseGroupLicenseRemove from "./LicenseGroupLicenseRemove";
 
@@ -75,8 +75,8 @@ const LicenseGroupLicenseEmbeddedList = ({ license_group }: LicenseGroupLicenseE
                             >
                                 <LicenseIDURLField source="spdx_id" label="SPDX Id" />
                                 <TextField source="name" label="Name" />
-                                <BooleanField source="is_osi_approved" label="OSI approved" />
-                                <BooleanField source="is_deprecated" label="Deprecated" />
+                                <BooleanField source="is_osi_approved" label="OSI approved" textAlign="center" />
+                                <BooleanField source="is_deprecated" label="Deprecated" textAlign="center" />
                                 {(is_superuser() || license_group.is_manager) && (
                                     <WithRecord
                                         render={(license) => (

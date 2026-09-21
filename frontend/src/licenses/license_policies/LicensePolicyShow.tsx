@@ -88,7 +88,7 @@ const LicensePolicyComponent = () => {
                             )}
                             {license_policy.ignore_component_types && (
                                 <Labeled label="Ignore ecosystems">
-                                   <TextArrayField
+                                    <TextArrayField
                                         source="ignore_component_type_list"
                                         record={{
                                             ...license_policy,

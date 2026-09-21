@@ -10,8 +10,8 @@ import {
     useListController,
 } from "react-admin";
 
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 
 const showLicense = (id: any) => {
     return "../../../../licenses/" + id + "/show";
@@ -58,8 +58,8 @@ const LicenseEmbeddedList = ({ license_group }: LicenseEmbeddedListProps) => {
                     >
                         <TextField source="spdx_id" label="SPDX Id" />
                         <TextField source="name" label="Name" />
-                        <BooleanField source="is_osi_approved" label="OSI approved" />
-                        <BooleanField source="is_deprecated" label="Deprecated" />
+                        <BooleanField source="is_osi_approved" label="OSI approved" textAlign="center" />
+                        <BooleanField source="is_deprecated" label="Deprecated" textAlign="center" />
                     </Datagrid>
                     <CustomPagination />
                 </div>

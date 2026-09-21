@@ -6,8 +6,8 @@ import mermaid from "mermaid";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Labeled, WrapperField, useTheme } from "react-admin";
 
+import { getResolvedSettingTheme } from "../../access_control/users/functions";
 import LabeledTextField from "../../commons/custom_fields/LabeledTextField";
-import { getResolvedSettingTheme } from "../../commons/user_settings/functions";
 
 mermaid.initialize({
     securityLevel: "strict",
@@ -53,6 +53,8 @@ const createMermaidGraph = (dependencies_str: string) => {
         '      primaryBorderColor: "'.concat(primary_color).concat('"\n') +
         "      primaryTextColor: ".concat(primary_text_color).concat("\n") +
         "      lineColor: ".concat(line_color).concat("\n") +
+        '      dropShadow: ""\n' +
+        "      useGradient: false\n" +
         "      fontFamily: Roboto\n" +
         "      fontSize: 0.875rem\n" +
         "---\n" +

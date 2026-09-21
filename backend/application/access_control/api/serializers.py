@@ -24,6 +24,7 @@ from application.access_control.queries.authorization_group_member import (
 from application.access_control.services.current_user import get_current_user
 from application.authorization.services.roles_permissions import Permissions
 from application.core.models import Product_Authorization_Group_Member, Product_Member
+from application.notifications.models import Product_Notification
 
 
 class NestedAuthorizationGroupSerializer(ModelSerializer):
@@ -118,6 +119,7 @@ class UserSerializer(UserListSerializer):
     has_product_group_members = SerializerMethodField()
     has_product_members = SerializerMethodField()
     has_api_tokens = SerializerMethodField()
+    has_product_notifications = SerializerMethodField()
 
     class Meta:
         model = User
@@ -145,6 +147,12 @@ class UserSerializer(UserListSerializer):
             "has_product_group_members",
             "has_product_members",
             "has_api_tokens",
+            "has_product_notifications",
+            "notification_email_active",
+            "notification_ms_teams_active",
+            "notification_slack_active",
+            "notification_ms_teams_webhook",
+            "notification_slack_webhook",
         ]
 
     def to_representation(self, instance: User) -> dict[str, Any]:
@@ -156,6 +164,16 @@ class UserSerializer(UserListSerializer):
             data.pop("has_product_group_members")
             data.pop("has_product_members")
             data.pop("has_api_tokens")
+            data.pop("has_product_notifications")
+            data.pop("notification_email_active")
+            data.pop("notification_ms_teams_active")
+            data.pop("notification_slack_active")
+
+        # Webhooks are personal credentials, they are not disclosed to other users,
+        # not even to superusers
+        if user and user.pk != instance.pk:
+            data.pop("notification_ms_teams_webhook", None)
+            data.pop("notification_slack_webhook", None)
 
         return data
 
@@ -173,6 +191,9 @@ class UserSerializer(UserListSerializer):
 
     def get_has_api_tokens(self, obj: User) -> bool:
         return get_api_tokens_for_user(obj).exists()
+
+    def get_has_product_notifications(self, obj: User) -> bool:
+        return Product_Notification.objects.filter(user=obj).exists()
 
 
 class UserUpdateSerializer(ModelSerializer):
@@ -281,7 +302,33 @@ class UserSettingsSerializer(ModelSerializer):
             "setting_package_info_preference",
             "setting_metrics_timespan",
             "setting_rows_per_page",
+            "email",
+            "notification_email_active",
+            "notification_ms_teams_active",
+            "notification_slack_active",
+            "notification_ms_teams_webhook",
+            "notification_slack_webhook",
         ]
+
+    def validate(self, attrs: dict) -> dict:
+        self.instance: User
+
+        if self.instance.is_oidc_user and "email" in attrs and attrs["email"] != self.instance.email:
+            raise ValidationError({"email": "Cannot be changed for an OIDC user"})
+
+        # A channel can only be activated when its email address or webhook URL is set, either by
+        # this request or before it. Only the channels this request switches on are checked,
+        # otherwise a user without an email address could not save any settings at all, because
+        # notification_email_active is switched on by default.
+        for active_field, value_field, value_name in (
+            ("notification_email_active", "email", "an email address"),
+            ("notification_ms_teams_active", "notification_ms_teams_webhook", "a webhook"),
+            ("notification_slack_active", "notification_slack_webhook", "a webhook"),
+        ):
+            if attrs.get(active_field) and not attrs.get(value_field, getattr(self.instance, value_field)):
+                raise ValidationError({active_field: f"Cannot be activated without {value_name}"})
+
+        return attrs
 
 
 class AuthenticationRequestSerializer(Serializer):

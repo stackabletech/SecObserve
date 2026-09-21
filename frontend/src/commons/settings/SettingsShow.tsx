@@ -68,6 +68,11 @@ const SettingsShowComponent = () => {
                                 <NumberField source="oidc_clock_skew" />
                             </Labeled>
                         )}
+                        {!settings.oidc_strict_audience && (
+                            <Labeled label="OIDC strict audience">
+                                <BooleanField source="oidc_strict_audience" />
+                            </Labeled>
+                        )}
                     </Paper>
 
                     <Paper sx={{ marginBottom: 2, padding: 2 }}>
@@ -129,6 +134,11 @@ const SettingsShowComponent = () => {
                                         {settings.vulnerablecode_api_key && (
                                             <Labeled label="VulnerableCode API key">
                                                 <TextField source="vulnerablecode_api_key" />
+                                            </Labeled>
+                                        )}
+                                        {settings.vulnerablecode_base_url && (
+                                            <Labeled label="VulnerableCode cache time to live (hours)">
+                                                <NumberField source="vulnerablecode_cache_ttl_hours" />
                                             </Labeled>
                                         )}
                                     </Stack>
@@ -215,17 +225,17 @@ const SettingsShowComponent = () => {
                                 </Labeled>
                             )}
                             {feature_email() && settings.exception_email_to && (
-                                <Labeled label="Exception email to for exception notifications">
+                                <Labeled label="Exception email to">
                                     <TextField source="exception_email_to" />
                                 </Labeled>
                             )}
                             {settings.exception_ms_teams_webhook && (
-                                <Labeled label="Exception MS Teams webhook for exception notifications">
+                                <Labeled label="Exception MS Teams webhook">
                                     <TextField source="exception_ms_teams_webhook" />
                                 </Labeled>
                             )}
                             {settings.exception_slack_webhook && (
-                                <Labeled label="Exception Slack webhook for exception notifications">
+                                <Labeled label="Exception Slack webhook">
                                     <TextField source="exception_slack_webhook" />
                                 </Labeled>
                             )}
@@ -243,7 +253,7 @@ const SettingsShowComponent = () => {
                                 </Labeled>
                             )}
                             {settings.observation_title_notification_slack_webhook && (
-                                <Labeled label="Slack webhook for observation titles notifications">
+                                <Labeled label="Slack webhook for observation title notifications">
                                     <TextField source="observation_title_notification_slack_webhook" />
                                 </Labeled>
                             )}

@@ -3,8 +3,6 @@ from unittest.mock import call, patch
 
 from django.core.management import call_command
 from django.db import IntegrityError
-from huey.contrib.djhuey import HUEY
-from huey.exceptions import TaskLockedException
 
 from application.core.models import Observation, Potential_Duplicate, Product
 from application.core.services.potential_duplicates import (
@@ -161,22 +159,6 @@ class TestSetPotentialDuplicate(BaseTestCase):
             self.assertTrue(observation.has_potential_duplicates)
             self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
 
-    def test_find_potential_duplicates_lock_not_acquired(self):
-        product = self._import_duplicate_observations()
-
-        # Without the lock, the recalculation would remove the pair of the resolved observation
-        inactive_observation = Observation.objects.filter(product=product).order_by("pk").first()
-        inactive_observation.assessment_status = Status.STATUS_RESOLVED
-        inactive_observation.save()
-
-        with HUEY.lock_task("find_potential_duplicates_lock"):
-            with self.assertRaises(TaskLockedException):
-                find_potential_duplicates.call_local(product, None, None)
-
-        for observation in Observation.objects.filter(product=product):
-            self.assertTrue(observation.has_potential_duplicates)
-            self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
-
     @patch("application.core.services.potential_duplicates.handle_task_exception")
     @patch("application.core.models.Potential_Duplicate.objects.bulk_create")
     def test_find_potential_duplicates_failed_write_is_rolled_back(
@@ -185,7 +167,8 @@ class TestSetPotentialDuplicate(BaseTestCase):
         product = self._import_duplicate_observations()
         bulk_create_mock.side_effect = IntegrityError("duplicate key value violates unique constraint")
 
-        find_potential_duplicates.call_local(product, None, None)
+        with self.assertRaises(IntegrityError):
+            find_potential_duplicates.call_local(product, None, None)
 
         # The deletion of the existing potential duplicates was rolled back with the failed insert
         for observation in Observation.objects.filter(product=product):
@@ -193,6 +176,46 @@ class TestSetPotentialDuplicate(BaseTestCase):
             self.assertEqual(1, Potential_Duplicate.objects.filter(observation=observation).count())
 
         handle_task_exception_mock.assert_called_once()
+
+    @patch("application.core.services.potential_duplicates.handle_task_exception")
+    @patch("application.core.models.Observation.objects.filter")
+    def test_find_potential_duplicates_exception(self, filter_mock, exception_mock):
+        exception = Exception("error")
+        filter_mock.side_effect = exception
+
+        # call_local calls the undecorated function, so that the exception is not swallowed
+        # by Huey. It has to be re-raised, so that Huey marks the task as failed.
+        with self.assertRaises(Exception) as context:
+            find_potential_duplicates.call_local(self.product_1, None, None)
+        self.assertEqual(exception, context.exception)
+
+        exception_mock.assert_called_once_with(exception)
+
+
+class TestFindPotentialDuplicatesLocking(BaseTestCase):
+    @patch("application.core.services.potential_duplicates._set_has_potential_duplicates")
+    @patch("application.core.services.potential_duplicates._write_potential_duplicates")
+    @patch("application.core.models.Product.objects.select_for_update")
+    def test_product_is_locked_before_the_rows_are_rewritten(self, select_for_update_mock, write_mock, flags_mock):
+        # The lock has to be taken before the delete in _write_potential_duplicates: taken
+        # after it, a concurrent recalculation of the same scope would still delete the rows
+        # of its own snapshot and insert the same pair a second time.
+        product = Product.objects.create(name="product_for_locking")
+        order = []
+
+        def record_lock(*args, **kwargs):
+            order.append("lock")
+            return Product.objects.none()
+
+        def record_write(*args, **kwargs):
+            order.append("write")
+
+        select_for_update_mock.side_effect = record_lock
+        write_mock.side_effect = record_write
+
+        find_potential_duplicates.call_local(product, None, None)
+
+        self.assertEqual(["lock", "write"], order)
 
 
 class TestMatchDuplicateCandidates(BaseTestCase):

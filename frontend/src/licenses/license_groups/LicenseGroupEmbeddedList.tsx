@@ -10,10 +10,10 @@ import {
     useListController,
 } from "react-admin";
 
+import { getSettingListSize, getSettingRowsPerPage } from "../../access_control/users/functions";
 import CreateButton from "../../commons/custom_fields/CreateButton";
 import { CustomPagination } from "../../commons/custom_fields/CustomPagination";
 import { is_external } from "../../commons/functions";
-import { getSettingListSize, getSettingRowsPerPage } from "../../commons/user_settings/functions";
 
 const showLicenseGroup = (id: any) => {
     return "../../../../license_groups/" + id + "/show";
@@ -60,7 +60,7 @@ const LicenseGroupEmbeddedList = ({ license }: LicenseGroupEmbeddedListProps) =>
                         resource="license_groups"
                     >
                         <TextField source="name" label="Name" />
-                        <BooleanField source="is_public" label="Public" />
+                        <BooleanField source="is_public" label="Public" textAlign="center" />
                     </Datagrid>
                     <CustomPagination />
                 </div>
