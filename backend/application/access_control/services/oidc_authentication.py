@@ -62,10 +62,7 @@ class OIDCAuthentication(BaseAuthentication):
             options = Options(
                 verify_signature=True,
                 verify_aud=True,
-                # Stackable: audience verification is deliberately not strict, see f945bc9b.
-                # Upstream made this configurable via settings.oidc_strict_audience (default True),
-                # but flipping it on would break existing deployments, so it stays hardcoded.
-                strict_aud=False,
+                strict_aud=settings.oidc_strict_audience,
                 require=["exp"],
                 verify_iat=True,
                 verify_exp=True,

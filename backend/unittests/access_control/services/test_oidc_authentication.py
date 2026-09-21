@@ -128,7 +128,7 @@ class TestOIDCAuthentication(BaseTestCase):
             options={
                 "verify_signature": True,
                 "verify_aud": True,
-                "strict_aud": False,
+                "strict_aud": True,
                 "require": ["exp"],
                 "verify_iat": True,
                 "verify_exp": True,
@@ -221,7 +221,7 @@ class TestOIDCAuthentication(BaseTestCase):
             options={
                 "verify_signature": True,
                 "verify_aud": True,
-                "strict_aud": False,
+                "strict_aud": True,
                 "require": ["exp"],
                 "verify_iat": True,
                 "verify_exp": True,
@@ -275,7 +275,7 @@ class TestOIDCAuthentication(BaseTestCase):
             options={
                 "verify_signature": True,
                 "verify_aud": True,
-                "strict_aud": False,
+                "strict_aud": True,
                 "require": ["exp"],
                 "verify_iat": True,
                 "verify_exp": True,
