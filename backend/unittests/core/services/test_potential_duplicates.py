@@ -161,9 +161,7 @@ class TestSetPotentialDuplicate(BaseTestCase):
 
     @patch("application.core.services.potential_duplicates.handle_task_exception")
     @patch("application.core.models.Potential_Duplicate.objects.bulk_create")
-    def test_find_potential_duplicates_failed_write_is_rolled_back(
-        self, bulk_create_mock, handle_task_exception_mock
-    ):
+    def test_find_potential_duplicates_failed_write_is_rolled_back(self, bulk_create_mock, handle_task_exception_mock):
         product = self._import_duplicate_observations()
         bulk_create_mock.side_effect = IntegrityError("duplicate key value violates unique constraint")
 
