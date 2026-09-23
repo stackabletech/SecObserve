@@ -1352,18 +1352,18 @@ tornado = ["tornado (>=6.5.7)"]
 
 [[package]]
 name = "html-to-markdown"
-version = "3.13.0"
+version = "3.14.1"
 description = "High-performance HTML to Markdown converter"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "html_to_markdown-3.13.0-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:a5d9d6781924d1d5175b82bc754de4cca519a162455d780b8724dd83fce3ad3a"},
-    {file = "html_to_markdown-3.13.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:64636d1c2cbea60ea7cffceb5564e66baf6bc479fd6b0255afe00c86c8a78803"},
-    {file = "html_to_markdown-3.13.0-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6d1dcc805ef04c78a628a6086939609cb9db48e5b9a4012c4c699353bb904fa0"},
-    {file = "html_to_markdown-3.13.0-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:98b3da0e0f6fec95d33f8b4d5137eee439d3519e2dfcd076d27a035bc53eac65"},
-    {file = "html_to_markdown-3.13.0-cp310-abi3-win_amd64.whl", hash = "sha256:c6d336bedba26f5a42cbd902322a0e9ab2474b6c9686cdc169acf846fb4899c4"},
-    {file = "html_to_markdown-3.13.0.tar.gz", hash = "sha256:194404ae53c2d1f4d857c875c845362ca35400673ef01de53d224da8490fb923"},
+    {file = "html_to_markdown-3.14.1-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:4696de70bb2a134adfd7a71351a48675d1ce9c238b439051140925826d180679"},
+    {file = "html_to_markdown-3.14.1-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:a51e7d3a20af8f35d94273db8797218acc86dd5f9cd8d0de1b9988f8a959239d"},
+    {file = "html_to_markdown-3.14.1-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:52b08957e643b444bb81fb5a14993a857202d73eb81fe3408002e1409aaa60e3"},
+    {file = "html_to_markdown-3.14.1-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:3b9b53d9cd76539c7bd28f20c6d6726b863bc27ab0877d9fb40b29321310bc17"},
+    {file = "html_to_markdown-3.14.1-cp310-abi3-win_amd64.whl", hash = "sha256:56cf2b0b95c32dc101661839aa5263daf7c4958eed3c2b2f1c1a0db0446a6751"},
+    {file = "html_to_markdown-3.14.1.tar.gz", hash = "sha256:f1c5657581376da10a2886a4a2950457de8e6050e12260cb3e230d985ebd693c"},
 ]
 
 [[package]]
@@ -2722,14 +2722,14 @@ pylint = ">=1.7"
 
 [[package]]
 name = "pymysql"
-version = "1.2.0"
+version = "1.2.3"
 description = "Pure Python MySQL Driver"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "pymysql-1.2.0-py3-none-any.whl", hash = "sha256:62169ce6d5510f08e140c5e7990ee884a9764024e4a9a27b2cc11f1099322ae0"},
-    {file = "pymysql-1.2.0.tar.gz", hash = "sha256:6c7b17ca686988104d7426c27895b455cdeea3e9d3ceb1270f0c3704fead8c33"},
+    {file = "pymysql-1.2.3-py3-none-any.whl", hash = "sha256:14f1c68e2ed859243ae5ca41ffbe677027fc46bc136a9f0be8a4e928e5e7415a"},
+    {file = "pymysql-1.2.3.tar.gz", hash = "sha256:d5b288529782e536ae171866df3ca9dc4f6cbfb3cc2f18e6f837fbb90dbc262b"},
 ]
 
 [package.extras]
@@ -3631,4 +3631,4 @@ unittests = ["coverage", "django-coverage-plugin", "django-extensions"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.15"
-content-hash = "94ab011c8ea5ee5c778b1cb1e96f4b461f1af8b69c56e7c18e10fda5077f35a5"
+content-hash = "c0295b204977dbfdc7788c4b71f22bca1993643003f7bda2b36db57b70409b48"
