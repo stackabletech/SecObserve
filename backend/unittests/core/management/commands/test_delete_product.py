@@ -12,6 +12,7 @@ from application.core.models import (
     Evidence,
     Observation,
     Observation_Log,
+    Potential_Duplicate,
     Product,
 )
 from application.import_observations.models import Parser
@@ -66,6 +67,25 @@ class TestDeleteProductCommand(TestCase):
         self.assertTrue(Product.objects.filter(name="product_2").exists())
         self.assertTrue(Observation.objects.filter(pk=self.other_observation.pk).exists())
         self.assertTrue(License_Component.objects.filter(pk=self.other_license_component.pk).exists())
+
+    def test_potential_duplicates_across_batches(self) -> None:
+        observation_1, observation_2, observation_3 = Observation.objects.filter(product=self.product).order_by("id")
+        for observation, potential_duplicate_observation in [
+            (observation_1, observation_3),
+            (observation_3, observation_1),
+            (observation_2, observation_3),
+            (observation_3, observation_2),
+        ]:
+            Potential_Duplicate.objects.create(
+                observation=observation,
+                potential_duplicate_observation=potential_duplicate_observation,
+                type=Potential_Duplicate.POTENTIAL_DUPLICATE_TYPE_COMPONENT,
+            )
+
+        call_command("delete_product", "product_1", "--no-input", "--batch-size", "1")
+
+        self.assertFalse(Product.objects.filter(name="product_1").exists())
+        self.assertFalse(Potential_Duplicate.objects.exists())
 
     def test_product_not_found(self) -> None:
         with self.assertRaisesMessage(CommandError, "Product unknown not found"):

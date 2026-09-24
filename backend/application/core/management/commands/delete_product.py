@@ -59,6 +59,7 @@ class Command(BaseCommand):
             self._delete_in_batches(License_Component, product, batch_size, license_component_count)
 
             with transaction.atomic():
+                self._lock_product(product)
                 product.delete()
         finally:
             post_delete.connect(observation_post_delete, sender=Observation)
@@ -78,6 +79,12 @@ class Command(BaseCommand):
             if not ids:
                 break
             with transaction.atomic():
+                self._lock_product(product)
                 model.objects.filter(id__in=ids).delete()  # type: ignore[attr-defined]
             deleted += len(ids)
             logger.info("... %s / %s %s deleted", deleted, total, name)
+
+    def _lock_product(self, product: Product) -> None:
+        # Same lock as in find_potential_duplicates, otherwise a concurrent import can insert
+        # potential duplicates for observations that are deleted in this transaction
+        Product.objects.select_for_update().filter(pk=product.pk).first()
