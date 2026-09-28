@@ -13,6 +13,7 @@ from application.core.models import (
     Product_Member,
 )
 from application.core.queries.observation import get_current_modifying_observation_log
+from application.core.types import Status
 from application.import_observations.models import Parser
 from application.vex.models import VEX_Counter
 from application.vex.services.vex_base import (
@@ -65,6 +66,8 @@ class TestVexObservationPrefetch(TestCase):
                 parser=parser,
                 title=f"observation-{i}",
                 vulnerability_id="CVE-2026-1234",
+                # VEX exports skip Open observations, so use a status that is exported
+                parser_status=Status.STATUS_AFFECTED,
                 import_last_seen=timezone.now(),
             )
             for i in range(3)
@@ -84,6 +87,7 @@ class TestVexObservationPrefetch(TestCase):
             parser=parser,
             title="hidden",
             vulnerability_id="CVE-2026-1234",
+            parser_status=Status.STATUS_AFFECTED,
             import_last_seen=timezone.now(),
         )
 
