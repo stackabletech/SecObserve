@@ -179,7 +179,6 @@ def get_current_vex_remediations(observation: Observation) -> Optional[str]:
     if observation.rule_rego_vex_remediations:
         return observation.rule_rego_vex_remediations
 
-
     if observation.rule_vex_remediations:
         return observation.rule_vex_remediations
 
