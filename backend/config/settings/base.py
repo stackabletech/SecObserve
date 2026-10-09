@@ -77,7 +77,6 @@ else:
     DATABASES = {
         "default": {
             "ATOMIC_REQUESTS": True,
-            "OPTIONS": {"options": "-c search_path=secobserve"},
             "ENGINE": env("DATABASE_ENGINE"),
             "HOST": env("DATABASE_HOST"),
             "PORT": env("DATABASE_PORT"),
@@ -95,7 +94,7 @@ else:
             DATABASES["default"]["OPTIONS"]["ssl"] = {"ca": "/app/combined-ca-certificates.pem"}
 
     if env("DATABASE_ENGINE") == "django.db.backends.postgresql":
-        DATABASES["default"]["OPTIONS"] = postgresql_options(env)
+        DATABASES["default"]["OPTIONS"] = postgresql_options(env) | {"options": "-c search_path=secobserve"}
 
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

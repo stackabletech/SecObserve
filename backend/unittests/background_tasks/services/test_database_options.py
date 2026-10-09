@@ -69,9 +69,13 @@ class TestDatabaseOptions(TestCase):
         with patch.dict(os.environ, _database_environment("django.db.backends.postgresql"), clear=True):
             settings = runpy.run_path(base.__file__)
 
-        self.assertEqual(DEFAULT_OPTIONS, settings["DATABASES"]["default"].get("OPTIONS"))
+        self.assertEqual(
+            DEFAULT_OPTIONS | {"options": "-c search_path=secobserve"},
+            settings["DATABASES"]["default"].get("OPTIONS"),
+        )
         for database in (settings["HUEY"]["database"], settings["HUEY_STATS"]["database"]):
             self.assertEqual(DEFAULT_OPTIONS, {key: database.connect_params.get(key) for key in DEFAULT_OPTIONS})
+            self.assertEqual("-c search_path=secobserve", database.connect_params.get("options"))
 
     def test_mysql_settings_do_not_use_options(self):
         with patch.dict(os.environ, _database_environment("django.db.backends.mysql"), clear=True):
