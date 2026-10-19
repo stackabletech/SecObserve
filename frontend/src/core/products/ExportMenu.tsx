@@ -1,6 +1,7 @@
 import { faFileCsv, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DownloadIcon from "@mui/icons-material/Download";
+import PivotTableChartIcon from "@mui/icons-material/PivotTableChart";
 import SyncIcon from "@mui/icons-material/Sync";
 import ViewQuiltIcon from "@mui/icons-material/ViewQuilt";
 import { ListItemIcon } from "@mui/material";
@@ -10,8 +11,10 @@ import MenuItem from "@mui/material/MenuItem";
 import queryString from "query-string";
 import { Fragment, MouseEvent, useState } from "react";
 import { useNotify } from "react-admin";
+import { useNavigate } from "react-router-dom";
 
 import { fetch_get } from "../../access_control/auth_provider/fetch_instance";
+import { resolveDateFilters } from "../../commons/custom_fields/DateRangeFilter";
 import { feature_license_management, getIconAndFontColor } from "../../commons/functions";
 import { getOrderingQuery, httpClient } from "../../commons/ra-data-django-rest-framework";
 import { useFilterValues } from "./FilterValuesContext";
@@ -23,6 +26,7 @@ interface ExportMenuProps {
 
 const ExportMenu = (props: ExportMenuProps) => {
     const notify = useNotify();
+    const navigate = useNavigate();
     const { filterValues, sort } = useFilterValues();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [exporting, setExporting] = useState(false);
@@ -104,15 +108,15 @@ const ExportMenu = (props: ExportMenuProps) => {
 
     const currentViewQuery = () =>
         queryString.stringify({
-            ...filterValues,
+            ...resolveDateFilters(filterValues ?? {}),
             ...(sort ? getOrderingQuery({ sort }) : {}),
-            product_group: props.product.id,
+            ...(props.is_product_group ? { product_group: props.product.id } : { product: props.product.id }),
         });
 
     const exportCurrentViewExcel = async () => {
         exportDataExcel(
             "/observations/export_excel/?" + currentViewQuery(),
-            observationsFilename("current_view_observations.xlsx"),
+            observationsFilename("current_selection_observations.xlsx"),
             "Observations"
         );
     };
@@ -120,7 +124,7 @@ const ExportMenu = (props: ExportMenuProps) => {
     const exportCurrentViewCsv = async () => {
         exportDataCsv(
             "/observations/export_csv/?" + currentViewQuery(),
-            observationsFilename("current_view_observations.csv"),
+            observationsFilename("current_selection_observations.csv"),
             "Observations"
         );
     };
@@ -242,20 +246,34 @@ const ExportMenu = (props: ExportMenuProps) => {
                     },
                 }}
             >
-                {props.is_product_group && filterValues && (
+                {filterValues && (
                     <MenuItem onClick={exportCurrentViewExcel}>
                         <ListItemIcon>
                             <FontAwesomeIcon icon={faFileExcel} color={getIconAndFontColor()} />
                         </ListItemIcon>
-                        Current view / Excel
+                        Current selection / Excel
                     </MenuItem>
                 )}
-                {props.is_product_group && filterValues && (
-                    <MenuItem onClick={exportCurrentViewCsv} divider>
+                {filterValues && (
+                    <MenuItem onClick={exportCurrentViewCsv}>
                         <ListItemIcon>
                             <FontAwesomeIcon icon={faFileCsv} color={getIconAndFontColor()} />
                         </ListItemIcon>
-                        Current view / CSV
+                        Current selection / CSV
+                    </MenuItem>
+                )}
+                {filterValues && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/pivot_table?" + currentViewQuery());
+                            handleClose();
+                        }}
+                        divider
+                    >
+                        <ListItemIcon>
+                            <PivotTableChartIcon sx={{ color: getIconAndFontColor() }} />
+                        </ListItemIcon>
+                        Current selection / Pivot Table
                     </MenuItem>
                 )}
                 <MenuItem onClick={exportOpenObservationsExcel}>
