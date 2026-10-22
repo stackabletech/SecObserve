@@ -19,7 +19,7 @@ from application.access_control.queries.user import get_user_by_email
 from application.commons.models import Settings
 
 OIDC_PREFIX = "Bearer"
-ALGORITHMS = ["RS256", "RS384", "RS512", "ES256 ", "ES384", "ES512", "EdDSA"]
+ALGORITHMS = ["RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "EdDSA"]
 
 
 class OIDCAuthentication(BaseAuthentication):
