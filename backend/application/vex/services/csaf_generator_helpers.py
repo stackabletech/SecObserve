@@ -31,7 +31,13 @@ def map_status(secobserve_status: str) -> Optional[str]:
         return CSAF_Status.CSAF_STATUS_AFFECTED
 
     if secobserve_status == Status.STATUS_RESOLVED:
-        return CSAF_Status.CSAF_STATUS_FIXED
+        # A resolved observation has only not been found in the latest scan of its branch. At Stackable,
+        # a branch we create VEX for is a release branch and the images are immutable, so this does not
+        # mean that the product version contains a fix. The scanner vulnerability data might have changed,
+        # but in that case we should verify and state this manually (e.g. "False positive"). Claiming "fixed"
+        # would make scanners suppress findings that might still be present if the observation is accidentally
+        # not reported in some scans.
+        return None
 
     if secobserve_status in (
         Status.STATUS_NOT_AFFECTED,
