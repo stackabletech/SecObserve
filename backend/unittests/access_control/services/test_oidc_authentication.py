@@ -297,7 +297,7 @@ class TestOIDCAuthentication(BaseTestCase):
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._get_jwks_uri")
     @patch("application.access_control.services.oidc_authentication.PyJWKClient.__init__")
     @patch("application.access_control.services.oidc_authentication.PyJWKClient.get_signing_key_from_jwt")
-    @patch("application.access_control.services.oidc_authentication.get_user_by_username")
+    @patch("application.access_control.services.oidc_authentication.get_user_by_email")
     @patch("application.access_control.services.oidc_authentication.OIDCAuthentication._check_user_change")
     def test_validate_jwt_es256(
         self,
@@ -310,7 +310,7 @@ class TestOIDCAuthentication(BaseTestCase):
         private_key = ec.generate_private_key(ec.SECP256R1())
         token = jwt.encode(
             {
-                "preferred_username": self.user_internal.username,
+                "email": self.user_internal.email,
                 "aud": "client_id",
                 "exp": int(time.time()) + 300,
             },
@@ -327,7 +327,8 @@ class TestOIDCAuthentication(BaseTestCase):
         user, payload = oidc_authentication._validate_jwt(token)
 
         self.assertEqual(self.user_internal, user)
-        self.assertEqual(self.user_internal.username, payload["preferred_username"])
+        self.assertEqual(self.user_internal.email, payload["email"])
+        get_user_mock.assert_called_once_with(self.user_internal.email)
 
     @patch("requests.request")
     def test_get_jwks_uri(self, requests_mock):
