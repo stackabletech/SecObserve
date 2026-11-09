@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("core", "0099_initialize_observation_components"),
-        ("rules", "0021_rename_approval_remark_rule_rejection_remark"),
+        ("rules", "0022_rename_approval_remark_rule_rejection_remark"),
         ("vex", "0010_cyclonedx_cyclonedx_branch_cyclonedx_vulnerability"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
