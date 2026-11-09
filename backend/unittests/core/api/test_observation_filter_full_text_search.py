@@ -75,8 +75,11 @@ class TestObservationFilterFullTextSearch(BaseTestCase):
         for field in ["general_rule_id", "general_rule_rego_id", "product_rule_id", "product_rule_rego_id"]:
             self.assertIn(f'"U0"."{field}" IS NULL', sql)
         self.assertIn('"U0"."vex_statement_id" IS NULL', sql)
+        # comment is nullable on the fork, so Django adds an IS NOT NULL guard to the exclusion
         self.assertIn(
-            f'NOT ("U0"."comment" IN ({", ".join(Observation_Log_Comment.FULL_TEXT_SEARCH_EXCLUDED_COMMENTS)}))', sql
+            f'NOT ("U0"."comment" IN ({", ".join(Observation_Log_Comment.FULL_TEXT_SEARCH_EXCLUDED_COMMENTS)})'
+            ' AND "U0"."comment" IS NOT NULL)',
+            sql,
         )
         for prefix in Observation_Log_Comment.FULL_TEXT_SEARCH_EXCLUDED_COMMENT_PREFIXES:
             self.assertIn(f'NOT ("U0"."comment" LIKE {prefix}%', sql)
