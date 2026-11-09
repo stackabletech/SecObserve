@@ -247,7 +247,7 @@ def _get_assessments_need_approval(product: Product) -> bool:
 
 def remove_assessment(
     observation: Observation,
-    comment: str,
+    comment: Optional[str],
     propagated_from: Optional[Observation_Log] = None,
     propagate: bool = True,
 ) -> Optional[Observation_Log]:
