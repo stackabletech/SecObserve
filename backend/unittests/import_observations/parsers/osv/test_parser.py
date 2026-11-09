@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.core.management import call_command
 from packageurl import PackageURL
 
+from application.core.models import Branch, Product
 from application.import_observations.parsers.osv.parser import (
     OSV_Component,
     OSV_Vulnerability,
@@ -11,6 +12,9 @@ from application.import_observations.parsers.osv.parser import (
 )
 from application.licenses.models import License_Component
 from unittests.base_test_case import BaseTestCase
+
+CVSS3_VECTOR = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+CVSS4_VECTOR = "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N"
 
 
 class TestOSVParser(BaseTestCase):
@@ -324,6 +328,43 @@ A stack overflow in the XML.toJSONObject component of hutool-json v5.8.10 and or
 
         self.assertFalse(parser._is_version_in_ranges(purl, "1.54.0-3.el9", affected)[0])
 
+    def test_get_cvss_correctly_labelled(self):
+        osv_vulnerability = {
+            "severity": [
+                {"type": "CVSS_V3", "score": CVSS3_VECTOR},
+                {"type": "CVSS_V4", "score": CVSS4_VECTOR},
+                {"type": "Ubuntu", "score": "high"},
+            ]
+        }
+
+        self.assertEqual((CVSS3_VECTOR, CVSS4_VECTOR), OSVParser()._get_cvss(osv_vulnerability))
+
+    def test_get_cvss_mislabelled_only(self):
+        osv_vulnerability = {"severity": [{"type": "CVSS_V4", "score": CVSS3_VECTOR}]}
+
+        self.assertEqual((CVSS3_VECTOR, ""), OSVParser()._get_cvss(osv_vulnerability))
+
+    def test_get_cvss_mislabelled_does_not_overwrite_correctly_labelled(self):
+        other_cvss3_vector = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+        correct = {"type": "CVSS_V3", "score": CVSS3_VECTOR}
+        mislabelled = {"type": "CVSS_V4", "score": other_cvss3_vector}
+
+        self.assertEqual((CVSS3_VECTOR, ""), OSVParser()._get_cvss({"severity": [correct, mislabelled]}))
+        self.assertEqual((CVSS3_VECTOR, ""), OSVParser()._get_cvss({"severity": [mislabelled, correct]}))
+
+    def test_get_affected_cvss_list(self):
+        affected = {"severity": [{"type": "CVSS_V4", "score": CVSS4_VECTOR}]}
+
+        self.assertEqual(("", CVSS4_VECTOR), OSVParser()._get_affected_cvss(affected))
+
+    def test_get_affected_cvss_single(self):
+        affected = {"severity": {"type": "CVSS_V3", "score": CVSS4_VECTOR}}
+
+        self.assertEqual(("", CVSS4_VECTOR), OSVParser()._get_affected_cvss(affected))
+
+    def test_get_affected_cvss_none(self):
+        self.assertEqual(("", ""), OSVParser()._get_affected_cvss({}))
+
     def test_linux_rpm_ecosystem_not_found(self):
         call_command(
             "loaddata",
@@ -343,6 +384,23 @@ A stack overflow in the XML.toJSONObject component of hutool-json v5.8.10 and or
 
         self.assertEqual("OSV (Open Source Vulnerabilities)", scanner)
         self.assertEqual(len(observations), 0)
+
+    def test_get_configured_osv_ecosystem(self):
+        parser = OSVParser()
+        product_empty = Product()
+        product_distribution = Product(osv_linux_distribution="Debian")
+        product_release = Product(osv_linux_distribution="Debian", osv_linux_release="11")
+        branch_empty = Branch()
+        branch_distribution = Branch(osv_linux_distribution="Ubuntu")
+        branch_release = Branch(osv_linux_distribution="Ubuntu", osv_linux_release="22.04:LTS")
+
+        self.assertIsNone(parser._get_configured_osv_ecosystem(product_empty, None))
+        self.assertIsNone(parser._get_configured_osv_ecosystem(product_empty, branch_empty))
+        self.assertEqual("Debian", parser._get_configured_osv_ecosystem(product_distribution, None))
+        self.assertEqual("Debian:11", parser._get_configured_osv_ecosystem(product_release, None))
+        self.assertEqual("Debian:11", parser._get_configured_osv_ecosystem(product_release, branch_empty))
+        self.assertEqual("Ubuntu", parser._get_configured_osv_ecosystem(product_release, branch_distribution))
+        self.assertEqual("Ubuntu:22.04:LTS", parser._get_configured_osv_ecosystem(product_release, branch_release))
 
     def test_get_linux_package_osv_ecosystem_already_set(self):
         parser = OSVParser()
@@ -367,7 +425,7 @@ A stack overflow in the XML.toJSONObject component of hutool-json v5.8.10 and or
     def test_get_linux_package_osv_ecosystem_alpine_2(self):
         parser = OSVParser()
         package_osv_ecosystem = parser._get_linux_package_osv_ecosystem(
-            PackageURL.from_string("pkg:apk/alpine/busybox-binsh@1.62.1-r12?arch=x86_64&distro=3.21.3"),
+            PackageURL.from_string("pkg:apk/alpine/busybox-binsh@1.64.0-r12?arch=x86_64&distro=3.21.3"),
             None,
         )
         self.assertEqual("Alpine:v3.21", package_osv_ecosystem)

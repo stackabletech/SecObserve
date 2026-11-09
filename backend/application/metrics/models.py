@@ -35,6 +35,9 @@ class Product_Metrics(Model):
     risk_accepted = IntegerField(default=0)
     affected = IntegerField(default=0)
 
+    # Product.last_observation_change these metrics have been calculated for
+    last_observation_change = DateTimeField(null=True)
+
     class Meta:
         unique_together = (
             "product",
@@ -51,6 +54,9 @@ class Product_License_Metrics(Model):
     ignored = IntegerField(default=0)
     review_required = IntegerField(default=0)
     unknown = IntegerField(default=0)
+
+    # Product.last_license_change these metrics have been calculated for
+    last_license_change = DateTimeField(null=True)
 
     class Meta:
         unique_together = (

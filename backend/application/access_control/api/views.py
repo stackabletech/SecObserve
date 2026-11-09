@@ -1,4 +1,5 @@
 import logging
+import unicodedata
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,6 +26,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
+from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -88,6 +90,26 @@ from application.commons.models import Settings
 from application.commons.services.log_message import format_log_message
 
 logger = logging.getLogger("secobserve.access_control")
+
+
+# Counted per process in LocMemCache, which evicts entries when full; a shared cache backend counts across processes
+class LoginRateThrottle(SimpleRateThrottle):
+    scope = "login"
+
+    def get_cache_key(self, request: Request, view: APIView) -> str | None:
+        data = request.data
+        username = data.get("username") if isinstance(data, dict) else None
+        if not isinstance(username, str):
+            return None
+        # Variants that whitespace trimming or the database collation match to one user share one counter
+        ident = (
+            "".join(c for c in unicodedata.normalize("NFKD", username) if unicodedata.category(c) not in ("Mn", "Cf"))
+            .strip()
+            .casefold()
+        )
+        if not ident:
+            return None
+        return self.cache_format % {"scope": self.scope, "ident": ident}
 
 
 class UserViewSet(ModelViewSet):
@@ -158,20 +180,21 @@ class UserViewSet(ModelViewSet):
         if setting_rows_per_page:
             user.setting_rows_per_page = setting_rows_per_page
 
-        # The notification settings are checked for presence instead of truthiness,
+        # These settings are checked for presence instead of truthiness,
         # otherwise they could not be cleared or switched off
         validated_data = request_serializer.validated_data
         if "email" in validated_data:
             user.email = validated_data["email"]
-        for notification_field in (
+        for field in (
+            "setting_hidden_observation_columns",
             "notification_ms_teams_webhook",
             "notification_slack_webhook",
             "notification_email_active",
             "notification_ms_teams_active",
             "notification_slack_active",
         ):
-            if notification_field in validated_data:
-                setattr(user, notification_field, validated_data[notification_field])
+            if field in validated_data:
+                setattr(user, field, validated_data[field])
 
         user.save()
 
@@ -287,6 +310,7 @@ class ApiTokenViewSet(ListModelMixin, GenericViewSet):
 
 class UserAPITokenCreateView(APIView):
     authentication_classes = []
+    throttle_classes = [*APIView.throttle_classes, LoginRateThrottle]
     permission_classes = []
 
     @extend_schema(
@@ -323,6 +347,7 @@ class UserAPITokenCreateView(APIView):
 
 class UserAPITokenRevokeView(APIView):
     authentication_classes = []
+    throttle_classes = [*APIView.throttle_classes, LoginRateThrottle]
     permission_classes = []
 
     @extend_schema(
@@ -353,6 +378,7 @@ class UserAPITokenRevokeView(APIView):
 
 class AuthenticateView(APIView):
     authentication_classes = []
+    throttle_classes = [*APIView.throttle_classes, LoginRateThrottle]
     permission_classes = []
 
     @extend_schema(

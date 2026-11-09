@@ -49,6 +49,7 @@ from application.core.services.observation_log import create_observation_log
 from application.core.services.security_gate import check_security_gate_observation
 from application.core.types import (
     Assessment_Status,
+    Observation_Log_Comment,
     Severity,
     Status,
     VEX_Justification,
@@ -341,6 +342,7 @@ class ObservationUpdateSerializer(ModelSerializer):
         return validate_cvss4_vector(cvss4_vector)
 
     def update(self, instance: Observation, validated_data: dict) -> Observation:
+        actual_branch = instance.branch
         actual_severity = instance.current_severity
         actual_status = instance.current_status
         actual_vex_justification = instance.current_vex_justification
@@ -381,12 +383,16 @@ class ObservationUpdateSerializer(ModelSerializer):
                 status=log_status,
                 priority=None,
                 priority_changed=False,
-                comment="Observation changed manually",
+                comment=Observation_Log_Comment.COMMENT_CHANGED_MANUALLY,
                 vex_justification=log_vex_justification,
                 vex_remediations=log_vex_remediations,
                 assessment_status=Assessment_Status.ASSESSMENT_STATUS_AUTO_APPROVED,
                 risk_acceptance_expiry_date=log_risk_acceptance_expiry_date,
             )
+        elif actual_branch != observation.branch:
+            # The metrics count the observations of the default branch
+            observation.product.last_observation_change = timezone.now()
+            observation.product.save()
 
         check_security_gate_observation(observation)
         push_observation_to_issue_tracker(observation, get_current_user())
@@ -470,7 +476,7 @@ class ObservationCreateSerializer(ModelSerializer):
             status=observation.current_status,
             priority=None,
             priority_changed=False,
-            comment="Observation created manually",
+            comment=Observation_Log_Comment.COMMENT_CREATED_MANUALLY,
             vex_justification=observation.current_vex_justification,
             vex_remediations=(
                 str(observation.current_vex_remediations) if observation.current_vex_remediations is not None else None

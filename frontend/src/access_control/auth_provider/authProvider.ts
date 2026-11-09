@@ -1,9 +1,10 @@
 import { AuthProvider } from "react-admin";
 
-import { set_settings_in_local_storage } from "../../commons/functions";
 import { queryClient } from "../../commons/queryClient";
 import { httpClient } from "../../commons/ra-data-django-rest-framework";
 import { oidc_signed_in, oidc_signin_again, userManager } from "./oidc";
+
+const TOO_MANY_LOGIN_ATTEMPTS = "Too many login attempts, try again later";
 
 let _isLoggingOut = false;
 export function getIsLoggingOut(): boolean {
@@ -24,6 +25,9 @@ const authProvider: AuthProvider = {
             });
             return fetch(request)
                 .then((response) => {
+                    if (response.status === 429) {
+                        throw new Error(TOO_MANY_LOGIN_ATTEMPTS);
+                    }
                     if (response.status < 200 || response.status >= 300) {
                         throw new Error(response.statusText);
                     }
@@ -37,6 +41,8 @@ const authProvider: AuthProvider = {
                 .catch((error) => {
                     if (error.message == "Forbidden") {
                         throw new Error("Invalid credentials");
+                    } else if (error.message == TOO_MANY_LOGIN_ATTEMPTS) {
+                        throw error;
                     } else {
                         throw new Error("Network error");
                     }
@@ -99,9 +105,6 @@ const authProvider: AuthProvider = {
             const user_json = JSON.parse(user);
             fullName = user_json.full_name;
         }
-
-        // Not awaited, pages don't wait for getIdentity and a failure must not hide the identity
-        set_settings_in_local_storage().catch(() => undefined);
 
         return Promise.resolve({ id, fullName, avatar });
     },

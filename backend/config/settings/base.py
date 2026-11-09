@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import re
 from pathlib import Path
 from socket import gethostbyname, gethostname
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -146,6 +147,7 @@ LOCAL_APPS = [
     "application.metrics",
     "application.notifications",
     "application.rules",
+    "application.scancodeio",
     "application.vex",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -390,6 +392,13 @@ else:
         "rest_framework.authentication.SessionAuthentication",
     ]
 
+LOGIN_THROTTLE_RATE = env.str("LOGIN_THROTTLE_RATE", "10/minute")
+# REST framework only reads the first letter of the period
+if not re.fullmatch(r"\d+/[smhd][a-z]*", LOGIN_THROTTLE_RATE):
+    raise ValueError(
+        f"LOGIN_THROTTLE_RATE '{LOGIN_THROTTLE_RATE}' must have the format <number>/<second|minute|hour|day>"
+    )
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": DEFAULT_AUTHENTICATION_CLASSES,
     "DEFAULT_RENDERER_CLASSES": [
@@ -407,7 +416,11 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "10/second", "user": "100/second"},
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/second",
+        "user": "100/second",
+        "login": LOGIN_THROTTLE_RATE,
+    },
     "EXCEPTION_HANDLER": "notifications.api.exception_handler.custom_exception_handler",
 }
 
@@ -455,6 +468,10 @@ huey_sqlite_url = env.str("HUEY_SQLITE_URL", "sqlite:////var/lib/huey/huey.db")
 huey_database = create_huey_database(db, huey_sqlite_url)
 huey_stats_database = create_huey_database(db, huey_sqlite_url)
 
+HUEY_WORKERS = env.int("HUEY_WORKERS", 3)
+if HUEY_WORKERS < 1:
+    raise ValueError("HUEY_WORKERS must be at least 1")
+
 # The deprecated variable still wins; without TIME_ZONE the schedules stay in UTC instead of moving to its CET default
 BACKGROUND_TASKS_TIME_ZONE = env_time_zone("BACKGROUND_TASKS_TIME_ZONE", env.str("TIME_ZONE", default="UTC"))
 
@@ -467,7 +484,7 @@ HUEY = {
     "immediate": HUEY_IMMEDIATE,  # Check the variable for documentation
     "utc": True,  # Use UTC for all times internally.
     "consumer": {
-        "workers": 3,  # Number of worker threads/processes.
+        "workers": HUEY_WORKERS,  # Number of worker threads/processes.
         "worker_type": "thread",
         "initial_delay": 0.1,  # Smallest polling interval, same as -d.
         "backoff": 1.15,  # Exponential backoff using this rate, -b.
@@ -483,6 +500,14 @@ HUEY = {
 HUEY_TASK_MAX_RUNTIME_HOURS = env.float("HUEY_TASK_MAX_RUNTIME_HOURS", 12)
 if HUEY_TASK_MAX_RUNTIME_HOURS <= 0:
     raise ValueError("HUEY_TASK_MAX_RUNTIME_HOURS must be greater than 0")
+
+# Retries of the OSV scan of a product after a transient error, e.g. an outage of OSV or a lost database connection
+OSV_SCAN_RETRIES = env.int("OSV_SCAN_RETRIES", 2)
+if OSV_SCAN_RETRIES < 0:
+    raise ValueError("OSV_SCAN_RETRIES must not be negative")
+OSV_SCAN_RETRY_DELAY = env.int("OSV_SCAN_RETRY_DELAY", 300)
+if OSV_SCAN_RETRY_DELAY < 0:
+    raise ValueError("OSV_SCAN_RETRY_DELAY must not be negative")
 
 HUEY_STATS = {
     "database": huey_stats_database,

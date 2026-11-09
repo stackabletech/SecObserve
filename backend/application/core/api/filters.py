@@ -12,9 +12,13 @@ from django_filters import (
     NumberFilter,
     OrderingFilter,
 )
+from rest_framework.exceptions import ValidationError
 
 from application.commons.api.extended_ordering_filter import ExtendedOrderingFilter
-from application.commons.services.functions import get_start_of_day
+from application.commons.services.functions import (
+    get_start_of_day,
+    is_full_text_search_available,
+)
 from application.commons.types import Age_Choices
 from application.core.models import (
     Branch,
@@ -28,6 +32,7 @@ from application.core.models import (
     Product_Member,
     Service,
 )
+from application.core.queries.observation import filter_observations_full_text
 from application.core.queries.product import get_default_branch_filter
 from application.core.types import Assessment_Status, Severity, Status
 from application.licenses.models import License_Component
@@ -238,6 +243,7 @@ class ObservationFilter(FilterSet):
     age = ChoiceFilter(field_name="age", method="get_age", choices=Age_Choices.AGE_CHOICES)
     created = DateTimeFromToRangeFilter(field_name="created")
     last_observation_log = DateTimeFromToRangeFilter(field_name="last_observation_log")
+    assessed = BooleanFilter(field_name="last_assessment", lookup_expr="isnull", exclude=True)
     product_group = ModelChoiceFilter(
         field_name="product__product_group",
         queryset=Product.objects.filter(is_product_group=True),
@@ -246,6 +252,7 @@ class ObservationFilter(FilterSet):
     cve_known_exploited = BooleanFilter(field_name="cve_known_exploited", method="get_cve_known_exploited")
     has_pending_assessment = BooleanFilter(field_name="has_pending_assessment", method="get_has_pending_assessment")
     default_branch = BooleanFilter(method="get_default_branch")
+    full_text_search = CharFilter(method="get_full_text_search")
 
     ordering = ExtendedOrderingFilter(
         # tuple-mapping retains order
@@ -276,6 +283,7 @@ class ObservationFilter(FilterSet):
             ("parser__type", "parser_data.type"),
             ("scanner", "scanner_name"),
             ("last_observation_log", "last_observation_log"),
+            ("last_assessment", "last_assessment"),
             ("epss_score", "epss_score"),
             ("upgrade_impact_score", "upgrade_impact_score"),
             ("origin_component_location", "origin_component_location"),
@@ -366,6 +374,17 @@ class ObservationFilter(FilterSet):
         if value is False:
             return queryset.exclude(get_default_branch_filter())
         return queryset
+
+    def get_full_text_search(
+        self,
+        queryset: QuerySet,
+        name: Any,  # pylint: disable=unused-argument
+        value: str,
+    ) -> QuerySet:
+        # name is used as a positional argument
+        if not is_full_text_search_available():
+            raise ValidationError("Full text search is not activated")
+        return filter_observations_full_text(queryset, value)
 
 
 class ObservationLogFilter(FilterSet):

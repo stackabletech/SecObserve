@@ -8,7 +8,7 @@ from cvss.exceptions import CVSSError
 from django.utils import timezone
 
 from application.commons.models import Settings
-from application.core.models import Observation
+from application.core.models import Observation, Product
 from application.core.services.observation import get_current_severity
 from application.core.types import Severity
 from application.epss.models import Exploit_Information
@@ -20,8 +20,9 @@ from application.epss.services.epss import batched_cve_observations
 
 logger = logging.getLogger("secobserve.epss")
 
-# Fields read and written by apply_exploit_information(), including get_current_severity()
+# Fields read and written by apply_exploit_information(), including get_current_severity(), and the product to mark
 EXPLOIT_INFORMATION_FIELDS = (
+    "product",
     "vulnerability_id",
     "cvss3_score",
     "cvss3_vector",
@@ -29,6 +30,7 @@ EXPLOIT_INFORMATION_FIELDS = (
     "cvss4_vector",
     "cve_found_in",
     "current_severity",
+    "numerical_severity",
     "parser_severity",
     "rule_severity",
     "rule_rego_severity",
@@ -171,7 +173,12 @@ def apply_exploit_information_observations(settings: Settings) -> int:
                 "cvss4_vector",
                 "cve_found_in",
                 "current_severity",
+                "numerical_severity",
             ],
+        )
+        # bulk_update bypasses the observation log, which marks the product as changed
+        Product.objects.filter(pk__in={observation.product_id for observation in updates}).update(
+            last_observation_change=timezone.now()
         )
 
     return num_observations
@@ -226,6 +233,8 @@ def apply_exploit_information(
             )
         ):
             observation.current_severity = get_current_severity(observation)
+            # bulk_update bypasses the pre_save signal, which would set it from the current severity
+            observation.numerical_severity = Severity.NUMERICAL_SEVERITIES[observation.current_severity]
             return True
 
         return False
