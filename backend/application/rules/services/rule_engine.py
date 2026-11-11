@@ -289,7 +289,7 @@ class Rule_Engine:
             else:
                 observation.risk_acceptance_expiry_date = None
 
-            if rule.product:
+            if rule.product_id:
                 observation.product_rule = rule
             else:
                 observation.general_rule = rule
@@ -374,7 +374,7 @@ class Rule_Engine:
                 observation.rule_rego_vex_remediations = rule.new_vex_remediations
                 observation.current_vex_remediations = get_current_vex_remediations(observation)
 
-            if rule.product:
+            if rule.product_id:
                 observation.product_rule_rego = rule
             else:
                 observation.general_rule_rego = rule
@@ -436,15 +436,15 @@ def _write_observation_log(
     if rule.description:
         comment = rule.description
     else:
-        if rule.product:
+        if rule.product_id:
             comment = f"{Observation_Log_Comment.COMMENT_PREFIX_UPDATED_BY_PRODUCT_RULE}{rule.name}"
         else:
             comment = f"{Observation_Log_Comment.COMMENT_PREFIX_UPDATED_BY_GENERAL_RULE}{rule.name}"
 
-    general_rule = rule if rule.product is None and rule.type == Rule_Type.RULE_TYPE_FIELDS else None
-    general_rule_rego = rule if rule.product is None and rule.type == Rule_Type.RULE_TYPE_REGO else None
-    product_rule = rule if rule.product and rule.type == Rule_Type.RULE_TYPE_FIELDS else None
-    product_rule_rego = rule if rule.product and rule.type == Rule_Type.RULE_TYPE_REGO else None
+    general_rule = rule if rule.product_id is None and rule.type == Rule_Type.RULE_TYPE_FIELDS else None
+    general_rule_rego = rule if rule.product_id is None and rule.type == Rule_Type.RULE_TYPE_REGO else None
+    product_rule = rule if rule.product_id and rule.type == Rule_Type.RULE_TYPE_FIELDS else None
+    product_rule_rego = rule if rule.product_id and rule.type == Rule_Type.RULE_TYPE_REGO else None
 
     create_observation_log(
         observation=observation,
