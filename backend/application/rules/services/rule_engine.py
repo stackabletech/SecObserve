@@ -314,9 +314,15 @@ class Rule_Engine:
         jsonpickle_backend.set_encoder_options("simplejson", use_decimal=True, sort_keys=True)
         jsonpickle_backend.set_preferred_backend("simplejson")
 
+        # Only the database fields are given to the rule. The instance carries Django internals as well, e.g. the
+        # related objects in _state or the prefetched references and evidences of an import. jsonpickle would
+        # serialize them completely, for the prefetched QuerySets this means several MB per observation.
+        observation_state = {
+            field.attname: getattr(observation, field.attname) for field in Observation._meta.concrete_fields
+        }
         observation_dict = json.loads(
             jsonpickle.dumps(
-                observation,
+                observation_state,
                 unpicklable=False,
                 use_decimal=True,
                 backend=jsonpickle_backend,
