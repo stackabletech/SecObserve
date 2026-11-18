@@ -129,12 +129,6 @@ export function observationFilters(product?: Product, review = false, product_fi
             input: <NullableBooleanInput source="fix_available" label="Fix available" />,
         });
     }
-    if (!review) {
-        secondary.push({
-            column: TRIAGE,
-            input: <NullableBooleanInput source="has_pending_assessment" label="Has pending assessment" />,
-        });
-    }
 
     return { primary, secondary };
 }

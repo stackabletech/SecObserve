@@ -258,7 +258,6 @@ class ObservationFilter(FilterSet):
     )
     branch_name = CharFilter(field_name="branch__name", lookup_expr="icontains")
     cve_known_exploited = BooleanFilter(field_name="cve_known_exploited", method="get_cve_known_exploited")
-    has_pending_assessment = BooleanFilter(field_name="has_pending_assessment", method="get_has_pending_assessment")
     default_branch = BooleanFilter(method="get_default_branch")
     full_text_search = CharFilter(method="get_full_text_search")
 
@@ -352,22 +351,6 @@ class ObservationFilter(FilterSet):
             return queryset.exclude(cve_found_in="")
         if value is False:
             return queryset.filter(cve_found_in="")
-        return queryset
-
-    def get_has_pending_assessment(
-        self,
-        queryset: QuerySet,
-        name: Any,  # pylint: disable=unused-argument
-        value: Optional[bool],
-    ) -> QuerySet:
-        # name is used as a positional argument
-        pending = Observation_Log.objects.filter(
-            assessment_status=Assessment_Status.ASSESSMENT_STATUS_NEEDS_APPROVAL
-        ).values("observation_id")
-        if value is True:
-            return queryset.filter(id__in=pending)
-        if value is False:
-            return queryset.exclude(id__in=pending)
         return queryset
 
     def get_default_branch(
