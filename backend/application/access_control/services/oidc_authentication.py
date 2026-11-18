@@ -16,7 +16,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from application.access_control.models import Authorization_Group, User
-from application.access_control.queries.user import get_user_by_email
+from application.access_control.queries.user import get_user_by_username
 from application.commons.models import Settings
 
 OIDC_PREFIX = "Bearer"
@@ -35,8 +35,13 @@ class OIDCAuthentication(BaseAuthentication):
         if len(auth) > 2:
             raise AuthenticationFailed("Invalid token header: Token string should not contain spaces.")
 
-        auth_prefix = auth[0].decode("UTF-8")
-        auth_token = auth[1].decode("UTF-8")
+        try:
+            auth_prefix = auth[0].decode("UTF-8")
+            auth_token = auth[1].decode("UTF-8")
+        except UnicodeDecodeError as e:
+            raise AuthenticationFailed(
+                "Invalid token header: Token string should not contain invalid characters."
+            ) from e
 
         if auth_prefix.lower() != OIDC_PREFIX.lower():
             # Authorization header is possibly for another backend
@@ -71,21 +76,27 @@ class OIDCAuthentication(BaseAuthentication):
                 verify_exp=True,
                 verify_nbf=True,
             )
-            payload = decode(
-                jwt=token,
-                options=options,
-                key=signing_key.key,
-                algorithms=ALGORITHMS,
-                audience=os.environ["OIDC_CLIENT_ID"],
-                issuer=self._get_issuer(discovered_issuer),
-                leeway=settings.oidc_clock_skew,
-            )
-            email = payload.get(os.environ["OIDC_EMAIL"])
-            user = get_user_by_email(email)
+            try:
+                payload = decode(
+                    jwt=token,
+                    options=options,
+                    key=signing_key.key,
+                    algorithms=ALGORITHMS,
+                    audience=os.environ["OIDC_CLIENT_ID"],
+                    issuer=self._get_issuer(discovered_issuer),
+                    leeway=settings.oidc_clock_skew,
+                )
+            except (TypeError, ValueError) as e:
+                # PyJWT raises these when the key type does not fit the algorithm in the token header
+                raise AuthenticationFailed(str(e)) from e
+            username = payload.get(os.environ["OIDC_USERNAME"])
+            if not username:
+                raise AuthenticationFailed("No username found in JWT")
+            user = get_user_by_username(username)
             if user:
                 user = self._check_user_change(user, payload)
                 return user, payload
-            return self._create_user(email, payload), payload
+            return self._create_user(username, payload), payload
         except PyJWTError as e:
             raise AuthenticationFailed(str(e)) from e
 
@@ -114,10 +125,10 @@ class OIDCAuthentication(BaseAuthentication):
             raise AuthenticationFailed("No issuer found in OpenID configuration and OIDC_ISSUER is not set")
         return issuer
 
-    def _create_user(self, email: str, payload: dict) -> User:
-        user = User(email=email, first_name="", last_name="", username="")
-        if os.environ.get("OIDC_USERNAME"):
-            user.username = payload[os.environ["OIDC_USERNAME"]]
+    def _create_user(self, username: str, payload: dict) -> User:
+        user = User(username=username, first_name="", last_name="", email="")
+        if os.environ.get("OIDC_EMAIL"):
+            user.email = payload[os.environ["OIDC_EMAIL"]]
         if os.environ.get("OIDC_FULL_NAME"):
             user.full_name = payload[os.environ["OIDC_FULL_NAME"]]
         if os.environ.get("OIDC_FIRST_NAME"):
@@ -146,15 +157,15 @@ class OIDCAuthentication(BaseAuthentication):
             return user
         except IntegrityError as e:
             # User was most likely created by another request
-            existing_user = get_user_by_email(email)
+            existing_user = get_user_by_username(username)
             if not existing_user:
                 raise e
             return existing_user
 
     def _check_user_change(self, user: User, payload: dict) -> User:
         user_changed = False
-        if os.environ.get("OIDC_USERNAME") and user.username != payload[os.environ["OIDC_USERNAME"]]:
-            user.username = payload[os.environ["OIDC_USERNAME"]]
+        if os.environ.get("OIDC_EMAIL") and user.email != payload[os.environ["OIDC_EMAIL"]]:
+            user.email = payload[os.environ["OIDC_EMAIL"]]
             user_changed = True
         if os.environ.get("OIDC_FULL_NAME") and user.full_name != payload[os.environ["OIDC_FULL_NAME"]]:
             user.full_name = payload[os.environ["OIDC_FULL_NAME"]]
