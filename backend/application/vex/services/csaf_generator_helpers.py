@@ -24,11 +24,18 @@ def get_vulnerability_ecosystem(vulnerability_name: str) -> str:
 
 def map_status(secobserve_status: str) -> Optional[str]:
     if secobserve_status in (
-        Status.STATUS_OPEN,
         Status.STATUS_RISK_ACCEPTED,
         Status.STATUS_AFFECTED,
     ):
         return CSAF_Status.CSAF_STATUS_AFFECTED
+
+    if secobserve_status == Status.STATUS_OPEN:
+        # An open observation has not been assessed yet, so it is not known whether the product version
+        # is affected. Stating "known_affected" would claim more than we know, and the only remediation
+        # available would be the scanner's generic upgrade recommendation for the component, which users of
+        # the product version cannot apply. Scanners report the finding anyway, as long as there is no
+        # statement for it.
+        return None
 
     if secobserve_status == Status.STATUS_RESOLVED:
         # A resolved observation has only not been found in the latest scan of its branch. At Stackable,
